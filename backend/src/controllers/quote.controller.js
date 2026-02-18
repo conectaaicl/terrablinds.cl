@@ -58,21 +58,39 @@ exports.createQuote = async (req, res) => {
     }
 };
 
-// Get all quotes (admin only)
+// Get all quotes (admin only) - supports pagination
 exports.getAllQuotes = async (req, res) => {
     try {
-        const { status } = req.query;
+        const { status, page, limit: limitParam } = req.query;
         const where = {};
 
-        if (status && ['pending', 'sent', 'accepted', 'rejected', 'completed'].includes(status)) {
+        if (status && ['pending', 'contacted', 'sent', 'accepted', 'rejected', 'completed'].includes(status)) {
             where.status = status;
         }
 
-        const quotes = await Quote.findAll({
+        const queryOptions = {
             where,
             order: [['created_at', 'DESC']]
-        });
+        };
 
+        // Optional pagination: ?page=1&limit=50
+        if (page) {
+            const pageNum = Math.max(1, parseInt(page) || 1);
+            const limit = Math.min(100, Math.max(1, parseInt(limitParam) || 50));
+            queryOptions.limit = limit;
+            queryOptions.offset = (pageNum - 1) * limit;
+
+            const { count, rows } = await Quote.findAndCountAll(queryOptions);
+            return res.json({
+                quotes: rows,
+                total: count,
+                page: pageNum,
+                totalPages: Math.ceil(count / limit)
+            });
+        }
+
+        // No pagination - return all (backwards compatible)
+        const quotes = await Quote.findAll(queryOptions);
         res.json(quotes);
     } catch (error) {
         console.error('Error fetching quotes:', error.message);

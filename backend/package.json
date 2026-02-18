@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "seed": "node src/scripts/seed.js",
+    "seed:admin": "node src/scripts/seedAdmin.js",
+    "seed:config": "node src/scripts/seedConfigs.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,6 +18,7 @@
   "dependencies": {
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
+    "compression": "^1.8.1",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",

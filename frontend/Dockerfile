@@ -1,27 +1,23 @@
-# Dockerfile para Frontend (React + Vite)
-FROM node:20-alpine as build
+# Build stage
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copiar package files
 COPY package*.json ./
-
-# Instalar dependencias
 RUN npm ci
 
-# Copiar código fuente
 COPY . .
 
-# Build de producción
+# Accept API URL as build argument (baked into the bundle)
+ARG VITE_API_URL=
+ENV VITE_API_URL=${VITE_API_URL}
+
 RUN npm run build
 
-# Etapa de producción con nginx
+# Production stage
 FROM nginx:alpine
 
-# Copiar build al nginx
 COPY --from=build /app/dist /usr/share/nginx/html
-
-# Copiar configuración de nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80

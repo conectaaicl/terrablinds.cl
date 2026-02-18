@@ -1,20 +1,27 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
+
+// Trust proxy (behind nginx in Docker)
+app.set('trust proxy', 1);
 
 // Security headers
 app.use(helmet({
     crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Compression
+app.use(compression());
+
 // CORS - restrict to allowed origins
 const allowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
-    : ['http://localhost:5173', 'http://localhost:80'];
+    : ['http://localhost:5173', 'http://localhost'];
 
 app.use(cors({
     origin: function (origin, callback) {
@@ -41,13 +48,26 @@ app.use(globalLimiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Health check
+// Health check with uptime and version
+const startedAt = new Date();
 app.get('/', (req, res) => {
-    res.json({ status: 'ok', service: 'TerraBlinds API' });
+    res.json({
+        status: 'ok',
+        service: 'TerraBlinds API',
+        uptime: Math.floor((Date.now() - startedAt.getTime()) / 1000),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
 });
 
 // Serve static files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+    maxAge: '7d',
+    etag: true
+}));
 
 // Routes
 const productRoutes = require('./routes/product.routes');
