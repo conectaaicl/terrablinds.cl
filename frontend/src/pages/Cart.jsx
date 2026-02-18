@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import { useCart } from '../context/CartContext';
 import { Trash2, Send, CheckCircle, ArrowRight } from 'lucide-react';
 import api from '../api';
@@ -100,6 +101,7 @@ const Cart = () => {
     if (success) {
         return (
             <Layout>
+                <SEO title="Cotización Enviada" description="Tu cotización ha sido enviada exitosamente." path="/cart" />
                 <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
                         <CheckCircle className="w-10 h-10" />
@@ -118,6 +120,11 @@ const Cart = () => {
 
     return (
         <Layout>
+            <SEO
+                title="Tu Cotización"
+                description="Revisa y envía tu solicitud de cotización."
+                path="/cart"
+            />
             <div className="bg-gray-50 py-12 min-h-screen">
                 <div className="container mx-auto px-4">
                     <h1 className="text-3xl font-bold text-gray-900 mb-8">Tu Cotizacion</h1>

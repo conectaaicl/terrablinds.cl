@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock } from 'lucide-react';
 import api from '../api';
 
@@ -38,6 +39,11 @@ const Contact = () => {
 
     return (
         <Layout>
+            <SEO
+                title="Contacto"
+                description="Contáctanos para cotizaciones, visitas técnicas o consultas. Santiago, Chile."
+                path="/contact"
+            />
             <div className="bg-gray-900 text-white py-20">
                 <div className="container mx-auto px-4 text-center">
                     <h1 className="text-4xl font-bold mb-4">Contáctanos</h1>

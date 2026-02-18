@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
+import SEO from '../components/SEO';
 import { Filter } from 'lucide-react';
 import api from '../api';
 
@@ -53,6 +54,19 @@ const Catalog = () => {
 
     return (
         <Layout>
+            <SEO
+                title="Catálogo de Productos"
+                description="Explora nuestra colección de cortinas roller, blackout, sunscreen, persianas y más. Precios por m² con despacho a todo Chile."
+                path="/catalog"
+                jsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": [
+                        { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://terrablinds.cl/" },
+                        { "@type": "ListItem", "position": 2, "name": "Catálogo", "item": "https://terrablinds.cl/catalog" }
+                    ]
+                }}
+            />
             <div className="bg-gray-900 py-16 text-center text-white">
                 <h1 className="text-4xl font-bold mb-4">Catalogo de Productos</h1>
                 <p className="text-gray-400 max-w-xl mx-auto">

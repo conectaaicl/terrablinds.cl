@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Hero from '../components/Hero';
+import SEO from '../components/SEO';
 import { Shield, Clock, Award, PenTool } from 'lucide-react';
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
@@ -19,6 +20,10 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
 const Home = () => {
     return (
         <Layout>
+            <SEO
+                description="Cortinas roller, persianas y toldos a medida. Fabricación premium con instalación experta en todo Chile. Cotiza online gratis."
+                path="/"
+            />
             <Hero />
 
             {/* Benefits Section */}
@@ -66,25 +71,24 @@ const Home = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {/* Placeholders for category cards */}
-                        <div className="group relative overflow-hidden rounded-2xl h-80 cursor-pointer">
+                        <Link to="/catalog?category=Cortinas Roller" className="group relative overflow-hidden rounded-2xl h-80 block">
                             <img src="https://images.unsplash.com/photo-1505691938895-1758d7bab58d?auto=format&fit=crop&w=800&q=80" alt="Cortinas Roller" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Cortinas Roller</h3>
                             </div>
-                        </div>
-                        <div className="group relative overflow-hidden rounded-2xl h-80 cursor-pointer">
+                        </Link>
+                        <Link to="/catalog?category=Blackout" className="group relative overflow-hidden rounded-2xl h-80 block">
                             <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=800&q=80" alt="Blackout" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Blackout</h3>
                             </div>
-                        </div>
-                        <div className="group relative overflow-hidden rounded-2xl h-80 cursor-pointer">
+                        </Link>
+                        <Link to="/catalog?category=Persianas" className="group relative overflow-hidden rounded-2xl h-80 block">
                             <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80" alt="Persianas" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Persianas</h3>
                             </div>
-                        </div>
+                        </Link>
                     </div>
                 </div>
             </section>

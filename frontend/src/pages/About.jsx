@@ -1,10 +1,16 @@
 import React from 'react';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import { Award, Users, PenTool, Smile } from 'lucide-react';
 
 const About = () => {
     return (
         <Layout>
+            <SEO
+                title="Quiénes Somos"
+                description="Conoce a TerraBlinds, especialistas en cortinas y persianas a medida en Chile."
+                path="/about"
+            />
             <div className="bg-gray-50 py-16">
                 <div className="container mx-auto px-4 text-center">
                     <h1 className="text-4xl font-bold text-gray-900 mb-4">Sobre Nosotros</h1>

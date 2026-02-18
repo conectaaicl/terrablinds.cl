@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import { Plus, Trash2, Send, CheckCircle, Calculator } from 'lucide-react';
 import api from '../api';
 import { Link } from 'react-router-dom';
@@ -124,6 +125,7 @@ const Quote = () => {
     if (success) {
         return (
             <Layout>
+                <SEO title="Cotización Enviada" description="Tu cotización ha sido enviada exitosamente." path="/quote" />
                 <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center">
                     <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
                         <CheckCircle className="w-10 h-10" />
@@ -142,6 +144,11 @@ const Quote = () => {
 
     return (
         <Layout>
+            <SEO
+                title="Cotizador Express"
+                description="Cotiza tus cortinas y persianas online. Calcula precios al instante y recibe tu presupuesto por email."
+                path="/quote"
+            />
             <div className="bg-gray-50 py-12 min-h-screen">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-10">

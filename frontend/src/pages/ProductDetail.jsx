@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
+import SEO from '../components/SEO';
 import ProductCalculator from '../components/ProductCalculator';
 import { Check, Shield, Truck, PenTool } from 'lucide-react';
 import api from '../api';
@@ -61,8 +62,40 @@ const ProductDetail = () => {
         );
     }
 
+    const productJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description || product.short_description,
+        "image": product.images?.[0],
+        "brand": { "@type": "Brand", "name": "TerraBlinds" },
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "CLP",
+            "price": product.is_unit_price ? product.price_unit : product.base_price_m2,
+            "availability": "https://schema.org/InStock"
+        }
+    };
+
+    const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://terrablinds.cl/" },
+            { "@type": "ListItem", "position": 2, "name": "Catálogo", "item": "https://terrablinds.cl/catalog" },
+            { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://terrablinds.cl/product/${id}` }
+        ]
+    };
+
     return (
         <Layout>
+            <SEO
+                title={product.name}
+                description={product.description || product.short_description || `${product.name} - Cortinas y persianas a medida en TerraBlinds.`}
+                path={`/product/${id}`}
+                image={product.images?.[0]}
+                jsonLd={[productJsonLd, breadcrumbJsonLd]}
+            />
             <div className="bg-gray-50 py-12">
                 <div className="container mx-auto px-4">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -82,7 +115,7 @@ const ProductDetail = () => {
                                         onClick={() => setActiveImage(idx)}
                                         className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary-600 ring-2 ring-primary-100' : 'border-transparent hover:border-gray-300'}`}
                                     >
-                                        <img src={img} alt="" className="w-full h-full object-cover" />
+                                        <img src={img} alt={`${product.name} - vista ${idx + 1}`} className="w-full h-full object-cover" />
                                     </button>
                                 ))}
                             </div>
