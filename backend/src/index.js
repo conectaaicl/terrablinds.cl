@@ -3,26 +3,31 @@ const app = require('./app');
 const { sequelize } = require('./models');
 
 const PORT = process.env.PORT || 5000;
+const isProduction = process.env.NODE_ENV === 'production';
 
 async function startServer() {
     try {
-        console.log('🚀 Starting TerraBlinds Backend Server...');
+        console.log('Starting TerraBlinds Backend Server...');
 
         // Test database connection
         await sequelize.authenticate();
-        console.log('✅ Database connection established successfully.');
+        console.log('Database connection established successfully.');
 
-        // Sync models (create tables if they don't exist)
-        await sequelize.sync({ alter: true }); // Use { force: true } to drop and recreate tables
-        console.log('✅ Database models synchronized.');
+        // In development, sync models automatically
+        // In production, use migrations instead
+        if (!isProduction) {
+            await sequelize.sync({ alter: true });
+            console.log('Database models synchronized (development mode).');
+        } else {
+            console.log('Production mode: skipping auto-sync. Use migrations.');
+        }
 
         app.listen(PORT, () => {
-            console.log(`✅ Server is running on http://localhost:${PORT}`);
-            console.log(`📡 API available at http://localhost:${PORT}/api`);
-            console.log(`🗄️  Database: ${process.env.DB_NAME || 'terrablinds_db'}`);
+            console.log(`Server is running on port ${PORT}`);
+            console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
         });
     } catch (error) {
-        console.error('❌ Unable to start server:', error);
+        console.error('Unable to start server:', error);
         process.exit(1);
     }
 }

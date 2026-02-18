@@ -1,24 +1,28 @@
 require('dotenv').config();
-const bcrypt = require('bcryptjs');
 const { sequelize, Product, User, Config } = require('../models');
 
 const seedData = async () => {
     try {
-        console.log('🌱 Starting database seed...');
+        console.log('Starting database seed...');
+
+        const adminPassword = process.env.ADMIN_PASSWORD;
+        if (!adminPassword || adminPassword.length < 8) {
+            console.error('ADMIN_PASSWORD env variable must be set (min 8 characters)');
+            process.exit(1);
+        }
 
         // Sync database (create tables)
         await sequelize.sync({ force: true }); // WARNING: This drops all tables
-        console.log('✅ Database synced');
+        console.log('Database synced');
 
-        // Create admin user
-        const hashedPassword = await bcrypt.hash('admin123', 10);
+        // Create admin user (password hashed automatically by model hook)
         await User.create({
-            email: 'admin@terrablinds.cl',
-            password: hashedPassword,
-            name: 'Admin',
+            email: process.env.ADMIN_EMAIL || 'admin@terrablinds.cl',
+            password: adminPassword,
+            name: 'Administrador',
             role: 'admin'
         });
-        console.log('✅ Admin user created');
+        console.log('Admin user created');
 
         // Create products - COMPREHENSIVE CATALOG (31 products)
         const products = [
@@ -434,7 +438,7 @@ const seedData = async () => {
         ];
 
         await Product.bulkCreate(products);
-        console.log(`✅ ${products.length} products created`);
+        console.log(`${products.length} products created`);
 
         // Create config
         await Config.bulkCreate([
@@ -442,12 +446,12 @@ const seedData = async () => {
             { key: 'company_email', value: 'contacto@terrablinds.cl', type: 'string' },
             { key: 'logo_url', value: '', type: 'string' }
         ]);
-        console.log('✅ Config created');
+        console.log('Config created');
 
-        console.log('🎉 Seed completed successfully!');
+        console.log('Seed completed successfully!');
         process.exit(0);
     } catch (error) {
-        console.error('❌ Seed failed:', error);
+        console.error('Seed failed:', error);
         process.exit(1);
     }
 };

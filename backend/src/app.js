@@ -1,55 +1,84 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 
 const app = express();
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+
+// CORS - restrict to allowed origins
+const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+    : ['http://localhost:5173', 'http://localhost:80'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
+// Global rate limiting
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+app.use(globalLimiter);
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Basic config endpoint (handled by config.routes.js)
-
+// Health check
 app.get('/', (req, res) => {
-    res.json({ message: 'TerraBlinds API is running' });
+    res.json({ status: 'ok', service: 'TerraBlinds API' });
 });
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
-// Routes - with error handling
-try {
-    const productRoutes = require('./routes/product.routes');
-    app.use('/api/products', productRoutes);
-} catch (e) { console.log('Product routes not loaded:', e.message); }
+// Routes
+const productRoutes = require('./routes/product.routes');
+const quoteRoutes = require('./routes/quote.routes');
+const authRoutes = require('./routes/auth.routes');
+const configRoutes = require('./routes/config.routes');
+const uploadRoutes = require('./routes/upload.routes');
+const flowRoutes = require('./routes/flow.routes');
+const contactRoutes = require('./routes/contact.routes');
 
-try {
-    const quoteRoutes = require('./routes/quote.routes');
-    app.use('/api/quotes', quoteRoutes);
-} catch (e) { console.log('Quote routes not loaded:', e.message); }
+app.use('/api/products', productRoutes);
+app.use('/api/quotes', quoteRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/payment', flowRoutes);
+app.use('/api/contact', contactRoutes);
 
-try {
-    const authRoutes = require('./routes/auth.routes');
-    app.use('/api/auth', authRoutes);
-} catch (e) { console.log('Auth routes not loaded:', e.message); }
-
-try {
-    const configRoutes = require('./routes/config.routes');
-    app.use('/api/config', configRoutes);
-} catch (e) { console.log('Config routes not loaded:', e.message); }
-
-try {
-    const uploadRoutes = require('./routes/upload.routes');
-    app.use('/api/upload', uploadRoutes);
-} catch (e) { console.log('Upload routes not loaded:', e.message); }
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({
-        error: 'Something went wrong!',
-        message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    console.error(`[${new Date().toISOString()}] Error:`, err.message);
+    if (process.env.NODE_ENV === 'development') {
+        console.error(err.stack);
+    }
+    res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
     });
 });
 

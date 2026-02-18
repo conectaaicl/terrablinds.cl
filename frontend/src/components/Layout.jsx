@@ -2,30 +2,33 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Phone, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import api from '../api';
 
 const Layout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const [whatsappNumber, setWhatsappNumber] = React.useState('');
     const [logoUrl, setLogoUrl] = React.useState('');
+    const [companyPhone, setCompanyPhone] = React.useState('');
     const { cartCount } = useCart();
 
     React.useEffect(() => {
         const storedLogo = localStorage.getItem('company_logo');
         if (storedLogo) setLogoUrl(storedLogo);
 
-        fetch('http://localhost:5000/api/config/public')
-            .then(res => res.json())
-            .then(data => {
+        api.get('/api/config/public')
+            .then(res => {
+                const data = res.data;
                 if (data.whatsapp_number) setWhatsappNumber(data.whatsapp_number);
-                else setWhatsappNumber('56912345678');
-
+                if (data.company_phone) setCompanyPhone(data.company_phone);
                 if (data.logo_url && !storedLogo) setLogoUrl(data.logo_url);
             })
             .catch(err => {
                 console.error('Error fetching config', err);
-                setWhatsappNumber('56912345678');
             });
     }, []);
+
+    const phoneDisplay = companyPhone || '';
+    const waNumber = whatsappNumber || '';
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -47,10 +50,12 @@ const Layout = ({ children }) => {
                     </nav>
 
                     <div className="hidden md:flex items-center space-x-4">
-                        <a href="https://wa.me/56912345678" target="_blank" rel="noopener noreferrer" className="flex items-center text-gray-600 hover:text-green-600 transition-colors">
-                            <Phone className="w-5 h-5 mr-2" />
-                            <span>+56 9 1234 5678</span>
-                        </a>
+                        {waNumber && (
+                            <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer" className="flex items-center text-gray-600 hover:text-green-600 transition-colors">
+                                <Phone className="w-5 h-5 mr-2" />
+                                {phoneDisplay && <span>{phoneDisplay}</span>}
+                            </a>
+                        )}
                         <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
                             <ShoppingCart className="w-6 h-6" />
                             {cartCount > 0 && (
@@ -75,6 +80,9 @@ const Layout = ({ children }) => {
                         <Link to="/catalog" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Catálogo</Link>
                         <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
+                        <Link to="/cart" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>
+                            Cotización ({cartCount})
+                        </Link>
                     </div>
                 )}
             </header>
@@ -113,9 +121,8 @@ const Layout = ({ children }) => {
                     <div>
                         <h4 className="font-semibold mb-4">Contacto</h4>
                         <ul className="space-y-2 text-gray-400 text-sm">
-                            <li>Av. Providencia 1234, Santiago</li>
                             <li>contacto@terrablinds.cl</li>
-                            <li>+56 9 1234 5678</li>
+                            {phoneDisplay && <li>{phoneDisplay}</li>}
                         </ul>
                     </div>
                 </div>
@@ -123,9 +130,9 @@ const Layout = ({ children }) => {
                     &copy; {new Date().getFullYear()} TerraBlinds.cl. Todos los derechos reservados.
                 </div>
             </footer>
-            {whatsappNumber && (
+            {waNumber && (
                 <a
-                    href={`https://wa.me/${whatsappNumber}`}
+                    href={`https://wa.me/${waNumber}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="fixed bottom-6 right-6 z-40 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-110 flex items-center justify-center"

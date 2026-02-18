@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api';
 import { Lock, User } from 'lucide-react';
 
 const AdminLogin = () => {
@@ -16,29 +16,12 @@ const AdminLogin = () => {
         setError('');
 
         try {
-            // Mock Login Bypass for Demo
-            if (email === 'admin@terrablinds.cl' && password === 'admin123') {
-                localStorage.setItem('terrablinds_token', 'mock-token-123');
-                navigate('/admin');
-                return;
-            }
-
-            const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-
-            // Save token
+            const res = await api.post('/api/auth/login', { email, password });
             localStorage.setItem('terrablinds_token', res.data.token);
-
-            // Redirect to dashboard
             navigate('/admin');
         } catch (err) {
-            console.error(err);
-            // Fallback for demo if backend is offline but creds match
-            if (email === 'admin@terrablinds.cl' && password === 'admin123') {
-                localStorage.setItem('terrablinds_token', 'mock-token-123');
-                navigate('/admin');
-            } else {
-                setError('Credenciales inválidas. Por favor intente nuevamente.');
-            }
+            const message = err.response?.data?.error || 'Error de conexion. Intente nuevamente.';
+            setError(message);
         } finally {
             setLoading(false);
         }
@@ -54,8 +37,8 @@ const AdminLogin = () => {
                     </div>
 
                     {error && (
-                        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm flex items-center">
-                            <span className="mr-2">⚠️</span> {error}
+                        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-6 text-sm">
+                            {error}
                         </div>
                     )}
 
@@ -78,7 +61,7 @@ const AdminLogin = () => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Lock className="h-5 w-5 text-gray-400" />
@@ -89,7 +72,7 @@ const AdminLogin = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                                    placeholder="••••••••"
+                                    placeholder="********"
                                 />
                             </div>
                         </div>
@@ -102,14 +85,14 @@ const AdminLogin = () => {
                             {loading ? (
                                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                             ) : (
-                                'Iniciar Sesión'
+                                'Iniciar Sesion'
                             )}
                         </button>
                     </form>
                 </div>
                 <div className="bg-gray-50 px-8 py-4 border-t border-gray-100 text-center">
                     <p className="text-xs text-gray-400">
-                        &copy; {new Date().getFullYear()} TerraBlinds.cl System
+                        &copy; {new Date().getFullYear()} TerraBlinds.cl
                     </p>
                 </div>
             </div>

@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const configController = require('../controllers/config.controller');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 
-router.get('/', configController.getAllConfig);
+// Public route - only safe, non-sensitive config
 router.get('/public', configController.getPublicConfig);
-router.put('/', configController.updateConfig); // TODO: Add auth middleware
+
+// Admin-only routes
+router.get('/', protect, restrictTo('admin'), configController.getAllConfig);
+router.put('/', protect, restrictTo('admin'), configController.updateConfig);
 
 module.exports = router;

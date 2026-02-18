@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -24,14 +24,14 @@ const AdminDashboard = () => {
     const fetchDashboardData = async () => {
         setLoading(true);
         try {
-            // Fetch products
-            const productsRes = await axios.get('http://localhost:5000/api/products');
-            const products = productsRes.data;
-            const activeProducts = products.filter(p => p.is_active).length;
+            const [productsRes, quotesRes] = await Promise.all([
+                api.get('/api/products'),
+                api.get('/api/quotes')
+            ]);
 
-            // Fetch quotes
-            const quotesRes = await axios.get('http://localhost:5000/api/quotes');
+            const products = productsRes.data;
             const quotes = quotesRes.data;
+            const activeProducts = products.filter(p => p.is_active).length;
             const pendingQuotes = quotes.filter(q => q.status === 'pending').length;
 
             const sevenDaysAgo = new Date();
@@ -100,47 +100,17 @@ const AdminDashboard = () => {
             {loading ? (
                 <div className="text-center py-20">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                    <p className="text-gray-500 mt-4">Calculando estadísticas reales...</p>
+                    <p className="text-gray-500 mt-4">Calculando estadísticas...</p>
                 </div>
             ) : (
                 <div className="space-y-8">
-                    {/* Primary Stats */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <StatCard
-                            title="Cotizaciones Totales"
-                            value={stats.totalQuotes}
-                            icon={ShoppingCart}
-                            color="bg-blue-600"
-                            onClick={() => navigate('/admin/quotes')}
-                            subtitle="Histórico de solicitudes"
-                        />
-                        <StatCard
-                            title="Leads Nuevos"
-                            value={stats.newLeads}
-                            icon={Users}
-                            color="bg-green-600"
-                            onClick={() => navigate('/admin/quotes')}
-                            subtitle="Últimos 7 días"
-                        />
-                        <StatCard
-                            title="Productos Activos"
-                            value={stats.activeProducts}
-                            icon={Package}
-                            color="bg-purple-600"
-                            onClick={() => navigate('/admin/products')}
-                            subtitle="Catálogo publicado"
-                        />
-                        <StatCard
-                            title="Pendientes"
-                            value={stats.pendingQuotes}
-                            icon={Clock}
-                            color="bg-orange-600"
-                            onClick={() => navigate('/admin/quotes')}
-                            subtitle="Requieren seguimiento"
-                        />
+                        <StatCard title="Cotizaciones Totales" value={stats.totalQuotes} icon={ShoppingCart} color="bg-blue-600" onClick={() => navigate('/admin/quotes')} subtitle="Histórico de solicitudes" />
+                        <StatCard title="Leads Nuevos" value={stats.newLeads} icon={Users} color="bg-green-600" onClick={() => navigate('/admin/quotes')} subtitle="Últimos 7 días" />
+                        <StatCard title="Productos Activos" value={stats.activeProducts} icon={Package} color="bg-purple-600" onClick={() => navigate('/admin/products')} subtitle="Catálogo publicado" />
+                        <StatCard title="Pendientes" value={stats.pendingQuotes} icon={Clock} color="bg-orange-600" onClick={() => navigate('/admin/quotes')} subtitle="Requieren seguimiento" />
                     </div>
 
-                    {/* Secondary Stats (Visual Highlight) */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
                             <div>
@@ -169,14 +139,10 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Recent Content */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center">
                             <h2 className="font-bold text-gray-900 text-lg">Cotizaciones Recientes</h2>
-                            <button
-                                onClick={() => navigate('/admin/quotes')}
-                                className="text-primary-600 hover:text-primary-700 text-sm font-semibold"
-                            >
+                            <button onClick={() => navigate('/admin/quotes')} className="text-primary-600 hover:text-primary-700 text-sm font-semibold">
                                 Gestionar todas
                             </button>
                         </div>
@@ -198,38 +164,33 @@ const AdminDashboard = () => {
                                                 No hay actividad reciente para mostrar.
                                             </td>
                                         </tr>
-                                    ) : (
-                                        recentQuotes.map((quote) => (
-                                            <tr key={quote.id} className="hover:bg-gray-50 transition-colors">
-                                                <td className="px-6 py-4">
-                                                    <div className="font-medium text-gray-900">{quote.customer_name}</div>
-                                                    <div className="text-xs text-gray-500">{quote.customer_email}</div>
-                                                </td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">
-                                                    {new Date(quote.created_at).toLocaleDateString('es-CL')}
-                                                </td>
-                                                <td className="px-6 py-4 text-sm font-bold text-gray-900">
-                                                    ${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${quote.status === 'pending' ? 'bg-orange-100 text-orange-700' :
-                                                        quote.status === 'accepted' ? 'bg-green-100 text-green-700' :
-                                                            'bg-gray-100 text-gray-700'
-                                                        }`}>
-                                                        {quote.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 text-right">
-                                                    <button
-                                                        onClick={() => navigate('/admin/quotes')}
-                                                        className="text-primary-600 hover:text-primary-700 p-1"
-                                                    >
-                                                        <ArrowRight className="w-5 h-5" />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
+                                    ) : recentQuotes.map((quote) => (
+                                        <tr key={quote.id} className="hover:bg-gray-50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="font-medium text-gray-900">{quote.customer_name}</div>
+                                                <div className="text-xs text-gray-500">{quote.customer_email}</div>
+                                            </td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">
+                                                {new Date(quote.created_at).toLocaleDateString('es-CL')}
+                                            </td>
+                                            <td className="px-6 py-4 text-sm font-bold text-gray-900">
+                                                ${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${quote.status === 'pending' ? 'bg-orange-100 text-orange-700' :
+                                                    quote.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                                                        'bg-gray-100 text-gray-700'
+                                                    }`}>
+                                                    {quote.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button onClick={() => navigate('/admin/quotes')} className="text-primary-600 hover:text-primary-700 p-1">
+                                                    <ArrowRight className="w-5 h-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
                         </div>

@@ -3,7 +3,6 @@ const { User } = require('../models');
 
 exports.protect = async (req, res, next) => {
     try {
-        // 1) Getting token and check of it's there
         let token;
         if (
             req.headers.authorization &&
@@ -13,31 +12,36 @@ exports.protect = async (req, res, next) => {
         }
 
         if (!token) {
-            return res.status(401).json({ message: 'You are not logged in! Please log in to get access.' });
+            return res.status(401).json({ error: 'Authentication required' });
         }
 
-        // 2) Verification token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const secret = process.env.JWT_SECRET;
+        if (!secret || secret === 'your-super-secret-jwt-key-change-this-in-production') {
+            console.error('JWT_SECRET is not properly configured');
+            return res.status(500).json({ error: 'Server configuration error' });
+        }
 
-        // 3) Check if user still exists
+        const decoded = jwt.verify(token, secret);
+
         const currentUser = await User.findByPk(decoded.id);
-        if (!currentUser) {
-            return res.status(401).json({ message: 'The user belonging to this token does no longer exist.' });
+        if (!currentUser || !currentUser.is_active) {
+            return res.status(401).json({ error: 'User no longer exists or is inactive' });
         }
 
-        // GRANT ACCESS TO PROTECTED ROUTE
         req.user = currentUser;
         next();
     } catch (error) {
-        res.status(401).json({ message: 'Invalid token' });
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({ error: 'Token expired, please log in again' });
+        }
+        res.status(401).json({ error: 'Invalid token' });
     }
 };
 
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
-        // roles ['admin', 'lead-guide']. role='user'
         if (!roles.includes(req.user.role)) {
-            return res.status(403).json({ message: 'You do not have permission to perform this action' });
+            return res.status(403).json({ error: 'You do not have permission to perform this action' });
         }
         next();
     };

@@ -2,13 +2,20 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Ruler } from 'lucide-react';
 
+const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const ProductCard = ({ product }) => {
+    const getImageUrl = (img) => {
+        if (!img) return '';
+        return img.startsWith('http') ? img : `${baseUrl}${img}`;
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden group">
             <div className="relative h-64 overflow-hidden">
                 {product.images && product.images.length > 0 ? (
                     <img
-                        src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+                        src={getImageUrl(product.images[0])}
                         alt={product.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

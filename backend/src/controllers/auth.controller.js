@@ -1,31 +1,39 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+
+const getJwtSecret = () => {
+    const secret = process.env.JWT_SECRET;
+    if (!secret || secret === 'your-super-secret-jwt-key-change-this-in-production') {
+        throw new Error('JWT_SECRET must be set to a secure value in production');
+    }
+    return secret;
+};
 
 // Login
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find user
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+
         const user = await User.findOne({ where: { email } });
 
-        if (!user) {
+        if (!user || !user.is_active) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Check password
-        const isValidPassword = await bcrypt.compare(password, user.password);
+        const isValidPassword = await user.comparePassword(password);
 
         if (!isValidPassword) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Generate JWT
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
-            process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '7d' }
+            getJwtSecret(),
+            { expiresIn: '24h' }
         );
 
         res.json({
@@ -38,7 +46,7 @@ exports.login = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login error:', error.message);
         res.status(500).json({ error: 'Login failed' });
     }
 };
@@ -52,10 +60,10 @@ exports.verifyToken = async (req, res) => {
             return res.status(401).json({ error: 'No token provided' });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        const decoded = jwt.verify(token, getJwtSecret());
         const user = await User.findByPk(decoded.id);
 
-        if (!user) {
+        if (!user || !user.is_active) {
             return res.status(401).json({ error: 'Invalid token' });
         }
 

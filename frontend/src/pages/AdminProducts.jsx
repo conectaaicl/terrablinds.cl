@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Plus, Edit, Trash2, Search, X, Image as ImageIcon, CheckCircle, Save } from 'lucide-react';
-import axios from 'axios';
+import api from '../api';
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
@@ -24,8 +24,10 @@ const AdminProducts = () => {
         images: []
     });
     const [newFeature, setNewFeature] = useState('');
-    const [uploading, setUploading] = useState(false);
     const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
     const categories = [
         'Roller Blackout',
@@ -43,7 +45,7 @@ const AdminProducts = () => {
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const res = await axios.get('http://localhost:5000/api/products');
+            const res = await api.get('/api/products');
             const data = res.data.map(p => {
                 if (typeof p.images === 'string') try { p.images = JSON.parse(p.images); } catch (e) { p.images = []; }
                 if (typeof p.features === 'string') try { p.features = JSON.parse(p.features); } catch (e) { p.features = []; }
@@ -82,6 +84,8 @@ const AdminProducts = () => {
                 images: []
             });
         }
+        setSuccessMessage('');
+        setErrorMessage('');
         setIsModalOpen(true);
     };
 
@@ -121,16 +125,15 @@ const AdminProducts = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        const token = localStorage.getItem('terrablinds_token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
+        setErrorMessage('');
 
         try {
             if (editingProduct) {
-                await axios.put(`http://localhost:5000/api/products/${editingProduct.id}`, formData, config);
-                setSuccessMessage('¡Producto actualizado con éxito!');
+                await api.put(`/api/products/${editingProduct.id}`, formData);
+                setSuccessMessage('Producto actualizado con éxito.');
             } else {
-                await axios.post('http://localhost:5000/api/products', formData, config);
-                setSuccessMessage('¡Producto creado con éxito!');
+                await api.post('/api/products', formData);
+                setSuccessMessage('Producto creado con éxito.');
             }
             fetchProducts();
             setTimeout(() => {
@@ -139,7 +142,7 @@ const AdminProducts = () => {
             }, 1000);
         } catch (err) {
             console.error('Error saving product', err);
-            alert('Error al guardar el producto');
+            setErrorMessage(err.response?.data?.error || 'Error al guardar el producto.');
         } finally {
             setLoading(false);
         }
@@ -147,16 +150,19 @@ const AdminProducts = () => {
 
     const handleDelete = async (id) => {
         if (window.confirm('¿Estás seguro de que quieres eliminar este producto?')) {
-            const token = localStorage.getItem('terrablinds_token');
             try {
-                await axios.delete(`http://localhost:5000/api/products/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
+                await api.delete(`/api/products/${id}`);
                 fetchProducts();
             } catch (err) {
                 console.error('Error deleting product', err);
+                alert(err.response?.data?.error || 'Error al eliminar el producto.');
             }
         }
+    };
+
+    const getImageUrl = (img) => {
+        if (!img) return '';
+        return img.startsWith('http') ? img : `${baseUrl}${img}`;
     };
 
     const filteredProducts = products.filter(p =>
@@ -221,7 +227,7 @@ const AdminProducts = () => {
                                         <div className="flex items-center">
                                             <div className="w-10 h-10 rounded bg-gray-100 mr-3 flex items-center justify-center overflow-hidden">
                                                 {product.images && product.images[0] ? (
-                                                    <img src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`} alt="" className="w-full h-full object-cover" />
+                                                    <img src={getImageUrl(product.images[0])} alt="" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <ImageIcon className="w-5 h-5 text-gray-400" />
                                                 )}
@@ -243,16 +249,10 @@ const AdminProducts = () => {
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <button
-                                            onClick={() => handleOpenModal(product)}
-                                            className="text-primary-600 hover:text-primary-700 p-1 mr-2"
-                                        >
+                                        <button onClick={() => handleOpenModal(product)} className="text-primary-600 hover:text-primary-700 p-1 mr-2">
                                             <Edit className="w-5 h-5" />
                                         </button>
-                                        <button
-                                            onClick={() => handleDelete(product.id)}
-                                            className="text-red-500 hover:text-red-600 p-1"
-                                        >
+                                        <button onClick={() => handleDelete(product.id)} className="text-red-500 hover:text-red-600 p-1">
                                             <Trash2 className="w-5 h-5" />
                                         </button>
                                     </td>
@@ -282,48 +282,29 @@ const AdminProducts = () => {
                                         <h3 className="text-sm font-bold text-primary-600 uppercase tracking-wider">Información Principal</h3>
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Nombre del Producto</label>
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                required
-                                                placeholder="Ej: Roller Blackout Premium"
+                                            <input type="text" name="name" required placeholder="Ej: Roller Blackout Premium"
                                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                                value={formData.name}
-                                                onChange={handleInputChange}
-                                            />
+                                                value={formData.name} onChange={handleInputChange} />
                                         </div>
 
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">Categoría</label>
-                                            <select
-                                                name="category"
+                                            <select name="category"
                                                 className="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                                                value={formData.category}
-                                                onChange={handleInputChange}
-                                            >
+                                                value={formData.category} onChange={handleInputChange}>
                                                 {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                             </select>
                                         </div>
 
                                         <div className="flex items-center space-x-6 bg-primary-50 p-4 rounded-xl border border-primary-100">
                                             <label className="flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    name="is_unit_price"
-                                                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                                                    checked={formData.is_unit_price}
-                                                    onChange={handleInputChange}
-                                                />
+                                                <input type="checkbox" name="is_unit_price" className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                                    checked={formData.is_unit_price} onChange={handleInputChange} />
                                                 <span className="ml-2 text-sm font-bold text-primary-700 uppercase tracking-tight">Precio por Unidad</span>
                                             </label>
                                             <label className="flex items-center cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    name="is_active"
-                                                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                                                    checked={formData.is_active}
-                                                    onChange={handleInputChange}
-                                                />
+                                                <input type="checkbox" name="is_active" className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                                                    checked={formData.is_active} onChange={handleInputChange} />
                                                 <span className="ml-2 text-sm font-bold text-primary-700 uppercase tracking-tight">Activo</span>
                                             </label>
                                         </div>
@@ -331,24 +312,15 @@ const AdminProducts = () => {
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-2">{formData.is_unit_price ? 'Precio Unitario ($)' : 'Precio m² ($)'}</label>
-                                                <input
-                                                    type="number"
-                                                    name={formData.is_unit_price ? 'price_unit' : 'base_price_m2'}
-                                                    required
+                                                <input type="number" name={formData.is_unit_price ? 'price_unit' : 'base_price_m2'} required
                                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500 font-bold text-gray-900"
-                                                    value={formData.is_unit_price ? formData.price_unit : formData.base_price_m2}
-                                                    onChange={handleInputChange}
-                                                />
+                                                    value={formData.is_unit_price ? formData.price_unit : formData.base_price_m2} onChange={handleInputChange} />
                                             </div>
                                             <div>
                                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Disponible</label>
-                                                <input
-                                                    type="number"
-                                                    name="stock"
+                                                <input type="number" name="stock"
                                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
-                                                    value={formData.stock}
-                                                    onChange={handleInputChange}
-                                                />
+                                                    value={formData.stock} onChange={handleInputChange} />
                                             </div>
                                         </div>
                                     </div>
@@ -357,41 +329,25 @@ const AdminProducts = () => {
                                 <div className="space-y-6">
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Resumen Corto</label>
-                                        <input
-                                            type="text"
-                                            name="short_description"
+                                        <input type="text" name="short_description"
                                             className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
-                                            value={formData.short_description}
-                                            onChange={handleInputChange}
-                                        />
+                                            value={formData.short_description} onChange={handleInputChange} />
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Descripción Completa</label>
-                                        <textarea
-                                            name="description"
-                                            rows="4"
+                                        <textarea name="description" rows="4"
                                             className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary-500 resize-none"
-                                            value={formData.description}
-                                            onChange={handleInputChange}
-                                        ></textarea>
+                                            value={formData.description} onChange={handleInputChange}></textarea>
                                     </div>
 
                                     <div>
                                         <label className="block text-sm font-semibold text-gray-700 mb-2">Características</label>
                                         <div className="flex space-x-2 mb-2">
-                                            <input
-                                                type="text"
-                                                className="flex-1 px-4 py-2 border rounded-lg outline-none"
-                                                placeholder="Ej: Bloqueo 100% luz"
-                                                value={newFeature}
-                                                onChange={(e) => setNewFeature(e.target.value)}
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={handleAddFeature}
-                                                className="bg-gray-100 px-4 rounded-lg hover:bg-gray-200"
-                                            >
+                                            <input type="text" className="flex-1 px-4 py-2 border rounded-lg outline-none" placeholder="Ej: Bloqueo 100% luz"
+                                                value={newFeature} onChange={(e) => setNewFeature(e.target.value)}
+                                                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddFeature(); } }} />
+                                            <button type="button" onClick={handleAddFeature} className="bg-gray-100 px-4 rounded-lg hover:bg-gray-200">
                                                 <Plus className="w-5 h-5" />
                                             </button>
                                         </div>
@@ -399,7 +355,7 @@ const AdminProducts = () => {
                                             {formData.features.map((feature, idx) => (
                                                 <span key={idx} className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-medium flex items-center">
                                                     {feature}
-                                                    <button onClick={() => handleRemoveFeature(idx)} className="ml-2">
+                                                    <button type="button" onClick={() => handleRemoveFeature(idx)} className="ml-2">
                                                         <X className="w-3 h-3" />
                                                     </button>
                                                 </span>
@@ -411,11 +367,16 @@ const AdminProducts = () => {
                         </form>
 
                         <div className="p-6 border-t border-gray-100 bg-gray-50 flex justify-between items-center">
-                            {successMessage && (
-                                <p className="text-green-600 font-medium flex items-center">
-                                    <CheckCircle className="w-5 h-5 mr-2" /> {successMessage}
-                                </p>
-                            )}
+                            <div>
+                                {successMessage && (
+                                    <p className="text-green-600 font-medium flex items-center">
+                                        <CheckCircle className="w-5 h-5 mr-2" /> {successMessage}
+                                    </p>
+                                )}
+                                {errorMessage && (
+                                    <p className="text-red-600 font-medium text-sm">{errorMessage}</p>
+                                )}
+                            </div>
                             <div className="ml-auto flex space-x-3">
                                 <button type="button" onClick={handleCloseModal} className="px-6 py-2 border rounded-lg hover:bg-white transition-colors">Cancelar</button>
                                 <button
