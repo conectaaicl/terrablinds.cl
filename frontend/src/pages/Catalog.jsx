@@ -23,7 +23,7 @@ const Catalog = () => {
                     if (typeof p.images === 'string') try { p.images = JSON.parse(p.images); } catch (e) { p.images = []; }
                     if (typeof p.features === 'string') try { p.features = JSON.parse(p.features); } catch (e) { p.features = []; }
                     if (Array.isArray(p.images)) {
-                        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                        const baseUrl = import.meta.env.VITE_API_URL;
                         p.images = p.images.map(img =>
                             img.startsWith('http') ? img : `${baseUrl}${img}`
                         );

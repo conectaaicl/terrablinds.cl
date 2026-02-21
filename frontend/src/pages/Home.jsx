@@ -72,20 +72,20 @@ const Home = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <Link to="/catalog?category=Cortinas Roller" className="group relative overflow-hidden rounded-2xl h-80 block">
-                            <img src="https://images.unsplash.com/photo-1505691938895-1758d7bab58d?auto=format&fit=crop&w=800&q=80" alt="Cortinas Roller" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-800 to-blue-950 transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Cortinas Roller</h3>
                             </div>
                         </Link>
                         <Link to="/catalog?category=Blackout" className="group relative overflow-hidden rounded-2xl h-80 block">
-                            <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?auto=format&fit=crop&w=800&q=80" alt="Blackout" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                            <div className="absolute inset-0 bg-gradient-to-br from-gray-800 to-gray-950 transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Blackout</h3>
                             </div>
                         </Link>
                         <Link to="/catalog?category=Persianas" className="group relative overflow-hidden rounded-2xl h-80 block">
-                            <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80" alt="Persianas" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-8">
+                            <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-950 transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-8">
                                 <h3 className="text-white text-2xl font-bold">Persianas</h3>
                             </div>
                         </Link>

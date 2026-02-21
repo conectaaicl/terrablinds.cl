@@ -22,12 +22,8 @@ const About = () => {
 
             <div className="container mx-auto px-4 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <img
-                            src="https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=800&q=80"
-                            alt="Nuestro Taller"
-                            className="rounded-xl shadow-lg"
-                        />
+                    <div className="rounded-xl shadow-lg bg-gradient-to-br from-gray-700 to-gray-900 h-80 flex items-center justify-center">
+                        <PenTool className="w-24 h-24 text-white/20" />
                     </div>
                     <div>
                         <span className="text-primary-600 font-bold uppercase tracking-wide text-sm">Nuestra Historia</span>

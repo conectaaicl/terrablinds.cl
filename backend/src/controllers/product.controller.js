@@ -30,10 +30,9 @@ exports.getAllProducts = async (req, res) => {
 
         if (search) {
             const searchTerm = String(search).substring(0, 100);
-            const searchOperator = Product.sequelize.options.dialect === 'sqlite' ? Op.like : Op.iLike;
             where[Op.or] = [
-                { name: { [searchOperator]: `%${searchTerm}%` } },
-                { description: { [searchOperator]: `%${searchTerm}%` } }
+                { name: { [Op.iLike]: `%${searchTerm}%` } },
+                { description: { [Op.iLike]: `%${searchTerm}%` } }
             ];
         }
 

@@ -13,7 +13,7 @@ const ProductDetail = () => {
     const [error, setError] = useState(null);
     const [activeImage, setActiveImage] = useState(0);
 
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const baseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         const fetchProduct = async () => {

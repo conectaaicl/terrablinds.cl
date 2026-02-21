@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Ruler } from 'lucide-react';
 
-const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const baseUrl = import.meta.env.VITE_API_URL;
 
 const ProductCard = ({ product }) => {
     const getImageUrl = (img) => {

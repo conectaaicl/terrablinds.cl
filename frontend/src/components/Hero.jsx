@@ -5,14 +5,7 @@ import { ChevronRight } from 'lucide-react';
 const Hero = () => {
     return (
         <div className="relative bg-gray-900 text-white overflow-hidden">
-            {/* Background Image - Placeholder */}
-            <div className="absolute inset-0">
-                <img
-                    src="https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
-                    alt="Modern living room with blinds"
-                    className="w-full h-full object-cover opacity-40"
-                />
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-primary-900 opacity-90" />
 
             <div className="relative container mx-auto px-4 py-32 md:py-48 flex flex-col items-center text-center">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6 animate-fade-in-up">

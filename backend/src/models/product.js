@@ -39,11 +39,11 @@ const Product = sequelize.define('Product', {
         defaultValue: 0
     },
     images: {
-        type: sequelize.options.dialect === 'sqlite' ? DataTypes.JSON : DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
     },
     features: {
-        type: sequelize.options.dialect === 'sqlite' ? DataTypes.JSON : DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
     },
     stock: {
