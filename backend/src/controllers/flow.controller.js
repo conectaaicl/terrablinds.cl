@@ -115,7 +115,8 @@ exports.confirmPayment = async (req, res) => {
 
         res.send('OK');
     } catch (error) {
+        // Always respond 200 so Flow.cl does not retry the webhook
         console.error('Payment confirmation error:', error.message);
-        res.status(500).send('Error processing confirmation');
+        res.send('OK');
     }
 };

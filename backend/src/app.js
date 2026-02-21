@@ -4,11 +4,12 @@ const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
+const { sequelize } = require('./models');
 
 const app = express();
 
-// Trust proxy (behind nginx in Docker)
-app.set('trust proxy', 1);
+// Trust proxy (2 hops: host nginx SSL + frontend container nginx)
+app.set('trust proxy', 2);
 
 // Security headers
 app.use(helmet({
@@ -59,8 +60,13 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
+app.get('/health', async (req, res) => {
+    try {
+        await sequelize.authenticate();
+        res.json({ status: 'ok', db: 'connected' });
+    } catch (err) {
+        res.status(503).json({ status: 'error', db: 'disconnected' });
+    }
 });
 
 // Serve static files

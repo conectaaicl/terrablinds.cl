@@ -15,6 +15,7 @@ import AdminQuotes from './pages/AdminQuotes';
 import AdminSettings from './pages/AdminSettings';
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
+import PaymentResult from './pages/PaymentResult';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/quote" element={<Quote />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/payment/result" element={<PaymentResult />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
 

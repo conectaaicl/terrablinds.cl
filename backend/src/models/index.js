@@ -1,9 +1,8 @@
-require('dotenv').config();
 const sequelize = require('../config/database');
-const Product = require('./Product');
-const Quote = require('./Quote');
-const User = require('./User');
-const Config = require('./Config');
+const Product = require('./product');
+const Quote = require('./quote');
+const User = require('./user');
+const Config = require('./config');
 
 // Define associations here if needed
 // Example: Product.hasMany(Quote);

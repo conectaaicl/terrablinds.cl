@@ -1,6 +1,15 @@
 const axios = require('axios');
 const { Config } = require('../models');
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 exports.submitContact = async (req, res) => {
     try {
         const { name, email, phone, subject, message } = req.body;
@@ -37,16 +46,16 @@ exports.submitContact = async (req, res) => {
                 </div>
                 <div style="padding:24px;">
                     <table style="width:100%;border-collapse:collapse;">
-                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Nombre:</td><td style="padding:8px;border-bottom:1px solid #eee;">${name}</td></tr>
-                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Email:</td><td style="padding:8px;border-bottom:1px solid #eee;">${email}</td></tr>
-                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Teléfono:</td><td style="padding:8px;border-bottom:1px solid #eee;">${phone || '-'}</td></tr>
-                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Asunto:</td><td style="padding:8px;border-bottom:1px solid #eee;">${subjectMap[subject] || subject || 'No especificado'}</td></tr>
+                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Nombre:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(name)}</td></tr>
+                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Email:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(email)}</td></tr>
+                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Teléfono:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(phone || '-')}</td></tr>
+                        <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Asunto:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(subjectMap[subject] || subject || 'No especificado')}</td></tr>
                     </table>
                     <div style="margin-top:16px;padding:16px;background:#f3f4f6;border-radius:8px;">
                         <p style="font-weight:bold;margin:0 0 8px;">Mensaje:</p>
-                        <p style="margin:0;white-space:pre-wrap;">${message}</p>
+                        <p style="margin:0;white-space:pre-wrap;">${escapeHtml(message)}</p>
                     </div>
-                    <p style="margin-top:16px;font-size:12px;color:#999;">Responder directamente a: ${email}</p>
+                    <p style="margin-top:16px;font-size:12px;color:#999;">Responder directamente a: ${escapeHtml(email)}</p>
                 </div>
             </div>`;
 

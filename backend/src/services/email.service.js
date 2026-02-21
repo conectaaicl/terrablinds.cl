@@ -1,6 +1,15 @@
 const axios = require('axios');
 const { Config } = require('../models');
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 exports.sendQuoteEmail = async (to, quote) => {
     const config = await Config.findOne({ where: { key: 'resend_api_key' } });
     const apiKey = config?.value || process.env.RESEND_API_KEY;
@@ -16,12 +25,12 @@ exports.sendQuoteEmail = async (to, quote) => {
     const items = Array.isArray(quote.items) ? quote.items : [];
     const itemsHtml = items.map(item => {
         const detail = item.width && item.height
-            ? `${item.width}x${item.height}cm`
-            : `${item.quantity || 1} unidad(es)`;
+            ? `${escapeHtml(item.width)}x${escapeHtml(item.height)}cm`
+            : `${parseInt(item.quantity) || 1} unidad(es)`;
         return `<tr>
-            <td style="padding:8px;border-bottom:1px solid #eee;">${item.productName || item.product || 'Producto'}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(item.productName || item.product || 'Producto')}</td>
             <td style="padding:8px;border-bottom:1px solid #eee;">${detail}</td>
-            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">$${(item.price || 0).toLocaleString('es-CL')}</td>
+            <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">$${(parseFloat(item.price) || 0).toLocaleString('es-CL')}</td>
         </tr>`;
     }).join('');
 
@@ -32,7 +41,7 @@ exports.sendQuoteEmail = async (to, quote) => {
             <p style="margin:8px 0 0;">Confirmacion de Cotizacion #${quote.id}</p>
         </div>
         <div style="padding:24px;">
-            <p>Estimado/a <strong>${quote.customer_name}</strong>,</p>
+            <p>Estimado/a <strong>${escapeHtml(quote.customer_name)}</strong>,</p>
             <p>Hemos recibido tu solicitud de cotizacion. A continuacion el detalle:</p>
             <table style="width:100%;border-collapse:collapse;margin:16px 0;">
                 <thead>
@@ -49,7 +58,7 @@ exports.sendQuoteEmail = async (to, quote) => {
             </p>
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
             <p>Un ejecutivo comercial te contactara a la brevedad para confirmar los detalles y coordinar la instalacion.</p>
-            <p>Si tienes consultas, escribenos a <a href="mailto:${companyEmail}">${companyEmail}</a></p>
+            <p>Si tienes consultas, escribenos a <a href="mailto:${escapeHtml(companyEmail)}">${escapeHtml(companyEmail)}</a></p>
         </div>
         <div style="background:#f3f4f6;padding:16px;text-align:center;font-size:12px;color:#666;">
             <p>TerraBlinds - Cortinas y Persianas a Medida</p>

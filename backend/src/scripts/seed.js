@@ -1,4 +1,10 @@
 require('dotenv').config();
+
+if (process.env.NODE_ENV === 'production') {
+    console.error('FATAL: seed.js no puede ejecutarse en produccion. Usa las migraciones.');
+    process.exit(1);
+}
+
 const { sequelize, Product, User, Config } = require('../models');
 
 const seedData = async () => {
