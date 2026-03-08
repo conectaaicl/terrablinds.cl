@@ -46,6 +46,35 @@ const Product = sequelize.define('Product', {
         type: DataTypes.ARRAY(DataTypes.STRING),
         defaultValue: []
     },
+    colors: {
+        type: DataTypes.ARRAY(DataTypes.STRING),
+        defaultValue: []
+    },
+    sku: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    min_width: {
+        type: DataTypes.DECIMAL(8, 2),
+        allowNull: true
+    },
+    max_width: {
+        type: DataTypes.DECIMAL(8, 2),
+        allowNull: true
+    },
+    min_height: {
+        type: DataTypes.DECIMAL(8, 2),
+        allowNull: true
+    },
+    max_height: {
+        type: DataTypes.DECIMAL(8, 2),
+        allowNull: true
+    },
+    lead_time_days: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: 'Días de fabricación estimados'
+    },
     stock: {
         type: DataTypes.INTEGER,
         defaultValue: 0

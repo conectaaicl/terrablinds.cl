@@ -8,6 +8,10 @@ import Cart from './pages/Cart';
 import Quote from './pages/Quote';
 import Contact from './pages/Contact';
 import About from './pages/About';
+import Projects from './pages/Projects';
+import FAQ from './pages/FAQ';
+import Register from './pages/Register';
+import NotFound from './pages/NotFound';
 // Admin
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
@@ -29,6 +33,9 @@ function App() {
           <Route path="/quote" element={<Quote />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/payment/result" element={<PaymentResult />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -40,6 +47,9 @@ function App() {
             <Route path="/admin/quotes" element={<AdminQuotes />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
           </Route>
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </CartProvider>

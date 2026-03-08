@@ -5,7 +5,8 @@ const { Op } = require('sequelize');
 const ALLOWED_FIELDS = [
     'name', 'slug', 'category', 'description', 'short_description',
     'is_unit_price', 'price_unit', 'base_price_m2', 'images',
-    'features', 'stock', 'is_active'
+    'features', 'colors', 'sku', 'min_width', 'max_width',
+    'min_height', 'max_height', 'lead_time_days', 'stock', 'is_active'
 ];
 
 const sanitizeProductData = (body) => {

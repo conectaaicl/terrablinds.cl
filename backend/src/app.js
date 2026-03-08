@@ -82,8 +82,10 @@ const authRoutes = require('./routes/auth.routes');
 const configRoutes = require('./routes/config.routes');
 const uploadRoutes = require('./routes/upload.routes');
 const flowRoutes = require('./routes/flow.routes');
+const mercadopagoRoutes = require('./routes/mercadopago.routes');
 const contactRoutes = require('./routes/contact.routes');
 const seoRoutes = require('./routes/seo.routes');
+const statsRoutes = require('./routes/stats.routes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/quotes', quoteRoutes);
@@ -91,8 +93,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/payment', flowRoutes);
+app.use('/api/payment/mercadopago', mercadopagoRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api', seoRoutes);
+app.use('/api/stats', statsRoutes);
 
 // 404 handler
 app.use((req, res) => {

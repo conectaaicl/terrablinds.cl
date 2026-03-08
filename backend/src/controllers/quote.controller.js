@@ -1,5 +1,5 @@
 const { Quote } = require('../models');
-const { sendQuoteEmail } = require('../services/email.service');
+const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail } = require('../services/email.service');
 
 // Create quote (public, rate-limited)
 exports.createQuote = async (req, res) => {
@@ -28,6 +28,7 @@ exports.createQuote = async (req, res) => {
             productId: item.productId ? parseInt(item.productId) : null,
             productName: String(item.productName || item.product || '').substring(0, 200),
             category: String(item.category || '').substring(0, 100),
+            color: item.color ? String(item.color).substring(0, 100) : null,
             width: parseFloat(item.width) || 0,
             height: parseFloat(item.height) || 0,
             quantity: parseInt(item.quantity) || 1,
@@ -46,9 +47,12 @@ exports.createQuote = async (req, res) => {
             status: 'pending'
         });
 
-        // Send email notification (non-blocking - don't fail the quote if email fails)
+        // Send emails (non-blocking)
         sendQuoteEmail(customer_email, quote).catch(err => {
-            console.error('Email send failed (non-blocking):', err.message);
+            console.error('Customer email failed (non-blocking):', err.message);
+        });
+        sendAdminQuoteNotification(quote).catch(err => {
+            console.error('Admin notification failed (non-blocking):', err.message);
         });
 
         res.status(201).json(quote);
@@ -138,6 +142,12 @@ exports.updateQuoteStatus = async (req, res) => {
         }
 
         await quote.update({ status });
+
+        // Send status update email to client (non-blocking)
+        sendStatusUpdateEmail(quote, status).catch(err => {
+            console.error('Status update email failed (non-blocking):', err.message);
+        });
+
         res.json(quote);
     } catch (error) {
         console.error('Error updating quote:', error.message);

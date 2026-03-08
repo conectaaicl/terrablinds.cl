@@ -54,7 +54,7 @@ const Cart = () => {
         }
     };
 
-    const handlePayment = async () => {
+    const handlePayment = async (method = 'flow') => {
         if (!formData.name || !formData.email) {
             setError('Complete sus datos antes de pagar.');
             return;
@@ -63,7 +63,6 @@ const Cart = () => {
         setError(null);
 
         try {
-            // 1. Create quote
             const payload = {
                 customer_name: formData.name,
                 customer_email: formData.email,
@@ -72,6 +71,7 @@ const Cart = () => {
                 items: cartItems.map(item => ({
                     productId: item.productId,
                     productName: item.productName || item.name,
+                    color: item.color || null,
                     width: item.width,
                     height: item.height,
                     quantity: item.quantity || 1,
@@ -82,8 +82,11 @@ const Cart = () => {
             const quoteRes = await api.post('/api/quotes', payload);
             const quoteId = quoteRes.data.id;
 
-            // 2. Create payment
-            const payRes = await api.post('/api/payment/create', { quoteId });
+            const endpoint = method === 'mp'
+                ? '/api/payment/mercadopago/create'
+                : '/api/payment/create';
+
+            const payRes = await api.post(endpoint, { quoteId });
             if (payRes.data.redirectUrl) {
                 clearCart();
                 window.location.href = payRes.data.redirectUrl;
@@ -223,9 +226,13 @@ const Cart = () => {
                                             <div className="flex-grow border-t border-gray-300"></div>
                                         </div>
 
-                                        <button type="button" onClick={handlePayment} disabled={loading}
-                                            className="w-full py-4 bg-gray-900 hover:bg-black disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors flex justify-center items-center shadow-lg">
-                                            Pagar Online (WebPay / Flow)
+                                        <button type="button" onClick={() => handlePayment('flow')} disabled={loading}
+                                            className="w-full py-3 bg-gray-900 hover:bg-black disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors flex justify-center items-center shadow-lg">
+                                            Pagar con WebPay / Flow
+                                        </button>
+                                        <button type="button" onClick={() => handlePayment('mp')} disabled={loading}
+                                            className="w-full py-3 bg-[#009ee3] hover:bg-[#0087c3] disabled:bg-gray-400 text-white font-bold rounded-lg transition-colors flex justify-center items-center shadow-lg">
+                                            Pagar con Mercado Pago
                                         </button>
                                         <p className="text-xs text-center text-gray-500 mt-4">
                                             Al enviar, recibiras una copia en tu correo y te contactaremos para confirmar detalles.

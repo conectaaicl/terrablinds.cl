@@ -4,13 +4,20 @@ const { Config } = require('../models');
 const SENSITIVE_KEYS = ['flow_secret_key', 'resend_api_key'];
 
 // Keys allowed for public access
-const PUBLIC_KEYS = ['whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url'];
+const PUBLIC_KEYS = [
+    'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
+    'hero_title', 'hero_subtitle', 'hero_cta_primary', 'hero_cta_secondary', 'hero_bg_image',
+    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter'
+];
 
 // Keys allowed to be updated via admin panel
 const ALLOWED_CONFIG_KEYS = [
     'flow_api_key', 'flow_secret_key', 'flow_api_url',
-    'resend_api_key', 'whatsapp_number', 'company_email',
-    'company_phone', 'company_address', 'logo_url'
+    'mercadopago_access_token', 'mercadopago_public_key',
+    'resend_api_key', 'admin_notification_email',
+    'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
+    'hero_title', 'hero_subtitle', 'hero_cta_primary', 'hero_cta_secondary', 'hero_bg_image',
+    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter'
 ];
 
 // Get all config (admin only - masks sensitive values)

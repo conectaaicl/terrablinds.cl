@@ -36,6 +36,11 @@ exports.createPayment = async (req, res, next) => {
             return res.status(404).json({ error: 'Quote not found' });
         }
 
+        // Prevent duplicate payments for already accepted quotes
+        if (quote.status === 'accepted' || quote.status === 'completed') {
+            return res.status(400).json({ error: 'Esta cotización ya fue pagada anteriormente.' });
+        }
+
         const { apiKey, secretKey, apiUrl } = await getFlowConfig();
 
         if (!apiKey || !secretKey) {
