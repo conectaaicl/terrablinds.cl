@@ -59,12 +59,12 @@ exports.chat = async (req, res) => {
         }
 
         const payload = JSON.stringify({
-            model: 'llama3-8b-8192',
+            model: 'llama-3.1-8b-instant',
             messages: [
                 { role: 'system', content: SYSTEM_PROMPT },
                 ...recentMessages,
             ],
-            max_tokens: 250,
+            max_tokens: 300,
             temperature: 0.65,
             stream: false,
         });
@@ -98,6 +98,11 @@ exports.chat = async (req, res) => {
             request.write(payload);
             request.end();
         });
+
+        if (data.error) {
+            console.error('Groq API error:', data.error);
+            throw new Error(`Groq error: ${data.error.message || JSON.stringify(data.error)}`);
+        }
 
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) throw new Error('Empty response from Groq');

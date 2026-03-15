@@ -16,18 +16,18 @@ const WhatsAppIcon = () => (
 );
 
 const PRODUCT_TYPES = [
-    { id: 'roller_blackout', label: 'Roller Blackout', icon: '🌑', desc: 'Oscurecimiento total', hasMeasure: true },
-    { id: 'roller_screen', label: 'Roller Screen', icon: '🌐', desc: 'Filtra luz, mantiene vista', hasMeasure: true },
-    { id: 'roller_sunscreen', label: 'Roller Sunscreen', icon: '☀️', desc: 'Protección solar', hasMeasure: true },
-    { id: 'dual_sheer', label: 'Dual / Sheer Elegance', icon: '🎭', desc: 'Doble capa blackout + tul', hasMeasure: true },
-    { id: 'persiana_veneciana', label: 'Persiana Veneciana', icon: '🪟', desc: 'Lamas aluminio regulables', hasMeasure: true },
-    { id: 'persiana_madera', label: 'Persiana de Madera', icon: '🪵', desc: 'Lamas madera natural', hasMeasure: true },
-    { id: 'persiana_romana', label: 'Persiana Romana', icon: '🏛️', desc: 'Tela plegable elegante', hasMeasure: true },
-    { id: 'panel_japones', label: 'Panel Japonés', icon: '🎌', desc: 'Paneles deslizantes', hasMeasure: true },
-    { id: 'cortina_tela', label: 'Cortina de Tela', icon: '🎀', desc: 'Cortinas tradicionales', hasMeasure: true },
-    { id: 'domotica', label: 'Motorización / Domótica', icon: '🤖', desc: 'Control automático con motor', hasMeasure: false },
-    { id: 'toldo', label: 'Toldo Retráctil', icon: '⛱️', desc: 'Toldos para exterior', hasMeasure: true },
-    { id: 'otro', label: 'Otro / Consulta', icon: '💬', desc: 'Producto especial o asesoría', hasMeasure: false },
+    { id: 'roller_blackout',    label: 'Roller Blackout',        icon: '🌑', desc: 'Oscurecimiento total',                hasMeasure: true },
+    { id: 'roller_screen',      label: 'Roller Screen',          icon: '🌐', desc: 'Filtra luz, mantiene vista al ext.', hasMeasure: true },
+    { id: 'roller_sunscreen',   label: 'Roller Sunscreen',       icon: '☀️', desc: 'Protección solar con luminosidad',   hasMeasure: true },
+    { id: 'roller_duo_trasl',   label: 'Roller Duo Traslúcido',  icon: '🎭', desc: 'Doble capa: screen + traslúcido',    hasMeasure: true },
+    { id: 'roller_duo_black',   label: 'Roller Duo Blackout',    icon: '🌓', desc: 'Doble capa: blackout + screen',      hasMeasure: true },
+    { id: 'roller_doble_dual',  label: 'Roller Dobles o Dual',   icon: '🔲', desc: 'Sistema doble en un solo bastidor',  hasMeasure: true },
+    { id: 'persiana_madera',    label: 'Persiana de Madera',     icon: '🪵', desc: 'Lamas madera natural, elegantes',    hasMeasure: true },
+    { id: 'minipersiana',       label: 'Minipersiana',           icon: '🪟', desc: 'Lamas aluminio 25mm regulables',     hasMeasure: true },
+    { id: 'persiana_exterior',  label: 'Persiana Exterior',      icon: '🏠', desc: 'Protección y seguridad exterior',    hasMeasure: true },
+    { id: 'toldo_retractil',    label: 'Toldo Retráctil',        icon: '⛱️', desc: 'Toldos extensibles para terraza',   hasMeasure: true },
+    { id: 'toldo_vertical',     label: 'Toldos Verticales',      icon: '🟦', desc: 'Lonas verticales para fachadas',    hasMeasure: true },
+    { id: 'otro',               label: 'Otros',                  icon: '💬', desc: 'Otro producto o consulta especial', hasMeasure: false },
 ];
 
 const STEP_LABELS = ['Producto', 'Medidas', 'Color & Cant.', 'Resumen'];
