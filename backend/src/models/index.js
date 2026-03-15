@@ -5,6 +5,7 @@ const User = require('./user');
 const Config = require('./config');
 const Project = require('./project');
 const FAQ = require('./faq');
+const Lead = require('./lead');
 
 const models = {
     Product,
@@ -13,6 +14,7 @@ const models = {
     Config,
     Project,
     FAQ,
+    Lead,
     sequelize
 };
 

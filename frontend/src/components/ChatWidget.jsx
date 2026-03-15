@@ -39,6 +39,7 @@ export default function ChatWidget() {
     const [showGreeting, setShowGreeting] = useState(false);
     const [greetingDismissed, setGreetingDismissed] = useState(false);
     const [available, setAvailable] = useState(false);
+    const [leadSaved, setLeadSaved] = useState(false);
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -92,8 +93,26 @@ export default function ChatWidget() {
             const res = await api.post('/api/chat', {
                 messages: newMessages.filter(m => m.role !== 'system'),
             });
-            setMessages(prev => [...prev, { role: 'assistant', content: res.data.reply }]);
+            const reply = res.data.reply;
+            setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
             setAvailable(true);
+
+            // Try to extract contact info from conversation and save lead
+            if (!leadSaved) {
+                const allText = newMessages.map(m => m.content).join(' ');
+                const emailMatch = allText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+                const phoneMatch = allText.match(/(\+?56\s?)?(\+?9\d[\s-]?\d{4}[\s-]?\d{4}|\d{8,})/);
+                const nameMatch = allText.match(/(?:me llamo|soy|mi nombre es)\s+([A-ZÁÉÍÓÚ][a-záéíóú]+(?:\s+[A-ZÁÉÍÓÚ]?[a-záéíóú]+)?)/i);
+                if (emailMatch || phoneMatch) {
+                    api.post('/api/leads', {
+                        name: nameMatch?.[1] || null,
+                        email: emailMatch?.[0] || null,
+                        phone: phoneMatch?.[0] || null,
+                        source: 'chat',
+                        notes: allText.substring(0, 500),
+                    }).then(() => setLeadSaved(true)).catch(() => {});
+                }
+            }
         } catch (err) {
             const fallback = err.response?.status === 503
                 ? 'El chat no está disponible en este momento. Puedes contactarnos por WhatsApp o email directamente.'

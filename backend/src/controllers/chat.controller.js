@@ -43,7 +43,9 @@ INSTRUCCIONES:
 - No inventes precios específicos
 - Sé cercano y usa un tono chileno amigable cuando sea apropiado
 - Si el usuario pregunta por WhatsApp o cómo contactar, entrega el link directo de WhatsApp
-- Si el usuario quiere cotizar, manda el link /quote`;
+- Si el usuario quiere cotizar, manda el link /quote
+- En el PRIMER mensaje del usuario, después de responder su consulta, pídele amablemente su nombre y cómo contactarlo (email o WhatsApp). Ejemplo: "Por cierto, ¿me puedes dejar tu nombre y un email o WhatsApp para poder ayudarte mejor si necesitas seguimiento?"
+- Si el usuario ya entregó sus datos de contacto en la conversación, NO los vuelvas a pedir`;
 
 exports.chat = async (req, res) => {
     try {
