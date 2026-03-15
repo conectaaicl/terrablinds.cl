@@ -6,6 +6,8 @@ const Config = require('./config');
 const Project = require('./project');
 const FAQ = require('./faq');
 const Lead = require('./lead');
+const Booking = require('./booking');
+const BlockedDay = require('./blockedDay');
 
 const models = {
     Product,
@@ -15,6 +17,8 @@ const models = {
     Project,
     FAQ,
     Lead,
+    Booking,
+    BlockedDay,
     sequelize
 };
 

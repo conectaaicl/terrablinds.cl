@@ -96,7 +96,7 @@ export default function ServicioTecnico() {
                     </div>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
                     <p className="text-xl text-blue-200 mb-8 max-w-2xl mx-auto">{subtitle}</p>
-                    <div className="flex flex-wrap justify-center gap-6 text-sm">
+                    <div className="flex flex-wrap justify-center gap-6 text-sm mb-8">
                         {['Técnicos certificados', 'Garantía de trabajo', 'Piezas originales'].map(f => (
                             <div key={f} className="flex items-center gap-2">
                                 <CheckCircle className="w-4 h-4 text-green-400" />
@@ -104,6 +104,12 @@ export default function ServicioTecnico() {
                             </div>
                         ))}
                     </div>
+                    <Link to="/agendar"
+                        className="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-500/30 transition-all text-base">
+                        <Wrench className="w-5 h-5" />
+                        Agendar visita técnica — $15.000
+                    </Link>
+                    <p className="mt-2 text-sm text-blue-200">Descontable si realizas la instalación con nosotros</p>
                 </div>
             </div>
 

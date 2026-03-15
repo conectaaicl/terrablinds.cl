@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
     Image, HelpCircle, ChevronDown, ChevronRight, Home, Users, Phone,
-    MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus,
+    MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck,
 } from 'lucide-react';
 import api from '../api';
 
@@ -12,12 +12,30 @@ const AdminLayout = ({ children }) => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
-    const [openGroups, setOpenGroups] = useState(['catalogo', 'contenido', 'paginas', 'diseno', 'sistema']);
+    const [pendingBookings, setPendingBookings] = useState(0);
+    const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'sistema']);
+    const [logoUrl, setLogoUrl] = useState('');
+
+    useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = res.data;
+            if (d.logo_url) setLogoUrl(d.logo_url);
+            if (d.favicon_url) {
+                const link = document.querySelector("link[rel='icon']") || document.createElement('link');
+                link.rel = 'icon';
+                link.href = d.favicon_url;
+                document.head.appendChild(link);
+            }
+        }).catch(() => {});
+    }, []);
 
     useEffect(() => {
         api.get('/api/quotes').then(res => {
             const data = Array.isArray(res.data) ? res.data : [];
             setPendingCount(data.filter(q => q.status === 'pending').length);
+        }).catch(() => {});
+        api.get('/api/bookings/stats').then(res => {
+            setPendingBookings(res.data?.pending || 0);
         }).catch(() => {});
     }, [location.pathname]);
 
@@ -58,10 +76,10 @@ const AdminLayout = ({ children }) => {
     const NavGroup = ({ label, groupKey, children }) => {
         const open = openGroups.includes(groupKey);
         return (
-            <div className="mt-3">
+            <div className="mt-4">
                 <button
                     onClick={() => toggleGroup(groupKey)}
-                    className="w-full flex items-center justify-between px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-gray-500 hover:text-gray-300 transition-colors mb-1"
+                    className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-blue-400/80 hover:text-blue-300 transition-colors mb-1"
                 >
                     <span>{label}</span>
                     {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
@@ -73,10 +91,16 @@ const AdminLayout = ({ children }) => {
 
     const SidebarContent = () => (
         <>
-            <div className="p-5 border-b border-white/10 flex items-center justify-between flex-shrink-0">
+            <div className="p-5 border-b border-white/30 flex items-center justify-between flex-shrink-0">
                 <Link to="/admin" className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">T</div>
-                    <span className="text-[15px] font-bold text-white">Terra<span className="text-blue-400">Admin</span></span>
+                    {logoUrl ? (
+                        <img src={logoUrl} alt="TerraBlinds" className="h-9 w-auto object-contain rounded-md" />
+                    ) : (
+                        <>
+                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">T</div>
+                            <span className="text-[15px] font-bold text-white">Terra<span className="text-blue-400">Admin</span></span>
+                        </>
+                    )}
                 </Link>
                 <button className="lg:hidden text-gray-500 hover:text-white" onClick={() => setSidebarOpen(false)}>
                     <X className="w-5 h-5" />
@@ -85,6 +109,10 @@ const AdminLayout = ({ children }) => {
 
             <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
                 <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
+
+                <NavGroup label="Reservas" groupKey="reservas">
+                    <NavItem to="/admin/bookings" icon={CalendarCheck} label="Agenda de Servicios" badge={pendingBookings} />
+                </NavGroup>
 
                 <NavGroup label="Catálogo" groupKey="catalogo">
                     <NavItem to="/admin/products" icon={Package} label="Productos" />
@@ -115,7 +143,7 @@ const AdminLayout = ({ children }) => {
                 </NavGroup>
             </nav>
 
-            <div className="p-3 border-t border-white/10 space-y-0.5 flex-shrink-0">
+            <div className="p-3 border-t border-white/30 space-y-0.5 flex-shrink-0">
                 <Link
                     to="/"
                     target="_blank"

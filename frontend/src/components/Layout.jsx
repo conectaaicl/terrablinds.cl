@@ -62,22 +62,31 @@ const Layout = ({ children }) => {
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <Link to="/" className="text-2xl font-bold text-gray-800 tracking-tight flex items-center">
                         {logoUrl ? (
-                            <img src={logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
+                            <img src={logoUrl} alt={brandName} className="h-20 w-auto object-contain rounded-lg" />
                         ) : (
                             <span>{brandName}</span>
                         )}
                     </Link>
 
-                    <nav className="hidden md:flex space-x-5 text-gray-600 font-medium text-sm">
-                        <Link to="/" className="hover:text-primary-600 transition-colors">Inicio</Link>
-                        <Link to="/catalog" className="hover:text-primary-600 transition-colors">Catálogo</Link>
-                        <Link to="/quote" className="hover:text-primary-600 transition-colors">Cotizar</Link>
-                        <Link to="/projects" className="hover:text-primary-600 transition-colors">Proyectos</Link>
-                        <Link to="/about" className="hover:text-primary-600 transition-colors">Nosotros</Link>
-                        <Link to="/software" className="hover:text-blue-600 text-blue-500 font-semibold transition-colors">Software</Link>
-                        <Link to="/domotica" className="hover:text-indigo-600 text-indigo-500 font-semibold transition-colors">Domótica</Link>
-                        <Link to="/servicio-tecnico" className="hover:text-primary-600 transition-colors">Serv. Técnico</Link>
-                        <Link to="/contact" className="hover:text-primary-600 transition-colors">Contacto</Link>
+                    <nav className="hidden md:flex items-center space-x-1 text-sm font-semibold">
+                        {[
+                            { to: '/', label: 'Inicio' },
+                            { to: '/catalog', label: 'Catálogo' },
+                            { to: '/quote', label: 'Cotizar' },
+                            { to: '/projects', label: 'Proyectos' },
+                            { to: '/about', label: 'Nosotros' },
+                            { to: '/software', label: 'Software', color: 'text-blue-600' },
+                            { to: '/domotica', label: 'Domótica', color: 'text-indigo-600' },
+                            { to: '/servicio-tecnico', label: 'Serv. Técnico' },
+                            { to: '/agendar', label: 'Agendar', color: 'text-emerald-700' },
+                            { to: '/contact', label: 'Contacto' },
+                        ].map(({ to, label, color }) => (
+                            <Link key={to} to={to}
+                                className={`relative px-3 py-2 rounded-lg transition-all duration-200 ${color || 'text-gray-700'} hover:bg-blue-50 hover:text-blue-700 group`}>
+                                {label}
+                                <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                            </Link>
+                        ))}
                     </nav>
 
                     <div className="hidden md:flex items-center space-x-4">
@@ -117,6 +126,7 @@ const Layout = ({ children }) => {
                         <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
                         <Link to="/domotica" className="block text-indigo-500 font-semibold hover:text-indigo-600" onClick={() => setIsMenuOpen(false)}>Domótica</Link>
                         <Link to="/servicio-tecnico" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Servicio Técnico</Link>
+                        <Link to="/agendar" className="block text-emerald-700 font-semibold hover:text-emerald-800" onClick={() => setIsMenuOpen(false)}>Agendar Visita</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
                         <Link to="/register" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
                         <Link to="/cart" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>
@@ -133,34 +143,47 @@ const Layout = ({ children }) => {
             <footer className="bg-gray-900 text-white py-12">
                 <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div>
-                        <h3 className="text-xl font-bold mb-4">TerraBlinds</h3>
+                        <div className="mb-4">
+                            {logoUrl ? (
+                                <Link to="/">
+                                    <img src={logoUrl} alt={brandName} className="h-20 w-auto object-contain rounded-lg" />
+                                </Link>
+                            ) : (
+                                <h3 className="text-xl font-bold">{brandName}</h3>
+                            )}
+                        </div>
                         <p className="text-gray-400 text-sm mb-4">
                             Cortinas y persianas a medida de alta calidad. Diseñadas para tu hogar, fabricadas para durar.
                         </p>
                         {/* Social Networks */}
-                        <div className="flex space-x-3">
+                        <div className="flex flex-wrap gap-3 mt-2">
                             {siteConfig.social_facebook && (
                                 <a href={siteConfig.social_facebook} target="_blank" rel="noopener noreferrer"
-                                    className="w-9 h-9 bg-gray-800 hover:bg-blue-600 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                                    className="group flex items-center gap-2 bg-[#1877F2] hover:bg-[#0d65d9] text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg shadow-[#1877F2]/20">
                                     <FacebookIcon />
+                                    <span className="text-sm font-semibold">Facebook</span>
                                 </a>
                             )}
                             {siteConfig.social_instagram && (
                                 <a href={siteConfig.social_instagram} target="_blank" rel="noopener noreferrer"
-                                    className="w-9 h-9 bg-gray-800 hover:bg-pink-600 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                                    className="group flex items-center gap-2 text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg"
+                                    style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' }}>
                                     <InstagramIcon />
+                                    <span className="text-sm font-semibold">Instagram</span>
                                 </a>
                             )}
                             {siteConfig.social_tiktok && (
                                 <a href={siteConfig.social_tiktok} target="_blank" rel="noopener noreferrer"
-                                    className="w-9 h-9 bg-gray-800 hover:bg-black rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                                    className="group flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg border border-gray-700">
                                     <TikTokIcon />
+                                    <span className="text-sm font-semibold">TikTok</span>
                                 </a>
                             )}
                             {siteConfig.social_youtube && (
                                 <a href={siteConfig.social_youtube} target="_blank" rel="noopener noreferrer"
-                                    className="w-9 h-9 bg-gray-800 hover:bg-red-600 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+                                    className="group flex items-center gap-2 bg-[#FF0000] hover:bg-[#cc0000] text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg shadow-red-500/20">
                                     <YouTubeIcon />
+                                    <span className="text-sm font-semibold">YouTube</span>
                                 </a>
                             )}
                         </div>
@@ -206,7 +229,7 @@ const Layout = ({ children }) => {
                     </div>
                 </div>
                 <div className="container mx-auto px-4 mt-8 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
-                    &copy; {new Date().getFullYear()} TerraBlinds.cl. Todos los derechos reservados.
+                    &copy; {new Date().getFullYear()} {brandName}.cl. Todos los derechos reservados.
                     <VisitCounter />
                 </div>
             </footer>

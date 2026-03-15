@@ -56,10 +56,12 @@ function buildQuoteItemsHtml(items) {
     }).join('');
 }
 
+const LOGO_URL = 'https://terrablinds.cl/uploads/image-1773550576065-529383678.jpeg';
+
 function headerHtml(title) {
-    return `<div style="background:#1e40af;color:white;padding:24px;text-align:center;">
-        <h1 style="margin:0;font-size:24px;">TerraBlinds</h1>
-        <p style="margin:8px 0 0;font-size:14px;">${escapeHtml(title)}</p>
+    return `<div style="background:#0d3a8a;color:white;padding:28px 24px 20px;text-align:center;">
+        <img src="${LOGO_URL}" alt="TerraBlinds" style="height:64px;width:auto;object-fit:contain;border-radius:10px;margin-bottom:14px;display:inline-block;" />
+        <p style="margin:0;font-size:15px;color:#bfdbfe;font-family:Arial,sans-serif;">${escapeHtml(title)}</p>
     </div>`;
 }
 
@@ -75,30 +77,54 @@ exports.sendQuoteEmail = async (to, quote) => {
     const { apiKey, companyEmail } = await getResendConfig();
     const items = Array.isArray(quote.items) ? quote.items : [];
     const itemsHtml = buildQuoteItemsHtml(items);
+    const total = parseFloat(quote.total_amount || 0);
+    const hasPrice = total > 0;
+    const dateStr = new Date().toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
 
     const html = `
-    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
-        ${headerHtml(`Confirmación de Cotización #${quote.id}`)}
-        <div style="padding:24px;">
-            <p>Estimado/a <strong>${escapeHtml(quote.customer_name)}</strong>,</p>
-            <p>Hemos recibido tu solicitud de cotización. A continuación el detalle:</p>
-            <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+    <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+        ${headerHtml(`Cotización #${quote.id}`)}
+
+        <div style="padding:28px 32px;">
+            <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Fecha de emisión: ${dateStr}</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#111827;">Estimado/a <strong>${escapeHtml(quote.customer_name)}</strong>, aquí está tu cotización:</p>
+
+            <!-- Products table -->
+            <table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;margin-bottom:8px;">
                 <thead>
                     <tr style="background:#f3f4f6;">
-                        <th style="padding:8px;text-align:left;">Producto</th>
-                        <th style="padding:8px;text-align:left;">Detalle</th>
-                        <th style="padding:8px;text-align:center;">Cant.</th>
-                        <th style="padding:8px;text-align:right;">Precio</th>
+                        <th style="padding:10px 12px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;">Producto</th>
+                        <th style="padding:10px 12px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;">Medidas / Detalle</th>
+                        <th style="padding:10px 12px;text-align:center;font-size:12px;color:#6b7280;font-weight:600;">Cant.</th>
+                        <th style="padding:10px 12px;text-align:right;font-size:12px;color:#6b7280;font-weight:600;">Precio</th>
                     </tr>
                 </thead>
                 <tbody>${itemsHtml}</tbody>
             </table>
-            <p style="font-size:18px;font-weight:bold;text-align:right;">
-                Total Estimado: $${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}
-            </p>
-            <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
-            <p>Un ejecutivo comercial te contactará a la brevedad para confirmar los detalles y coordinar la instalación.</p>
-            <p>Si tienes consultas, escríbenos a <a href="mailto:${escapeHtml(companyEmail)}">${escapeHtml(companyEmail)}</a></p>
+
+            ${hasPrice ? `
+            <div style="text-align:right;padding:16px 12px 8px;border-top:2px solid #e5e7eb;margin-top:0;">
+                <span style="font-size:13px;color:#6b7280;">Total estimado: </span>
+                <span style="font-size:22px;font-weight:800;color:#1e40af;">$${total.toLocaleString('es-CL')}</span>
+            </div>
+            <p style="font-size:12px;color:#9ca3af;text-align:right;margin:4px 12px 24px;">* Precios referenciales, sujetos a confirmación en visita técnica.</p>
+            ` : `
+            <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:14px 16px;margin:16px 0 24px;">
+                <p style="margin:0;font-size:13px;color:#92400e;">⚠️ Algunos productos requieren visita técnica para calcular el precio final. Te contactaremos a la brevedad para agendar.</p>
+            </div>
+            `}
+
+            <div style="background:#eff6ff;border-left:4px solid #2563eb;padding:16px 20px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                <p style="margin:0 0 6px;font-weight:700;color:#1e40af;font-size:14px;">¿Qué sigue?</p>
+                <ol style="margin:0;padding-left:18px;color:#374151;font-size:13px;line-height:1.8;">
+                    <li>Revisa los productos y medidas indicados arriba</li>
+                    <li>Nuestro equipo confirmará disponibilidad y te enviará el presupuesto formal</li>
+                    <li>Coordinamos visita técnica e instalación en tu domicilio</li>
+                </ol>
+            </div>
+
+            <p style="font-size:14px;color:#374151;margin:0 0 8px;">¿Tienes dudas o quieres modificar algo? Escríbenos:</p>
+            <p style="margin:0;font-size:14px;">📧 <a href="mailto:${escapeHtml(companyEmail)}" style="color:#2563eb;">${escapeHtml(companyEmail)}</a></p>
         </div>
         ${footerHtml(companyEmail)}
     </div>`;
@@ -108,7 +134,7 @@ exports.sendQuoteEmail = async (to, quote) => {
             apiKey,
             from: process.env.RESEND_FROM_EMAIL || `TerraBlinds <noreply@terrablinds.cl>`,
             to: [to],
-            subject: `Cotización #${quote.id} recibida - TerraBlinds`,
+            subject: `Tu cotización #${quote.id} de TerraBlinds — ${parseFloat(quote.total_amount || 0) > 0 ? '$' + parseFloat(quote.total_amount || 0).toLocaleString('es-CL') : 'Requiere visita técnica'}`,
             html
         });
         console.log(`Quote confirmation email sent to ${to}`);
@@ -211,6 +237,84 @@ exports.sendPasswordResetEmail = async (toEmail, resetUrl) => {
         html
     });
     console.log(`Password reset email sent to ${toEmail}`);
+};
+
+// Confirmación de reserva al cliente (y aviso al admin)
+exports.sendBookingConfirmation = async (booking) => {
+    const { apiKey, companyEmail, adminEmail } = await getResendConfig();
+
+    const SERVICE_LABELS = {
+        visita_medidas:    'Visita técnica toma de medidas',
+        tecnico_persianas: 'Servicio técnico persianas',
+        tecnico_roller:    'Servicio técnico cortinas roller',
+        tecnico_otros:     'Servicio técnico otros',
+    };
+    const serviceLabel = SERVICE_LABELS[booking.service_type] || booking.service_type;
+    const dateStr = new Date(booking.date + 'T12:00:00').toLocaleDateString('es-CL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const amount = (booking.amount || 15000).toLocaleString('es-CL');
+
+    const clientHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:640px;margin:0 auto;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+        ${headerHtml('Reserva Confirmada')}
+        <div style="padding:28px 32px;">
+            <p style="margin:0 0 16px;font-size:15px;color:#111827;">Hola <strong>${escapeHtml(booking.client_name)}</strong>,</p>
+            <p style="margin:0 0 24px;color:#374151;">Tu reserva ha sido confirmada. Te esperamos en la fecha indicada.</p>
+            <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:20px 24px;margin-bottom:24px;">
+                <div style="margin-bottom:10px;"><span style="color:#6b7280;font-size:13px;">Servicio:</span><br><strong style="font-size:15px;color:#111827;">${escapeHtml(serviceLabel)}</strong></div>
+                <div style="margin-bottom:10px;"><span style="color:#6b7280;font-size:13px;">Fecha:</span><br><strong style="color:#111827;">${escapeHtml(dateStr)}</strong></div>
+                <div style="margin-bottom:10px;"><span style="color:#6b7280;font-size:13px;">Hora:</span><br><strong style="color:#111827;">${escapeHtml(booking.time_slot)} hrs</strong></div>
+                ${booking.client_address ? `<div><span style="color:#6b7280;font-size:13px;">Dirección:</span><br><strong style="color:#111827;">${escapeHtml(booking.client_address)}</strong></div>` : ''}
+            </div>
+            <div style="background:#eff6ff;border-left:4px solid #2563eb;padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                <p style="margin:0;font-size:13px;color:#1e40af;"><strong>Monto pagado:</strong> $${amount} CLP — Visita técnica incluida (descontable si realizas la instalación con nosotros)</p>
+            </div>
+            <p style="font-size:13px;color:#6b7280;margin:0;">¿Necesitas reagendar? Escríbenos a <a href="mailto:${escapeHtml(companyEmail)}" style="color:#2563eb;">${escapeHtml(companyEmail)}</a></p>
+        </div>
+        ${footerHtml(companyEmail)}
+    </div>`;
+
+    const adminHtml = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        ${headerHtml('Nueva Reserva Confirmada')}
+        <div style="padding:24px;">
+            <h3 style="margin:0 0 16px;">Reserva #${booking.id}</h3>
+            <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:6px 0;color:#6b7280;width:130px;">Servicio:</td><td style="padding:6px 0;font-weight:bold;">${escapeHtml(serviceLabel)}</td></tr>
+                <tr><td style="padding:6px 0;color:#6b7280;">Fecha:</td><td style="padding:6px 0;">${escapeHtml(dateStr)} — ${escapeHtml(booking.time_slot)} hrs</td></tr>
+                <tr><td style="padding:6px 0;color:#6b7280;">Cliente:</td><td style="padding:6px 0;">${escapeHtml(booking.client_name)}</td></tr>
+                <tr><td style="padding:6px 0;color:#6b7280;">Email:</td><td style="padding:6px 0;"><a href="mailto:${escapeHtml(booking.client_email)}">${escapeHtml(booking.client_email)}</a></td></tr>
+                ${booking.client_phone ? `<tr><td style="padding:6px 0;color:#6b7280;">Teléfono:</td><td style="padding:6px 0;">${escapeHtml(booking.client_phone)}</td></tr>` : ''}
+                ${booking.client_address ? `<tr><td style="padding:6px 0;color:#6b7280;">Dirección:</td><td style="padding:6px 0;">${escapeHtml(booking.client_address)}</td></tr>` : ''}
+                ${booking.notes ? `<tr><td style="padding:6px 0;color:#6b7280;">Notas:</td><td style="padding:6px 0;">${escapeHtml(booking.notes)}</td></tr>` : ''}
+                <tr><td style="padding:6px 0;color:#6b7280;">Monto:</td><td style="padding:6px 0;font-weight:bold;">$${amount} CLP</td></tr>
+            </table>
+            <div style="text-align:center;margin-top:24px;">
+                <a href="${process.env.FRONTEND_URL || 'https://terrablinds.cl'}/admin/bookings"
+                   style="background:#2563eb;color:white;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;">
+                    Ver en el Panel Admin
+                </a>
+            </div>
+        </div>
+        ${footerHtml(companyEmail)}
+    </div>`;
+
+    await Promise.allSettled([
+        sendEmail({
+            apiKey,
+            from: process.env.RESEND_FROM_EMAIL || 'TerraBlinds <noreply@terrablinds.cl>',
+            to: [booking.client_email],
+            subject: `Reserva confirmada — ${serviceLabel} el ${dateStr}`,
+            html: clientHtml,
+        }),
+        sendEmail({
+            apiKey,
+            from: process.env.RESEND_FROM_EMAIL || 'TerraBlinds Sistema <noreply@terrablinds.cl>',
+            to: [adminEmail],
+            subject: `[NUEVA RESERVA #${booking.id}] ${booking.client_name} — ${serviceLabel}`,
+            html: adminHtml,
+        }),
+    ]);
+    console.log(`Booking confirmation emails sent for booking #${booking.id}`);
 };
 
 // Notificación al cliente cuando cambia el estado de su cotización

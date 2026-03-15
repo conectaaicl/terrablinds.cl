@@ -32,6 +32,9 @@ import ServicioTecnico from './pages/ServicioTecnico';
 import Domotica from './pages/Domotica';
 import AdminDomotica from './pages/AdminDomotica';
 import AdminLeads from './pages/AdminLeads';
+import AdminBookings from './pages/AdminBookings';
+import Booking from './pages/Booking';
+import BookingResult from './pages/BookingResult';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -54,6 +57,8 @@ function App() {
           <Route path="/servicio-tecnico" element={<ServicioTecnico />} />
           <Route path="/domotica" element={<Domotica />} />
           <Route path="/payment/result" element={<PaymentResult />} />
+          <Route path="/agendar" element={<Booking />} />
+          <Route path="/reserva/resultado" element={<BookingResult />} />
 
           {/* Admin auth */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -75,6 +80,7 @@ function App() {
             <Route path="/admin/paginas/servicio-tecnico" element={<AdminServicioTecnico />} />
             <Route path="/admin/paginas/domotica" element={<AdminDomotica />} />
             <Route path="/admin/leads" element={<AdminLeads />} />
+            <Route path="/admin/bookings" element={<AdminBookings />} />
           </Route>
 
           {/* 404 */}

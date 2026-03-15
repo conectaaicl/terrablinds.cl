@@ -90,6 +90,7 @@ const projectRoutes = require('./routes/project.routes');
 const faqRoutes = require('./routes/faq.routes');
 const chatRoutes = require('./routes/chat.routes');
 const leadRoutes = require('./routes/lead.routes');
+const bookingRoutes = require('./routes/booking.routes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/quotes', quoteRoutes);
@@ -105,6 +106,7 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/faqs', faqRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/leads', leadRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // 404 handler
 app.use((req, res) => {
