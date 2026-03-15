@@ -30,6 +30,7 @@ import AdminSoftware from './pages/AdminSoftware';
 import AdminServicioTecnico from './pages/AdminServicioTecnico';
 import ServicioTecnico from './pages/ServicioTecnico';
 import Domotica from './pages/Domotica';
+import AdminDomotica from './pages/AdminDomotica';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
             <Route path="/admin/paginas/contacto" element={<AdminContacto />} />
             <Route path="/admin/paginas/software" element={<AdminSoftware />} />
             <Route path="/admin/paginas/servicio-tecnico" element={<AdminServicioTecnico />} />
+            <Route path="/admin/paginas/domotica" element={<AdminDomotica />} />
           </Route>
 
           {/* 404 */}

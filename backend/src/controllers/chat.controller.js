@@ -1,7 +1,14 @@
 const { Config } = require('../models');
 const https = require('https');
 
-const SYSTEM_PROMPT = `Eres el asistente virtual de TerraBlinds, empresa chilena especializada en cortinas, persianas y domótica. Respondes de forma amable, concisa y profesional. Siempre en español.
+const buildSystemPrompt = (waNumber, waEmail) => `Eres el asistente virtual de TerraBlinds, empresa chilena especializada en cortinas, persianas y domótica. Respondes de forma amable, concisa y profesional. Siempre en español.
+
+CONTACTO DIRECTO:
+${waNumber ? `- WhatsApp: https://wa.me/${waNumber} (envía ese link si piden contacto)` : '- WhatsApp: disponible en la página de contacto'}
+${waEmail ? `- Email: ${waEmail}` : ''}
+- Cotizador online: /quote (envía ese link para cotizar)
+- Servicio técnico: /servicio-tecnico
+- Domótica: /domotica
 
 PRODUCTOS QUE OFRECEMOS:
 - Cortinas Roller Blackout: oscurecimiento total, ideales para dormitorios
@@ -34,7 +41,9 @@ INSTRUCCIONES:
 - Si preguntan por medidas, explica que se mide el vano (hueco) en ancho × alto
 - Si no sabes algo, di "Para más información puedes contactarnos por WhatsApp o visitar nuestra página de contacto"
 - No inventes precios específicos
-- Sé cercano y usa un tono chileno amigable cuando sea apropiado`;
+- Sé cercano y usa un tono chileno amigable cuando sea apropiado
+- Si el usuario pregunta por WhatsApp o cómo contactar, entrega el link directo de WhatsApp
+- Si el usuario quiere cotizar, manda el link /quote`;
 
 exports.chat = async (req, res) => {
     try {
@@ -50,9 +59,13 @@ exports.chat = async (req, res) => {
             content: String(m.content || '').substring(0, 500),
         }));
 
-        // Get Groq API key from config DB
-        const config = await Config.findOne({ where: { key: 'groq_api_key' } });
-        const apiKey = config?.value;
+        // Get Groq API key + contact info from config DB
+        const configs = await Config.findAll({
+            where: { key: ['groq_api_key', 'whatsapp_number', 'company_email'] }
+        });
+        const cfg = Object.fromEntries(configs.map(c => [c.key, c.value]));
+        const apiKey = cfg.groq_api_key;
+        const systemPrompt = buildSystemPrompt(cfg.whatsapp_number, cfg.company_email);
 
         if (!apiKey || apiKey.length < 10) {
             return res.status(503).json({ error: 'Chat temporalmente no disponible.' });
@@ -61,7 +74,7 @@ exports.chat = async (req, res) => {
         const payload = JSON.stringify({
             model: 'llama-3.1-8b-instant',
             messages: [
-                { role: 'system', content: SYSTEM_PROMPT },
+                { role: 'system', content: systemPrompt },
                 ...recentMessages,
             ],
             max_tokens: 300,

@@ -31,6 +31,13 @@ const PUBLIC_KEYS = [
     'stech_photo1', 'stech_photo2', 'stech_photo3', 'stech_photo4',
     'stech_include1', 'stech_include2', 'stech_include3',
     'stech_include4', 'stech_include5', 'stech_include6',
+    'domotica_title', 'domotica_subtitle',
+    'domotica_feat1_title', 'domotica_feat1_desc',
+    'domotica_feat2_title', 'domotica_feat2_desc',
+    'domotica_feat3_title', 'domotica_feat3_desc',
+    'domotica_feat4_title', 'domotica_feat4_desc',
+    'domotica_feat5_title', 'domotica_feat5_desc',
+    'domotica_feat6_title', 'domotica_feat6_desc',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -66,6 +73,13 @@ const ALLOWED_CONFIG_KEYS = [
     'stech_photo1', 'stech_photo2', 'stech_photo3', 'stech_photo4',
     'stech_include1', 'stech_include2', 'stech_include3',
     'stech_include4', 'stech_include5', 'stech_include6',
+    'domotica_title', 'domotica_subtitle',
+    'domotica_feat1_title', 'domotica_feat1_desc',
+    'domotica_feat2_title', 'domotica_feat2_desc',
+    'domotica_feat3_title', 'domotica_feat3_desc',
+    'domotica_feat4_title', 'domotica_feat4_desc',
+    'domotica_feat5_title', 'domotica_feat5_desc',
+    'domotica_feat6_title', 'domotica_feat6_desc',
 ];
 
 // Get all config (admin only - masks sensitive values)
