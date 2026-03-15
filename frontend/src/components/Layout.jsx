@@ -69,6 +69,7 @@ const Layout = ({ children }) => {
                     </Link>
 
                     <nav className="hidden md:flex space-x-5 text-gray-600 font-medium text-sm">
+                        <Link to="/" className="hover:text-primary-600 transition-colors">Inicio</Link>
                         <Link to="/catalog" className="hover:text-primary-600 transition-colors">Catálogo</Link>
                         <Link to="/quote" className="hover:text-primary-600 transition-colors">Cotizar</Link>
                         <Link to="/projects" className="hover:text-primary-600 transition-colors">Proyectos</Link>
