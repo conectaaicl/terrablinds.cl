@@ -29,6 +29,7 @@ import AdminContacto from './pages/AdminContacto';
 import AdminSoftware from './pages/AdminSoftware';
 import AdminServicioTecnico from './pages/AdminServicioTecnico';
 import ServicioTecnico from './pages/ServicioTecnico';
+import Domotica from './pages/Domotica';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -49,6 +50,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/software" element={<Software />} />
           <Route path="/servicio-tecnico" element={<ServicioTecnico />} />
+          <Route path="/domotica" element={<Domotica />} />
           <Route path="/payment/result" element={<PaymentResult />} />
 
           {/* Admin auth */}

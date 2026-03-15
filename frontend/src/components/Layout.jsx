@@ -68,14 +68,14 @@ const Layout = ({ children }) => {
                         )}
                     </Link>
 
-                    <nav className="hidden md:flex space-x-8 text-gray-600 font-medium">
-                        <Link to="/" className="hover:text-primary-600 transition-colors">Inicio</Link>
+                    <nav className="hidden md:flex space-x-5 text-gray-600 font-medium text-sm">
                         <Link to="/catalog" className="hover:text-primary-600 transition-colors">Catálogo</Link>
                         <Link to="/quote" className="hover:text-primary-600 transition-colors">Cotizar</Link>
                         <Link to="/projects" className="hover:text-primary-600 transition-colors">Proyectos</Link>
                         <Link to="/about" className="hover:text-primary-600 transition-colors">Nosotros</Link>
                         <Link to="/software" className="hover:text-blue-600 text-blue-500 font-semibold transition-colors">Software</Link>
-                        <Link to="/servicio-tecnico" className="hover:text-primary-600 transition-colors">Servicio Técnico</Link>
+                        <Link to="/domotica" className="hover:text-indigo-600 text-indigo-500 font-semibold transition-colors">Domótica</Link>
+                        <Link to="/servicio-tecnico" className="hover:text-primary-600 transition-colors">Serv. Técnico</Link>
                         <Link to="/contact" className="hover:text-primary-600 transition-colors">Contacto</Link>
                     </nav>
 
@@ -114,6 +114,7 @@ const Layout = ({ children }) => {
                         <Link to="/projects" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Proyectos</Link>
                         <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
                         <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
+                        <Link to="/domotica" className="block text-indigo-500 font-semibold hover:text-indigo-600" onClick={() => setIsMenuOpen(false)}>Domótica</Link>
                         <Link to="/servicio-tecnico" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Servicio Técnico</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
                         <Link to="/register" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
