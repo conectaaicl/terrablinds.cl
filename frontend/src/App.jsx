@@ -27,6 +27,8 @@ import AdminInicio from './pages/AdminInicio';
 import AdminNosotros from './pages/AdminNosotros';
 import AdminContacto from './pages/AdminContacto';
 import AdminSoftware from './pages/AdminSoftware';
+import AdminServicioTecnico from './pages/AdminServicioTecnico';
+import ServicioTecnico from './pages/ServicioTecnico';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -46,6 +48,7 @@ function App() {
           <Route path="/faq" element={<FAQ />} />
           <Route path="/register" element={<Register />} />
           <Route path="/software" element={<Software />} />
+          <Route path="/servicio-tecnico" element={<ServicioTecnico />} />
           <Route path="/payment/result" element={<PaymentResult />} />
 
           {/* Admin auth */}
@@ -65,6 +68,7 @@ function App() {
             <Route path="/admin/paginas/nosotros" element={<AdminNosotros />} />
             <Route path="/admin/paginas/contacto" element={<AdminContacto />} />
             <Route path="/admin/paginas/software" element={<AdminSoftware />} />
+            <Route path="/admin/paginas/servicio-tecnico" element={<AdminServicioTecnico />} />
           </Route>
 
           {/* 404 */}

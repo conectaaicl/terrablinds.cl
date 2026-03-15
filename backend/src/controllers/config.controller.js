@@ -27,6 +27,10 @@ const PUBLIC_KEYS = [
     'feature1_title', 'feature1_text', 'feature2_title', 'feature2_text',
     'feature3_title', 'feature3_text', 'feature4_title', 'feature4_text',
     'theme_primary', 'theme_secondary', 'theme_accent',
+    'stech_title', 'stech_subtitle', 'stech_description', 'stech_price',
+    'stech_photo1', 'stech_photo2', 'stech_photo3', 'stech_photo4',
+    'stech_include1', 'stech_include2', 'stech_include3',
+    'stech_include4', 'stech_include5', 'stech_include6',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -58,6 +62,10 @@ const ALLOWED_CONFIG_KEYS = [
     'theme_primary', 'theme_secondary', 'theme_accent',
     'webhook_url',
     'groq_api_key',
+    'stech_title', 'stech_subtitle', 'stech_description', 'stech_price',
+    'stech_photo1', 'stech_photo2', 'stech_photo3', 'stech_photo4',
+    'stech_include1', 'stech_include2', 'stech_include3',
+    'stech_include4', 'stech_include5', 'stech_include6',
 ];
 
 // Get all config (admin only - masks sensitive values)

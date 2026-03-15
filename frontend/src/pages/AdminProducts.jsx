@@ -7,11 +7,13 @@ const CATEGORIES = [
     'Roller Blackout',
     'Roller Sunscreen',
     'Roller Duo Blackout',
+    'Domótica / Hub',
     'Domotica Motor Roller',
     'Persianas Exterior',
     'Persianas Interior',
     'Toldos',
-    'Accesorios'
+    'Accesorios',
+    'Servicio Técnico',
 ];
 
 const emptyForm = {

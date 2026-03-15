@@ -75,6 +75,7 @@ const Layout = ({ children }) => {
                         <Link to="/projects" className="hover:text-primary-600 transition-colors">Proyectos</Link>
                         <Link to="/about" className="hover:text-primary-600 transition-colors">Nosotros</Link>
                         <Link to="/software" className="hover:text-blue-600 text-blue-500 font-semibold transition-colors">Software</Link>
+                        <Link to="/servicio-tecnico" className="hover:text-primary-600 transition-colors">Servicio Técnico</Link>
                         <Link to="/contact" className="hover:text-primary-600 transition-colors">Contacto</Link>
                     </nav>
 
@@ -113,6 +114,7 @@ const Layout = ({ children }) => {
                         <Link to="/projects" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Proyectos</Link>
                         <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
                         <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
+                        <Link to="/servicio-tecnico" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Servicio Técnico</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
                         <Link to="/register" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
                         <Link to="/cart" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>
@@ -177,6 +179,7 @@ const Layout = ({ children }) => {
                         <ul className="space-y-2 text-gray-400 text-sm">
                             <li><Link to="/about" className="hover:text-white">Quiénes Somos</Link></li>
                             <li><Link to="/projects" className="hover:text-white">Proyectos</Link></li>
+                            <li><Link to="/servicio-tecnico" className="hover:text-white">Servicio Técnico</Link></li>
                             <li><Link to="/faq" className="hover:text-white">Preguntas Frecuentes</Link></li>
                             <li><Link to="/contact" className="hover:text-white">Contacto</Link></li>
                             <li><Link to="/register" className="hover:text-white">Crear Cuenta</Link></li>
