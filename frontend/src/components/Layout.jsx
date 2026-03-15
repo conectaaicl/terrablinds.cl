@@ -33,13 +33,27 @@ const Layout = ({ children }) => {
 
     React.useEffect(() => {
         api.get('/api/config/public')
-            .then(res => setSiteConfig(res.data))
+            .then(res => {
+                setSiteConfig(res.data);
+                // Dynamic favicon
+                if (res.data.favicon_url) {
+                    const link = document.querySelector("link[rel='icon']") || document.createElement('link');
+                    link.rel = 'icon';
+                    link.href = res.data.favicon_url;
+                    document.head.appendChild(link);
+                }
+                // Dynamic page title brand name
+                if (res.data.brand_name) {
+                    document.title = res.data.brand_name + ' - Cortinas y Persianas a Medida';
+                }
+            })
             .catch(() => {});
     }, []);
 
     const waNumber = siteConfig.whatsapp_number || '';
     const phoneDisplay = siteConfig.company_phone || '';
     const logoUrl = siteConfig.logo_url || '';
+    const brandName = siteConfig.brand_name || 'TerraBlinds';
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -47,9 +61,9 @@ const Layout = ({ children }) => {
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <Link to="/" className="text-2xl font-bold text-gray-800 tracking-tight flex items-center">
                         {logoUrl ? (
-                            <img src={logoUrl} alt="TerraBlinds Logo" className="h-10 w-auto object-contain" />
+                            <img src={logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
                         ) : (
-                            <>Terra<span className="text-primary-600">Blinds</span></>
+                            <span>{brandName}</span>
                         )}
                     </Link>
 
