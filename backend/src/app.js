@@ -88,6 +88,7 @@ const seoRoutes = require('./routes/seo.routes');
 const statsRoutes = require('./routes/stats.routes');
 const projectRoutes = require('./routes/project.routes');
 const faqRoutes = require('./routes/faq.routes');
+const chatRoutes = require('./routes/chat.routes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/quotes', quoteRoutes);
@@ -101,6 +102,7 @@ app.use('/api', seoRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/faqs', faqRoutes);
+app.use('/api/chat', chatRoutes);
 
 // 404 handler
 app.use((req, res) => {

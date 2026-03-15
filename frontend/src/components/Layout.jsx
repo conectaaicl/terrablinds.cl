@@ -4,6 +4,7 @@ import { Menu, X, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import api from '../api';
 import VisitCounter from './VisitCounter';
+import ChatWidget from './ChatWidget';
 
 // SVG oficial WhatsApp
 const WhatsAppIcon = ({ className }) => (
@@ -205,18 +206,21 @@ const Layout = ({ children }) => {
                 </div>
             </footer>
 
-            {/* WhatsApp FAB with pre-loaded message */}
+            {/* WhatsApp FAB — above chat widget */}
             {waNumber && (
                 <a
                     href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola TerraBlinds, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="fixed bottom-6 right-6 z-40 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
+                    className="fixed bottom-24 right-5 z-40 bg-green-500 hover:bg-green-600 text-white p-3.5 rounded-full shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
                     title="Chatea con nosotros en WhatsApp"
                 >
-                    <WhatsAppIcon className="w-8 h-8" />
+                    <WhatsAppIcon className="w-7 h-7" />
                 </a>
             )}
+
+            {/* AI Chat Widget */}
+            <ChatWidget />
         </div>
     );
 };

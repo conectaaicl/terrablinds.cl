@@ -49,6 +49,7 @@ export default function AdminSettings() {
         mercadopago_access_token: '', mercadopago_public_key: '',
         resend_api_key: '', admin_notification_email: '',
         webhook_url: '',
+        groq_api_key: '',
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -151,10 +152,31 @@ export default function AdminSettings() {
                 </Section>
 
                 {/* Webhook */}
-                <Section title="Automatización — Webhook" desc="Integración con n8n, Zapier u otras herramientas de automatización.">
-                    <Field label="Webhook URL" hint="Cuando llegue una nueva cotización, se hará un POST a esta URL con los datos.">
-                        <input className={INPUT} name="webhook_url" value={s.webhook_url || ''} onChange={onChange} placeholder="https://n8n.tudominio.com/webhook/..." />
+                <Section title="Automatización — Webhook (n8n / Zapier)" desc="Integración con n8n, Zapier u otras herramientas de automatización.">
+                    <Field label="Webhook URL" hint="Cada vez que llegue una cotización nueva, se enviará un POST a esta URL con todos los datos del cliente y productos. Ideal para n8n (WhatsApp, email, Slack, CRM, etc.)">
+                        <input className={INPUT} name="webhook_url" value={s.webhook_url || ''} onChange={onChange} placeholder="https://tu-n8n.com/webhook/terrablinds-quotes" />
                     </Field>
+                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p className="text-xs text-amber-800 font-semibold mb-1">Payload que recibirás en n8n:</p>
+                        <code className="text-xs text-amber-700 font-mono block">
+                            {`{ event, quote_id, customer_name, customer_email, customer_phone, total_amount, items[], created_at }`}
+                        </code>
+                    </div>
+                </Section>
+
+                <Section title="Chatbot IA — Groq" desc="Asistente virtual que responde preguntas de los visitantes usando inteligencia artificial.">
+                    <Field label="Groq API Key" hint="Regístrate gratis en console.groq.com → API Keys → Create API Key. Modelo: llama3-8b-8192 (gratuito).">
+                        <SecretInput name="groq_api_key" value={s.groq_api_key || ''} onChange={onChange} placeholder="gsk_••••••••••••••••••••••••••••••••••••••••••••••••" />
+                    </Field>
+                    <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg text-xs text-green-800">
+                        <p className="font-semibold mb-1">✓ Cuando está configurado:</p>
+                        <ul className="space-y-0.5 list-disc list-inside">
+                            <li>Aparece un widget de chat en el sitio web público</li>
+                            <li>Saluda a los visitantes automáticamente después de 5 segundos</li>
+                            <li>Responde preguntas sobre productos, medidas y proceso</li>
+                            <li>Guía al cliente al cotizador para cerrar ventas</li>
+                        </ul>
+                    </div>
                 </Section>
 
                 <div className="flex justify-end pt-2">

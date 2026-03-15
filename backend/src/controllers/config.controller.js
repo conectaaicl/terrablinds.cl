@@ -1,7 +1,7 @@
 const { Config } = require('../models');
 
 // Sensitive keys that should be masked in admin view
-const SENSITIVE_KEYS = ['flow_secret_key', 'resend_api_key'];
+const SENSITIVE_KEYS = ['flow_secret_key', 'resend_api_key', 'groq_api_key'];
 
 // Keys allowed for public access
 const PUBLIC_KEYS = [
@@ -57,6 +57,7 @@ const ALLOWED_CONFIG_KEYS = [
     'feature3_title', 'feature3_text', 'feature4_title', 'feature4_text',
     'theme_primary', 'theme_secondary', 'theme_accent',
     'webhook_url',
+    'groq_api_key',
 ];
 
 // Get all config (admin only - masks sensitive values)
