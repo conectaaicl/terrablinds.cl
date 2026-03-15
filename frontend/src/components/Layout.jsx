@@ -59,6 +59,7 @@ const Layout = ({ children }) => {
                         <Link to="/quote" className="hover:text-primary-600 transition-colors">Cotizar</Link>
                         <Link to="/projects" className="hover:text-primary-600 transition-colors">Proyectos</Link>
                         <Link to="/about" className="hover:text-primary-600 transition-colors">Nosotros</Link>
+                        <Link to="/software" className="hover:text-blue-600 text-blue-500 font-semibold transition-colors">Software</Link>
                         <Link to="/contact" className="hover:text-primary-600 transition-colors">Contacto</Link>
                     </nav>
 
@@ -96,6 +97,7 @@ const Layout = ({ children }) => {
                         <Link to="/quote" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Cotizar</Link>
                         <Link to="/projects" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Proyectos</Link>
                         <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
+                        <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
                         <Link to="/register" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
                         <Link to="/cart" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>

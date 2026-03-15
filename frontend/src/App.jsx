@@ -11,12 +11,15 @@ import About from './pages/About';
 import Projects from './pages/Projects';
 import FAQ from './pages/FAQ';
 import Register from './pages/Register';
+import Software from './pages/Software';
 import NotFound from './pages/NotFound';
 // Admin
 import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AdminQuotes from './pages/AdminQuotes';
 import AdminSettings from './pages/AdminSettings';
+import AdminProjects from './pages/AdminProjects';
+import AdminFAQ from './pages/AdminFAQ';
 import AdminLogin from './pages/AdminLogin';
 import ProtectedRoute from './components/ProtectedRoute';
 import PaymentResult from './pages/PaymentResult';
@@ -36,9 +39,11 @@ function App() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/software" element={<Software />} />
           <Route path="/payment/result" element={<PaymentResult />} />
 
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/reset-password" element={<AdminLogin />} />
 
           {/* Admin Routes - Protected */}
           <Route element={<ProtectedRoute />}>
@@ -46,6 +51,8 @@ function App() {
             <Route path="/admin/products" element={<AdminProducts />} />
             <Route path="/admin/quotes" element={<AdminQuotes />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/projects" element={<AdminProjects />} />
+            <Route path="/admin/faq" element={<AdminFAQ />} />
           </Route>
 
           {/* 404 */}

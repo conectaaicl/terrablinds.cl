@@ -179,6 +179,40 @@ exports.sendAdminQuoteNotification = async (quote) => {
     }
 };
 
+// Email de recuperación de contraseña
+exports.sendPasswordResetEmail = async (toEmail, resetUrl) => {
+    const { apiKey, companyEmail } = await getResendConfig();
+
+    const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        ${headerHtml('Recuperación de Contraseña')}
+        <div style="padding:24px;">
+            <p>Recibimos una solicitud para restablecer la contraseña del administrador de TerraBlinds.</p>
+            <p>Haz clic en el botón para crear una nueva contraseña. Este enlace expira en <strong>1 hora</strong>.</p>
+            <div style="text-align:center;margin:32px 0;">
+                <a href="${escapeHtml(resetUrl)}"
+                   style="background:#2563eb;color:white;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;">
+                    Restablecer Contraseña
+                </a>
+            </div>
+            <p style="color:#6b7280;font-size:13px;">Si no solicitaste este cambio, ignora este correo. Tu contraseña no cambiará.</p>
+            <p style="color:#6b7280;font-size:13px;">Si el botón no funciona, copia este enlace en tu navegador:<br>
+                <a href="${escapeHtml(resetUrl)}" style="color:#2563eb;word-break:break-all;">${escapeHtml(resetUrl)}</a>
+            </p>
+        </div>
+        ${footerHtml(companyEmail)}
+    </div>`;
+
+    await sendEmail({
+        apiKey,
+        from: process.env.RESEND_FROM_EMAIL || `TerraBlinds <noreply@terrablinds.cl>`,
+        to: [toEmail],
+        subject: 'Recuperación de contraseña - TerraBlinds Admin',
+        html
+    });
+    console.log(`Password reset email sent to ${toEmail}`);
+};
+
 // Notificación al cliente cuando cambia el estado de su cotización
 exports.sendStatusUpdateEmail = async (quote, newStatus) => {
     const { apiKey, companyEmail } = await getResendConfig();

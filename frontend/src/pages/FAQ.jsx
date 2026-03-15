@@ -1,50 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { ChevronDown } from 'lucide-react';
-
-const faqs = [
-    {
-        q: '¿Cómo funciona el cotizador online?',
-        a: 'Selecciona la categoría de producto, el modelo, ingresa las medidas de tu ventana (ancho x alto en cm) y obtienes el precio estimado al instante. Luego completas tus datos y enviamos tu cotización formal en menos de 24 horas.'
-    },
-    {
-        q: '¿Cuáles son las medidas mínimas y máximas de fabricación?',
-        a: 'Para cortinas roller, fabricamos desde 30 cm hasta 500 cm de ancho, y desde 30 cm hasta 400 cm de alto. Para toldos y persianas de exterior, las medidas varían según el modelo. Consúltanos por casos especiales.'
-    },
-    {
-        q: '¿Cuánto tiempo demora la fabricación e instalación?',
-        a: 'El plazo estándar es de 5 a 10 días hábiles desde la confirmación del pedido. Para proyectos grandes o temporadas de alta demanda puede extenderse. Te informaremos el plazo exacto al confirmar tu cotización.'
-    },
-    {
-        q: '¿Tienen servicio de instalación incluido?',
-        a: 'Sí, contamos con equipo de instalación en Santiago y principales ciudades. El costo de instalación se cotiza de forma separada según la cantidad de piezas y la complejidad del proyecto.'
-    },
-    {
-        q: '¿Qué garantía tienen los productos?',
-        a: 'Todos nuestros productos cuentan con garantía de 12 meses contra defectos de fabricación. La motorización y accesorios tienen garantía del fabricante (generalmente 2 años).'
-    },
-    {
-        q: '¿Puedo ver muestras de telas antes de comprar?',
-        a: 'Sí, enviamos muestras de tela sin costo a tu domicilio dentro de la Región Metropolitana. Para otras regiones coordinamos el envío con cargo. Escríbenos por WhatsApp o al correo de contacto.'
-    },
-    {
-        q: '¿Hacen despacho a regiones?',
-        a: 'Sí, despachamos a todo Chile mediante empresas de transporte. El costo de envío se calcula según el peso, dimensiones y destino. Para instalación en regiones, coordinamos con instaladores locales.'
-    },
-    {
-        q: '¿Cómo puedo pagar?',
-        a: 'Aceptamos transferencia bancaria, tarjeta de crédito/débito vía WebPay (Flow.cl) y Mercado Pago. También puedes solicitar tu cotización y pagar al momento de la instalación con un abono previo.'
-    },
-    {
-        q: '¿Fabrican cortinas para proyectos comerciales o inmobiliarias?',
-        a: 'Sí, tenemos amplia experiencia en proyectos comerciales: oficinas, hoteles, restaurantes, clínicas y proyectos inmobiliarios. Ofrecemos precios especiales por volumen. Consúltanos.'
-    },
-    {
-        q: '¿Qué pasa si las medidas que tomé están incorrectas?',
-        a: 'Te recomendamos siempre medir dos veces y verificar antes de confirmar el pedido. Puedes solicitar que nuestro equipo vaya a medir sin costo en Santiago. Si hay un error de medida del cliente, se cobra la diferencia de fabricación.'
-    }
-];
+import api from '../api';
 
 const FAQItem = ({ q, a }) => {
     const [open, setOpen] = useState(false);
@@ -67,6 +25,16 @@ const FAQItem = ({ q, a }) => {
 };
 
 const FAQ = () => {
+    const [faqs, setFaqs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get('/api/faqs')
+            .then(res => setFaqs(res.data))
+            .catch(() => setFaqs([]))
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <Layout>
             <SEO
@@ -83,11 +51,21 @@ const FAQ = () => {
             </div>
 
             <div className="container mx-auto px-4 py-16 max-w-3xl">
-                <div className="space-y-4">
-                    {faqs.map((faq, idx) => (
-                        <FAQItem key={idx} q={faq.q} a={faq.a} />
-                    ))}
-                </div>
+                {loading ? (
+                    <div className="space-y-4">
+                        {[...Array(5)].map((_, i) => (
+                            <div key={i} className="h-16 rounded-xl bg-gray-100 animate-pulse" />
+                        ))}
+                    </div>
+                ) : faqs.length === 0 ? (
+                    <p className="text-center text-gray-400 py-12">No hay preguntas frecuentes aún.</p>
+                ) : (
+                    <div className="space-y-4">
+                        {faqs.map((faq) => (
+                            <FAQItem key={faq.id} q={faq.question} a={faq.answer} />
+                        ))}
+                    </div>
+                )}
 
                 <div className="mt-12 text-center bg-primary-50 border border-primary-100 rounded-2xl p-10">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">¿No encontraste tu respuesta?</h2>

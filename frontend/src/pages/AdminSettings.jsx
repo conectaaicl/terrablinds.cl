@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Save, Loader, CheckCircle } from 'lucide-react';
+import { Save, Loader, CheckCircle, Upload, X } from 'lucide-react';
 import api from '../api';
 
 const Section = ({ title, children }) => (
@@ -22,36 +22,89 @@ const Input = (props) => (
     <input {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
 );
 
+const Textarea = (props) => (
+    <textarea {...props} className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none resize-none" />
+);
+
+const ImageUploadField = ({ label, hint, value, fieldName, onChange }) => {
+    const [uploading, setUploading] = useState(false);
+
+    const handleFile = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploading(true);
+        try {
+            const fd = new FormData();
+            fd.append('image', file);
+            const res = await api.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            onChange(fieldName, res.data.filePath);
+        } catch {
+            alert('Error al subir la imagen. Asegúrate de que el archivo sea menor a 20MB.');
+        } finally {
+            setUploading(false);
+            e.target.value = '';
+        }
+    };
+
+    return (
+        <Field label={label} hint={hint}>
+            <div className="space-y-2">
+                <div className="flex gap-2">
+                    <Input
+                        value={value || ''}
+                        onChange={e => onChange(fieldName, e.target.value)}
+                        placeholder="URL de imagen o sube un archivo"
+                    />
+                    <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors text-sm text-gray-600 flex-shrink-0 whitespace-nowrap">
+                        {uploading ? <Loader className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                        {uploading ? 'Subiendo...' : 'Subir'}
+                        <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
+                    </label>
+                </div>
+                {value && (
+                    <div className="relative inline-block">
+                        <img src={value} alt="preview" className="h-16 rounded-lg object-contain border border-gray-200 bg-gray-50 p-1" />
+                        <button type="button" onClick={() => onChange(fieldName, '')}
+                            className="absolute -top-2 -right-2 p-0.5 bg-red-500 text-white rounded-full hover:bg-red-600">
+                            <X className="w-3 h-3" />
+                        </button>
+                    </div>
+                )}
+            </div>
+        </Field>
+    );
+};
+
 const AdminSettings = () => {
     const [settings, setSettings] = useState({
         // Pagos
-        flow_api_key: '',
-        flow_secret_key: '',
-        flow_api_url: '',
-        mercadopago_access_token: '',
-        mercadopago_public_key: '',
+        flow_api_key: '', flow_secret_key: '', flow_api_url: '',
+        mercadopago_access_token: '', mercadopago_public_key: '',
         // Email
-        resend_api_key: '',
-        admin_notification_email: '',
+        resend_api_key: '', admin_notification_email: '',
         // Marca
         logo_url: '',
         // Hero
-        hero_title: '',
-        hero_subtitle: '',
-        hero_cta_primary: '',
-        hero_cta_secondary: '',
-        hero_bg_image: '',
+        hero_title: '', hero_subtitle: '', hero_cta_primary: '', hero_cta_secondary: '', hero_bg_image: '',
         // Contacto
-        whatsapp_number: '',
-        company_email: '',
-        company_phone: '',
-        company_address: '',
+        whatsapp_number: '', company_email: '', company_phone: '', company_address: '',
         // Redes sociales
-        social_facebook: '',
-        social_instagram: '',
-        social_tiktok: '',
-        social_youtube: '',
-        social_twitter: ''
+        social_facebook: '', social_instagram: '', social_tiktok: '', social_youtube: '', social_twitter: '',
+        // About
+        about_title: '', about_subtitle: '',
+        about_history_title: '', about_history_text1: '', about_history_text2: '', about_image_url: '',
+        about_val1_title: '', about_val1_text: '',
+        about_val2_title: '', about_val2_text: '',
+        about_val3_title: '', about_val3_text: '',
+        about_val4_title: '', about_val4_text: '',
+        // Software
+        software_enabled: 'true',
+        software_title: '', software_subtitle: '', software_description: '',
+        software_badge: '', software_image_url: '',
+        software_cta_label: '', software_cta_url: '',
+        software_alt_label: '', software_alt_url: '',
+        // Automatización
+        webhook_url: ''
     });
     const [loading, setLoading] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -74,6 +127,10 @@ const AdminSettings = () => {
 
     const handleChange = (e) => {
         setSettings({ ...settings, [e.target.name]: e.target.value });
+    };
+
+    const handleFieldChange = (name, value) => {
+        setSettings(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
@@ -131,25 +188,25 @@ const AdminSettings = () => {
                                         placeholder="Cotizar Ahora" />
                                 </Field>
                             </div>
-                            <Field label="URL Imagen de Fondo del Hero" hint="Deja en blanco para usar el fondo oscuro por defecto.">
-                                <Input name="hero_bg_image" value={settings.hero_bg_image || ''} onChange={handleChange}
-                                    placeholder="https://ejemplo.com/banner.jpg" />
-                            </Field>
+                            <ImageUploadField
+                                label="Imagen de Fondo del Hero"
+                                hint="Recomendado: 1920×1080px. Deja vacío para usar fondo oscuro por defecto."
+                                value={settings.hero_bg_image}
+                                fieldName="hero_bg_image"
+                                onChange={handleFieldChange}
+                            />
                         </div>
                     </Section>
 
                     {/* IDENTIDAD */}
                     <Section title="Identidad de Marca">
-                        <Field label="URL del Logo" hint="Se mostrará en el header. Recomendado: PNG transparente, alto máx. 80px.">
-                            <Input name="logo_url" value={settings.logo_url || ''} onChange={handleChange}
-                                placeholder="https://ejemplo.com/logo.png" />
-                        </Field>
-                        {settings.logo_url && (
-                            <div className="mt-3 p-4 bg-gray-50 rounded-lg">
-                                <p className="text-xs text-gray-500 mb-2">Vista previa:</p>
-                                <img src={settings.logo_url} alt="Logo" className="h-10 object-contain" />
-                            </div>
-                        )}
+                        <ImageUploadField
+                            label="Logo del sitio"
+                            hint="Se mostrará en el header y footer. Recomendado: PNG transparente, alto máx. 80px."
+                            value={settings.logo_url}
+                            fieldName="logo_url"
+                            onChange={handleFieldChange}
+                        />
                     </Section>
 
                     {/* EMPRESA */}
@@ -198,6 +255,115 @@ const AdminSettings = () => {
                         </div>
                     </Section>
 
+                    {/* ABOUT */}
+                    <Section title="Página «Sobre Nosotros»">
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Field label="Título de la página">
+                                    <Input name="about_title" value={settings.about_title || ''} onChange={handleChange}
+                                        placeholder="Sobre Nosotros" />
+                                </Field>
+                                <Field label="Subtítulo">
+                                    <Input name="about_subtitle" value={settings.about_subtitle || ''} onChange={handleChange}
+                                        placeholder="Dedicados a transformar tus espacios..." />
+                                </Field>
+                            </div>
+                            <ImageUploadField
+                                label="Imagen principal (sección historia)"
+                                hint="Foto del equipo, taller o instalación. Recomendado: 800×600px."
+                                value={settings.about_image_url}
+                                fieldName="about_image_url"
+                                onChange={handleFieldChange}
+                            />
+                            <Field label="Título de la sección historia">
+                                <Input name="about_history_title" value={settings.about_history_title || ''} onChange={handleChange}
+                                    placeholder="Expertos en cortinas y persianas desde 2010" />
+                            </Field>
+                            <Field label="Párrafo 1">
+                                <Textarea name="about_history_text1" value={settings.about_history_text1 || ''} onChange={handleChange}
+                                    rows={3} placeholder="Texto del primer párrafo de la historia de la empresa..." />
+                            </Field>
+                            <Field label="Párrafo 2 (opcional)">
+                                <Textarea name="about_history_text2" value={settings.about_history_text2 || ''} onChange={handleChange}
+                                    rows={3} placeholder="Texto del segundo párrafo..." />
+                            </Field>
+
+                            <p className="text-sm font-semibold text-gray-700 mt-2 border-t pt-4">Tarjetas de valores (4 tarjetas)</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {[1, 2, 3, 4].map(n => (
+                                    <div key={n} className="bg-gray-50 p-4 rounded-xl space-y-2">
+                                        <Field label={`Valor ${n} — Título`}>
+                                            <Input name={`about_val${n}_title`} value={settings[`about_val${n}_title`] || ''} onChange={handleChange}
+                                                placeholder="Ej: Calidad" />
+                                        </Field>
+                                        <Field label={`Valor ${n} — Descripción`}>
+                                            <Input name={`about_val${n}_text`} value={settings[`about_val${n}_text`] || ''} onChange={handleChange}
+                                                placeholder="Materiales certificados y duraderos." />
+                                        </Field>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </Section>
+
+                    {/* SOFTWARE */}
+                    <Section title="Página «Software» — WorkShopOS">
+                        <div className="grid grid-cols-1 gap-4">
+                            <Field label="Mostrar sección Software en el sitio">
+                                <label className="flex items-center gap-2 mt-1 cursor-pointer">
+                                    <input type="checkbox" name="software_enabled"
+                                        checked={settings.software_enabled === 'true' || settings.software_enabled === true}
+                                        onChange={e => handleFieldChange('software_enabled', e.target.checked ? 'true' : 'false')}
+                                        className="w-4 h-4 rounded" />
+                                    <span className="text-sm text-gray-700">Visible para visitantes</span>
+                                </label>
+                            </Field>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Field label="Nombre del producto">
+                                    <Input name="software_title" value={settings.software_title || ''} onChange={handleChange}
+                                        placeholder="WorkShopOS" />
+                                </Field>
+                                <Field label="Badge / etiqueta">
+                                    <Input name="software_badge" value={settings.software_badge || ''} onChange={handleChange}
+                                        placeholder="Desarrollado por TerraBlinds" />
+                                </Field>
+                            </div>
+                            <Field label="Subtítulo">
+                                <Input name="software_subtitle" value={settings.software_subtitle || ''} onChange={handleChange}
+                                    placeholder="El sistema de gestión para talleres y empresas de instalación" />
+                            </Field>
+                            <Field label="Descripción completa">
+                                <Textarea name="software_description" value={settings.software_description || ''} onChange={handleChange}
+                                    rows={3} placeholder="Descripción del producto, qué hace, para quién es..." />
+                            </Field>
+                            <ImageUploadField
+                                label="Imagen / Screenshot del producto"
+                                hint="Captura de pantalla del software. Recomendado: 1200×700px."
+                                value={settings.software_image_url}
+                                fieldName="software_image_url"
+                                onChange={handleFieldChange}
+                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Field label="Botón principal — Texto">
+                                    <Input name="software_cta_label" value={settings.software_cta_label || ''} onChange={handleChange}
+                                        placeholder="Comprar ahora" />
+                                </Field>
+                                <Field label="Botón principal — URL">
+                                    <Input name="software_cta_url" value={settings.software_cta_url || ''} onChange={handleChange}
+                                        placeholder="https://working.conectaai.cl" />
+                                </Field>
+                                <Field label="Botón secundario — Texto">
+                                    <Input name="software_alt_label" value={settings.software_alt_label || ''} onChange={handleChange}
+                                        placeholder="Ver más información" />
+                                </Field>
+                                <Field label="Botón secundario — URL">
+                                    <Input name="software_alt_url" value={settings.software_alt_url || ''} onChange={handleChange}
+                                        placeholder="https://working.conectaai.cl" />
+                                </Field>
+                            </div>
+                        </div>
+                    </Section>
+
                     {/* EMAIL */}
                     <Section title="Email & Notificaciones (Resend)">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -205,7 +371,7 @@ const AdminSettings = () => {
                                 <Input type="password" name="resend_api_key" value={settings.resend_api_key || ''} onChange={handleChange}
                                     placeholder="re_12345678..." />
                             </Field>
-                            <Field label="Email para recibir notificaciones de cotizaciones" hint="Se enviará un aviso a este email con cada nueva cotización.">
+                            <Field label="Email para recibir notificaciones" hint="Se enviará un aviso a este email con cada nueva cotización.">
                                 <Input type="email" name="admin_notification_email" value={settings.admin_notification_email || ''} onChange={handleChange}
                                     placeholder="ventas@terrablinds.cl" />
                             </Field>
@@ -246,9 +412,25 @@ const AdminSettings = () => {
                         </div>
                     </Section>
 
+                    {/* WEBHOOK / N8N */}
+                    <Section title="Automatización — Webhook (n8n / Zapier)">
+                        <Field
+                            label="URL del Webhook"
+                            hint="Cada vez que llegue una cotización nueva, se enviará un POST a esta URL. Ideal para n8n (WhatsApp, email, Slack, CRM, etc.)"
+                        >
+                            <Input
+                                name="webhook_url"
+                                value={settings.webhook_url || ''}
+                                onChange={handleChange}
+                                placeholder="https://tu-n8n.com/webhook/terrablinds-quotes"
+                            />
+                        </Field>
+                    </Section>
+
                     <div className="flex justify-end">
                         <button type="submit" disabled={saving}
-                            className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-lg shadow-lg flex items-center transition-colors">
+                            style={{ backgroundColor: saving ? '#9ca3af' : '#2563eb' }}
+                            className="px-6 py-3 text-white font-bold rounded-xl shadow-md flex items-center hover:opacity-90 transition-opacity">
                             {saving ? <Loader className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
                             Guardar Configuración
                         </button>

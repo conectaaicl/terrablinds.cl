@@ -181,6 +181,15 @@ const AdminProducts = () => {
         return img.startsWith('http') ? img : `${baseUrl}${img}`;
     };
 
+    const handleToggleActive = async (product) => {
+        try {
+            await api.put(`/api/products/${product.id}`, { ...product, is_active: !product.is_active });
+            setProducts(products.map(p => p.id === product.id ? { ...p, is_active: !p.is_active } : p));
+        } catch (err) {
+            alert('Error al cambiar estado del producto.');
+        }
+    };
+
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -194,7 +203,8 @@ const AdminProducts = () => {
                     <p className="text-gray-500">Administra el catálogo completo de tu tienda</p>
                 </div>
                 <button onClick={() => handleOpenModal()}
-                    className="bg-primary-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-primary-700 transition-colors shadow-lg">
+                    style={{ backgroundColor: '#2563eb' }}
+                    className="text-white px-5 py-2.5 rounded-xl flex items-center hover:opacity-90 transition-opacity shadow-md font-medium">
                     <Plus className="w-5 h-5 mr-2" /> Nuevo Producto
                 </button>
             </div>
@@ -249,9 +259,14 @@ const AdminProducts = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-gray-500">{product.stock}</td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${product.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                                        <button
+                                            onClick={() => handleToggleActive(product)}
+                                            title="Click para cambiar estado"
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all hover:opacity-80 cursor-pointer ${product.is_active ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}
+                                        >
+                                            <div className={`w-2 h-2 rounded-full ${product.is_active ? 'bg-green-500' : 'bg-red-500'}`} />
                                             {product.is_active ? 'Activo' : 'Inactivo'}
-                                        </span>
+                                        </button>
                                     </td>
                                     <td className="px-6 py-4 text-right">
                                         <button onClick={() => handleOpenModal(product)} className="text-primary-600 hover:text-primary-700 p-1 mr-2"><Edit className="w-5 h-5" /></button>
@@ -475,7 +490,8 @@ const AdminProducts = () => {
                             <div className="ml-auto flex space-x-3">
                                 <button type="button" onClick={handleCloseModal} className="px-6 py-2 border rounded-lg hover:bg-white transition-colors">Cancelar</button>
                                 <button onClick={handleSubmit} disabled={loading}
-                                    className="px-8 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-lg flex items-center">
+                                    style={{ backgroundColor: loading ? '#9ca3af' : '#2563eb' }}
+                                    className="px-8 py-2 text-white rounded-lg hover:opacity-90 transition-opacity shadow-lg flex items-center">
                                     {loading ? <Loader className="w-5 h-5 animate-spin mr-2" /> : <Save className="w-5 h-5 mr-2" />}
                                     {editingProduct ? 'Guardar Cambios' : 'Crear Producto'}
                                 </button>

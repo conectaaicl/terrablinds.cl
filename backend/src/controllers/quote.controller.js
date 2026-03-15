@@ -1,5 +1,27 @@
-const { Quote } = require('../models');
+const { Quote, Config } = require('../models');
 const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail } = require('../services/email.service');
+const axios = require('axios');
+
+async function fireWebhook(quote) {
+    try {
+        const cfg = await Config.findOne({ where: { key: 'webhook_url' } });
+        const url = cfg?.value;
+        if (!url || !url.startsWith('http')) return;
+        await axios.post(url, {
+            event: 'new_quote',
+            quote_id: quote.id,
+            customer_name: quote.customer_name,
+            customer_email: quote.customer_email,
+            customer_phone: quote.customer_phone,
+            total_amount: quote.total_amount,
+            items: quote.items,
+            created_at: quote.created_at,
+        }, { timeout: 5000 });
+        console.log(`Webhook fired for quote #${quote.id}`);
+    } catch (err) {
+        console.warn(`Webhook failed (non-blocking): ${err.message}`);
+    }
+}
 
 // Create quote (public, rate-limited)
 exports.createQuote = async (req, res) => {
@@ -54,6 +76,9 @@ exports.createQuote = async (req, res) => {
         sendAdminQuoteNotification(quote).catch(err => {
             console.error('Admin notification failed (non-blocking):', err.message);
         });
+
+        // Fire n8n/webhook (non-blocking)
+        fireWebhook(quote).catch(() => {});
 
         res.status(201).json(quote);
     } catch (error) {

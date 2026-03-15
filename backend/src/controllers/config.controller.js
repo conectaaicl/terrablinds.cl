@@ -7,7 +7,16 @@ const SENSITIVE_KEYS = ['flow_secret_key', 'resend_api_key'];
 const PUBLIC_KEYS = [
     'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
     'hero_title', 'hero_subtitle', 'hero_cta_primary', 'hero_cta_secondary', 'hero_bg_image',
-    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter'
+    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter',
+    'about_title', 'about_subtitle', 'about_history_title', 'about_history_text1', 'about_history_text2',
+    'about_image_url',
+    'about_val1_title', 'about_val1_text',
+    'about_val2_title', 'about_val2_text',
+    'about_val3_title', 'about_val3_text',
+    'about_val4_title', 'about_val4_text',
+    'software_title', 'software_subtitle', 'software_description',
+    'software_cta_label', 'software_cta_url', 'software_alt_label', 'software_alt_url',
+    'software_badge', 'software_image_url', 'software_enabled',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -17,7 +26,16 @@ const ALLOWED_CONFIG_KEYS = [
     'resend_api_key', 'admin_notification_email',
     'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
     'hero_title', 'hero_subtitle', 'hero_cta_primary', 'hero_cta_secondary', 'hero_bg_image',
-    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter'
+    'social_facebook', 'social_instagram', 'social_tiktok', 'social_youtube', 'social_twitter',
+    'about_title', 'about_subtitle', 'about_history_title', 'about_history_text1', 'about_history_text2',
+    'about_image_url',
+    'about_val1_title', 'about_val1_text',
+    'about_val2_title', 'about_val2_text',
+    'about_val3_title', 'about_val3_text',
+    'about_val4_title', 'about_val4_text',
+    'software_title', 'software_subtitle', 'software_description',
+    'software_cta_label', 'software_cta_url', 'software_alt_label', 'software_alt_url',
+    'software_badge', 'software_image_url', 'software_enabled',
 ];
 
 // Get all config (admin only - masks sensitive values)

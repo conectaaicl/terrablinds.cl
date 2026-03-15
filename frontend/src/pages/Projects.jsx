@@ -1,17 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
+import { ImageOff } from 'lucide-react';
+import api from '../api';
 
-const projects = [
-    { id: 1, title: 'Departamento Providencia', category: 'Roller Blackout', location: 'Santiago', color: 'from-gray-800 to-gray-950' },
-    { id: 2, title: 'Casa Las Condes', category: 'Roller Sunscreen', location: 'Santiago', color: 'from-blue-800 to-blue-950' },
-    { id: 3, title: 'Oficina Corporativa', category: 'Persianas Exterior', location: 'Santiago Centro', color: 'from-stone-700 to-stone-950' },
-    { id: 4, title: 'Hotel Boutique', category: 'Roller Duo Blackout', location: 'Viña del Mar', color: 'from-slate-700 to-slate-950' },
-    { id: 5, title: 'Clínica Dental', category: 'Domotica Motor Roller', location: 'Ñuñoa', color: 'from-zinc-700 to-zinc-950' },
-    { id: 6, title: 'Restaurante Moderno', category: 'Toldos Exterior', location: 'Vitacura', color: 'from-neutral-700 to-neutral-950' },
+const FALLBACK_COLORS = [
+    'from-gray-800 to-gray-950',
+    'from-blue-800 to-blue-950',
+    'from-stone-700 to-stone-950',
+    'from-slate-700 to-slate-950',
+    'from-zinc-700 to-zinc-950',
+    'from-neutral-700 to-neutral-950',
 ];
 
 const Projects = () => {
+    const [projects, setProjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get('/api/projects')
+            .then(res => setProjects(res.data))
+            .catch(() => setProjects([]))
+            .finally(() => setLoading(false));
+    }, []);
+
     return (
         <Layout>
             <SEO
@@ -28,19 +40,41 @@ const Projects = () => {
             </div>
 
             <div className="container mx-auto px-4 py-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {projects.map(p => (
-                        <div key={p.id} className="group relative overflow-hidden rounded-2xl h-64 shadow-sm hover:shadow-xl transition-shadow">
-                            <div className={`absolute inset-0 bg-gradient-to-br ${p.color} transition-transform duration-500 group-hover:scale-105`} />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                            <div className="absolute bottom-0 left-0 p-6">
-                                <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{p.category}</span>
-                                <h3 className="text-white text-xl font-bold mt-1">{p.title}</h3>
-                                <p className="text-white/60 text-sm">{p.location}</p>
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="h-64 rounded-2xl bg-gray-200 animate-pulse" />
+                        ))}
+                    </div>
+                ) : projects.length === 0 ? (
+                    <div className="text-center py-20 text-gray-400">
+                        <ImageOff className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                        <p>No hay proyectos publicados aún.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {projects.map((p, idx) => (
+                            <div key={p.id} className="group relative overflow-hidden rounded-2xl h-64 shadow-sm hover:shadow-xl transition-shadow">
+                                {p.image_url ? (
+                                    <img
+                                        src={p.image_url}
+                                        alt={p.title}
+                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                    />
+                                ) : (
+                                    <div className={`absolute inset-0 bg-gradient-to-br ${FALLBACK_COLORS[idx % FALLBACK_COLORS.length]} transition-transform duration-500 group-hover:scale-105`} />
+                                )}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                                <div className="absolute bottom-0 left-0 p-6">
+                                    <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">{p.category}</span>
+                                    <h3 className="text-white text-xl font-bold mt-1">{p.title}</h3>
+                                    <p className="text-white/60 text-sm">{p.location}</p>
+                                    {p.description && <p className="text-white/50 text-xs mt-1 line-clamp-2">{p.description}</p>}
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 <div className="mt-16 text-center bg-primary-50 border border-primary-100 rounded-2xl p-12">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">¿Quieres tu proyecto aquí?</h2>
