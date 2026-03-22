@@ -31,6 +31,10 @@ import AdminServicioTecnico from './pages/AdminServicioTecnico';
 import ServicioTecnico from './pages/ServicioTecnico';
 import Domotica from './pages/Domotica';
 import AdminDomotica from './pages/AdminDomotica';
+import CortinasMetalicas from './pages/CortinasMetalicas';
+import AdminCortinasMetalicas from './pages/AdminCortinasMetalicas';
+import Automatizacion from './pages/Automatizacion';
+import AdminAutomatizacion from './pages/AdminAutomatizacion';
 import AdminLeads from './pages/AdminLeads';
 import AdminBookings from './pages/AdminBookings';
 import Booking from './pages/Booking';
@@ -56,6 +60,8 @@ function App() {
           <Route path="/software" element={<Software />} />
           <Route path="/servicio-tecnico" element={<ServicioTecnico />} />
           <Route path="/domotica" element={<Domotica />} />
+          <Route path="/cortinas-metalicas" element={<CortinasMetalicas />} />
+          <Route path="/automatizacion" element={<Automatizacion />} />
           <Route path="/payment/result" element={<PaymentResult />} />
           <Route path="/agendar" element={<Booking />} />
           <Route path="/reserva/resultado" element={<BookingResult />} />
@@ -79,6 +85,8 @@ function App() {
             <Route path="/admin/paginas/software" element={<AdminSoftware />} />
             <Route path="/admin/paginas/servicio-tecnico" element={<AdminServicioTecnico />} />
             <Route path="/admin/paginas/domotica" element={<AdminDomotica />} />
+            <Route path="/admin/paginas/cortinas-metalicas" element={<AdminCortinasMetalicas />} />
+            <Route path="/admin/paginas/automatizacion" element={<AdminAutomatizacion />} />
             <Route path="/admin/leads" element={<AdminLeads />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
           </Route>

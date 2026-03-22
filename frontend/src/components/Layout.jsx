@@ -77,6 +77,8 @@ const Layout = ({ children }) => {
                             { to: '/about', label: 'Nosotros' },
                             { to: '/software', label: 'Software', color: 'text-blue-600' },
                             { to: '/domotica', label: 'Domótica', color: 'text-indigo-600' },
+                            { to: '/cortinas-metalicas', label: 'Cortinas Metálicas', color: 'text-slate-700' },
+                            { to: '/automatizacion', label: 'Automatización', color: 'text-amber-600' },
                             { to: '/servicio-tecnico', label: 'Serv. Técnico' },
                             { to: '/agendar', label: 'Agendar', color: 'text-emerald-700' },
                             { to: '/contact', label: 'Contacto' },
@@ -125,6 +127,8 @@ const Layout = ({ children }) => {
                         <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
                         <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
                         <Link to="/domotica" className="block text-indigo-500 font-semibold hover:text-indigo-600" onClick={() => setIsMenuOpen(false)}>Domótica</Link>
+                        <Link to="/cortinas-metalicas" className="block text-slate-700 font-semibold hover:text-slate-800" onClick={() => setIsMenuOpen(false)}>Cortinas Metálicas</Link>
+                        <Link to="/automatizacion" className="block text-amber-600 font-semibold hover:text-amber-700" onClick={() => setIsMenuOpen(false)}>Automatización</Link>
                         <Link to="/servicio-tecnico" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Servicio Técnico</Link>
                         <Link to="/agendar" className="block text-emerald-700 font-semibold hover:text-emerald-800" onClick={() => setIsMenuOpen(false)}>Agendar Visita</Link>
                         <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
@@ -197,6 +201,8 @@ const Layout = ({ children }) => {
                             <li><Link to="/catalog?category=Domotica Motor Roller" className="hover:text-white">Motorización</Link></li>
                             <li><Link to="/catalog?category=Persianas Exterior" className="hover:text-white">Persianas Exterior</Link></li>
                             <li><Link to="/catalog?category=Toldos" className="hover:text-white">Toldos</Link></li>
+                            <li><Link to="/cortinas-metalicas" className="hover:text-white">Cortinas Metálicas</Link></li>
+                            <li><Link to="/automatizacion" className="hover:text-white">Automatización</Link></li>
                         </ul>
                     </div>
                     <div>
