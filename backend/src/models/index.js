@@ -8,6 +8,7 @@ const FAQ = require('./faq');
 const Lead = require('./lead');
 const Booking = require('./booking');
 const BlockedDay = require('./blockedDay');
+const Blog = require('./blog');
 
 const models = {
     Product,
@@ -19,6 +20,7 @@ const models = {
     Lead,
     Booking,
     BlockedDay,
+    Blog,
     sequelize
 };
 
