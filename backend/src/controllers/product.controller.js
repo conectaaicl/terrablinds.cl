@@ -1,5 +1,6 @@
 const { Product } = require('../models');
 const { Op } = require('sequelize');
+const { notifySocial } = require('../services/social.webhook');
 
 // Whitelist of fields allowed for product creation/update
 const ALLOWED_FIELDS = [
@@ -93,6 +94,9 @@ exports.createProduct = async (req, res) => {
 
         const product = await Product.create(data);
         res.status(201).json(product);
+
+        // Notify social.conectaai.cl — fire and forget, never blocks the response
+        notifySocial('product.created', product).catch(() => {});
     } catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json({ error: 'A product with this slug already exists' });
@@ -118,6 +122,16 @@ exports.updateProduct = async (req, res) => {
         const data = sanitizeProductData(req.body);
         await product.update(data);
         res.json(product);
+
+        // Notify social only when product is active and has meaningful changes
+        const priceFields = ['base_price_m2', 'price_unit', 'is_active'];
+        const hasPriceChange = priceFields.some((f) => req.body[f] !== undefined);
+        const event = hasPriceChange && product.dataValues.is_active
+            ? 'product.on_sale'
+            : 'product.updated';
+        if (product.dataValues.is_active) {
+            notifySocial(event, product).catch(() => {});
+        }
     } catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
             return res.status(400).json({ error: 'A product with this slug already exists' });

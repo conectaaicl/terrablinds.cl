@@ -226,8 +226,8 @@ export default function Quote() {
                             <CheckCircle className="w-10 h-10 text-green-600" />
                         </div>
                         <h1 className="text-3xl font-bold text-gray-900 mb-3">¡Cotización Enviada!</h1>
-                        <p className="text-gray-500 mb-2">Hemos recibido tu solicitud exitosamente.</p>
-                        <p className="text-gray-500 mb-8">Un ejecutivo preparará tu presupuesto y te contactará a la brevedad.</p>
+                        <p className="text-gray-600 mb-2 font-medium">Tu cotización con el detalle de precios fue enviada a <strong>{userData.email}</strong></p>
+                        <p className="text-gray-400 text-sm mb-8">Revisa tu bandeja de entrada (o spam). Nuestro equipo confirmará disponibilidad y coordinará la instalación.</p>
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Link to="/" className="px-7 py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors">
                                 Volver al Inicio

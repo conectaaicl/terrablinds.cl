@@ -4,6 +4,8 @@ import AdminLayout from '../components/AdminLayout';
 import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight, Zap, MessageCircle, RefreshCw } from 'lucide-react';
 import api from '../api';
 
+const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
+
 const STATUS_LABELS = {
     pending:   { label: 'Pendiente',   cls: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
     contacted: { label: 'Contactado',  cls: 'bg-blue-100 text-blue-700 border-blue-200' },
@@ -92,14 +94,23 @@ const AdminDashboard = () => {
 
     return (
         <AdminLayout>
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-                    <p className="text-gray-400 text-sm mt-1">{lastUpdated ? `Actualizado: ${lastUpdated.toLocaleTimeString('es-CL')}` : 'Cargando...'}</p>
+            {/* Welcome Banner */}
+            <div className="mb-8 rounded-2xl overflow-hidden bg-gradient-to-r from-[#0d3a8a] via-[#1a56c4] to-[#0d3a8a] shadow-xl">
+                <div className="flex flex-col sm:flex-row items-center justify-between px-8 py-6 gap-4">
+                    <div className="flex items-center gap-5">
+                        <img src={LOGO_URL} alt="TerraBlinds" className="h-16 w-auto object-contain rounded-xl shadow-lg" />
+                        <div>
+                            <h1 className="text-2xl font-extrabold text-white tracking-tight">Panel de Administración</h1>
+                            <p className="text-blue-200 text-sm mt-0.5">Diseño y Protección a Tu Medida</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <p className="text-blue-300 text-xs hidden sm:block">{lastUpdated ? `Actualizado: ${lastUpdated.toLocaleTimeString('es-CL')}` : ''}</p>
+                        <button onClick={() => { fetchAll(); checkSystemStatus(); }} className="flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl text-sm font-medium text-white transition-colors backdrop-blur-sm">
+                            <RefreshCw className="w-4 h-4" /> Actualizar
+                        </button>
+                    </div>
                 </div>
-                <button onClick={() => { fetchAll(); checkSystemStatus(); }} className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 shadow-sm">
-                    <RefreshCw className="w-4 h-4" /> Actualizar
-                </button>
             </div>
 
             {loading ? (

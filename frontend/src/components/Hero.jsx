@@ -75,7 +75,7 @@ export default function Hero() {
     return (
         <div
             className="relative overflow-hidden text-white"
-            style={{ height: 'min(92vh, 680px)' }}
+            style={{ height: 'min(96vh, 780px)' }}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
         >
@@ -119,7 +119,7 @@ export default function Hero() {
             `}</style>
 
             {/* Content */}
-            <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="relative z-10 h-full flex flex-col items-center justify-end text-center px-4 pb-24">
                 <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-blue-300/90 mb-4 border border-blue-400/30 px-4 py-1.5 rounded-full backdrop-blur-sm bg-white/5">
                     {config.hero_badge || 'Fabricación a Medida · Santiago, Chile'}
                 </span>

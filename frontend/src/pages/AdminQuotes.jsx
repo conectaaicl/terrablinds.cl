@@ -1,6 +1,76 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone } from 'lucide-react';
+import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer } from 'lucide-react';
+
+const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
+
+function printQuote(quote, items) {
+    const rows = items.map(item => `
+        <tr>
+            <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${item.productName || item.product || '-'}</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${item.width && item.height ? item.width + '×' + item.height + ' cm' : 'Unidad'}${item.color ? ' — ' + item.color : ''}</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">${item.quantity || 1}</td>
+            <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:bold;">$${(item.price || 0).toLocaleString('es-CL')}</td>
+        </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Cotización #${quote.id} - TerraBlinds</title>
+    <style>
+        body{font-family:Arial,sans-serif;color:#111;margin:0;padding:0;}
+        .header{background:#0d3a8a;padding:28px 40px;display:flex;align-items:center;gap:20px;}
+        .header img{height:64px;border-radius:8px;}
+        .header-text{color:white;}
+        .header-text h1{margin:0;font-size:22px;}
+        .header-text p{margin:4px 0 0;color:#bfdbfe;font-size:13px;}
+        .body{padding:32px 40px;}
+        .section-title{font-size:11px;font-weight:700;text-transform:uppercase;color:#6b7280;letter-spacing:.05em;margin-bottom:10px;}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:28px;}
+        .info-box{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:12px 16px;}
+        .info-box label{display:block;font-size:11px;color:#9ca3af;margin-bottom:3px;}
+        .info-box span{font-weight:600;font-size:14px;}
+        table{width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;}
+        thead tr{background:#f3f4f6;}
+        thead th{padding:10px 12px;text-align:left;font-size:12px;color:#6b7280;font-weight:600;}
+        .total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:2px solid #e5e7eb;margin-top:20px;}
+        .total-row span:first-child{color:#6b7280;font-size:14px;}
+        .total-row span:last-child{font-size:24px;font-weight:800;color:#1e40af;}
+        .footer{background:#f3f4f6;padding:16px 40px;text-align:center;font-size:12px;color:#9ca3af;margin-top:32px;}
+        @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
+    </style></head><body>
+    <div class="header">
+        <img src="${window.location.origin}${LOGO_URL}" alt="TerraBlinds" />
+        <div class="header-text">
+            <h1>Cotización #${quote.id}</h1>
+            <p>${new Date(quote.created_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
+    </div>
+    <div class="body">
+        <p class="section-title">Datos del cliente</p>
+        <div class="info-grid">
+            <div class="info-box"><label>Cliente</label><span>${quote.customer_name}</span></div>
+            <div class="info-box"><label>Email</label><span>${quote.customer_email}</span></div>
+            <div class="info-box"><label>Teléfono</label><span>${quote.customer_phone || '-'}</span></div>
+            <div class="info-box"><label>Estado</label><span>${quote.status}</span></div>
+        </div>
+        ${quote.notes ? '<p class="section-title">Notas</p><p style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;font-size:14px;margin-bottom:28px;">' + quote.notes + '</p>' : ''}
+        <p class="section-title">Productos solicitados</p>
+        <table>
+            <thead><tr><th>Producto</th><th>Detalle</th><th style="text-align:center;">Cant.</th><th style="text-align:right;">Precio</th></tr></thead>
+            <tbody>${rows}</tbody>
+        </table>
+        <div class="total-row">
+            <span>Total estimado</span>
+            <span>$${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}</span>
+        </div>
+    </div>
+    <div class="footer">TerraBlinds — Diseño y Protección a Tu Medida | terrablinds.cl</div>
+    </body></html>`;
+
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 500);
+}
 import api from '../api';
 
 const STATUS_MAP = {
@@ -255,6 +325,11 @@ const AdminQuotes = () => {
 
                         {/* Action footer */}
                         <div className="p-6 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-3">
+                            <button
+                                onClick={() => printQuote(selectedQuote, parseItems(selectedQuote))}
+                                className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl font-medium text-sm hover:bg-gray-700 transition-colors">
+                                <Printer className="w-4 h-4" /> Descargar PDF
+                            </button>
                             {whatsappLink(selectedQuote) && (
                                 <a href={whatsappLink(selectedQuote)} target="_blank" rel="noopener noreferrer"
                                     className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl font-medium text-sm hover:bg-green-700 transition-colors">

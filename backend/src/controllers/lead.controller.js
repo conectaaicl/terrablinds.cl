@@ -1,4 +1,24 @@
-const { Lead } = require('../models');
+const { Lead, Config } = require('../models');
+const axios = require('axios');
+
+const N8N_LEAD_WEBHOOK = 'https://n8n.conectaai.cl/webhook/nuevo-lead';
+
+async function fireLeadTelegram(lead) {
+    try {
+        await axios.post(N8N_LEAD_WEBHOOK, {
+            contact: {
+                name: lead.name || 'Visitante',
+                external_id: `lead_${lead.id}`,
+                id: lead.id,
+            },
+            message: { content: lead.notes || '(sin mensaje)', conversation_id: 0 },
+            phone: lead.phone || '',
+            channel: lead.source || 'chat',
+        }, { timeout: 6000 });
+    } catch (err) {
+        console.warn('Lead webhook (non-blocking):', err.message);
+    }
+}
 
 // Save lead from chat widget (public)
 exports.saveLead = async (req, res) => {
@@ -15,13 +35,14 @@ exports.saveLead = async (req, res) => {
                 order: [['created_at', 'DESC']],
             });
             if (recent) {
-                // Update notes if new ones provided
                 if (notes) await recent.update({ notes, updated_at: new Date() });
                 return res.json({ id: recent.id, updated: true });
             }
         }
 
         const lead = await Lead.create({ name, email, phone, source, notes });
+        // Fire Telegram notification via n8n (non-blocking)
+        fireLeadTelegram(lead).catch(() => {});
         res.status(201).json({ id: lead.id });
     } catch (err) {
         console.error('Error saving lead:', err.message);

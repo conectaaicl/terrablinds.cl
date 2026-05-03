@@ -31,7 +31,12 @@ const Software = () => {
 
     useEffect(() => {
         api.get('/api/config/public')
-            .then(res => setCfg(prev => ({ ...prev, ...res.data })))
+            .then(res => {
+                const nonEmpty = Object.fromEntries(
+                    Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+                );
+                setCfg(prev => ({ ...prev, ...nonEmpty }));
+            })
             .catch(() => {});
     }, []);
 

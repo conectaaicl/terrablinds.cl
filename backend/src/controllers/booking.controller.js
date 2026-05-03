@@ -10,9 +10,34 @@ const SERVICE_LABELS = {
     tecnico_persianas: 'Servicio técnico persianas',
     tecnico_roller:    'Servicio técnico cortinas roller',
     tecnico_otros:     'Servicio técnico otros',
+    instalacion:       'Instalación de cortinas',
+    automatizacion:    'Instalación de motor / automatización',
 };
 
+// Services that don't require upfront payment
+const FREE_SERVICES = new Set(['instalacion', 'automatizacion']);
+
 const AMOUNT = 15000;
+
+const TG_TOKEN   = '58724091624:AAEpnBRNe-y49FM8DH0igIie-HnL83BA8yw';
+const TG_CHAT_ID = '8676382169';
+
+function notifyBookingTelegram(booking, serviceLabel) {
+    const body = JSON.stringify({
+        chat_id: TG_CHAT_ID,
+        text: `📅 *Nueva Reserva — TerraBlinds*\n\n👤 *Cliente:* ${booking.client_name}\n🔧 *Servicio:* ${serviceLabel}\n📆 *Fecha:* ${booking.date} · ${booking.time_slot} hrs\n📱 *Teléfono:* ${booking.client_phone || 'No indicado'}\n📧 *Email:* ${booking.client_email}`,
+        parse_mode: 'Markdown',
+    });
+    const req = https.request({
+        hostname: 'api.telegram.org',
+        path: `/bot${TG_TOKEN}/sendMessage`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+}
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
 const signParams = (params, secret) => {
@@ -93,15 +118,33 @@ exports.createBooking = async (req, res, next) => {
         });
         if (existing) return res.status(409).json({ error: 'Este horario ya está reservado. Elige otro.' });
 
+        const isFree = FREE_SERVICES.has(service_type);
+        const bookingAmount = isFree ? 0 : AMOUNT;
+
         const booking = await Booking.create({
             service_type, date, time_slot,
             client_name, client_email,
             client_phone: client_phone || null,
             client_address: client_address || null,
             notes: notes || null,
-            amount: AMOUNT,
-            status: 'pending_payment',
+            amount: bookingAmount,
+            status: isFree ? 'confirmed' : 'pending_payment',
         });
+
+        // Telegram notification (non-blocking)
+        notifyBookingTelegram(booking, SERVICE_LABELS[service_type]).catch(() => {});
+
+        // For free services: send confirmation email and return directly
+        if (isFree) {
+            emailService.sendBookingConfirmation(booking).catch(e => {
+                console.error('Booking confirmation email error:', e.message);
+            });
+            const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+            return res.json({
+                bookingId: booking.id,
+                redirectUrl: `${frontendUrl}/reserva/resultado?free=1&id=${booking.id}`,
+            });
+        }
 
         const { apiKey, secretKey, apiUrl } = await getFlowConfig();
         if (!apiKey || !secretKey) {

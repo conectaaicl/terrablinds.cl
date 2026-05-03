@@ -1,6 +1,22 @@
 const { Config } = require('../models');
 const https = require('https');
 
+const TG_TOKEN   = '58724091624:AAEpnBRNe-y49FM8DH0igIie-HnL83BA8yw';
+const TG_CHAT_ID = '8676382169';
+
+function sendTelegram(text) {
+    const body = JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown' });
+    const req = https.request({
+        hostname: 'api.telegram.org',
+        path: `/bot${TG_TOKEN}/sendMessage`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
+    });
+    req.on('error', () => {});
+    req.write(body);
+    req.end();
+}
+
 const buildSystemPrompt = (waNumber, waEmail) => `Eres el asistente virtual de TerraBlinds, empresa chilena especializada en cortinas, persianas y domótica. Respondes de forma amable, concisa y profesional. Siempre en español.
 
 CONTACTO DIRECTO:
@@ -121,6 +137,12 @@ exports.chat = async (req, res) => {
 
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) throw new Error('Empty response from Groq');
+
+        // Notify via Telegram on first user message only (non-blocking)
+        if (recentMessages.length === 1) {
+            const firstMsg = recentMessages[0].content;
+            sendTelegram(`💬 *Nuevo chat — TerraBlinds.cl*\n\n📝 *Mensaje:* ${firstMsg}`);
+        }
 
         res.json({ reply });
 
