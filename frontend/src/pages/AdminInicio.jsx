@@ -74,6 +74,10 @@ export default function AdminInicio() {
         feature2_title: '', feature2_text: '',
         feature3_title: '', feature3_text: '',
         feature4_title: '', feature4_text: '',
+        cat1_image: '', cat1_title: 'Cortinas Roller', cat1_link: '/catalog?category=Cortinas Roller',
+        cat2_image: '', cat2_title: 'Blackout', cat2_link: '/catalog?category=Blackout',
+        cat3_image: '', cat3_title: 'Persianas', cat3_link: '/catalog?category=Persianas',
+        home_projects_title: 'Proyectos Destacados', home_projects_subtitle: 'Trabajos reales en hogares y empresas de Chile.',
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -175,6 +179,41 @@ export default function AdminInicio() {
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </Section>
+
+                <Section title="Cards de Categorías (Inicio)" desc="Las 3 tarjetas de productos que aparecen en la página de inicio.">
+                    <div className="space-y-6">
+                        {[1, 2, 3].map(n => (
+                            <div key={n} className="bg-gray-50 p-4 rounded-xl space-y-3">
+                                <p className="text-sm font-semibold text-gray-700">Categoría {n}</p>
+                                <ImageUploadField
+                                    label="Foto"
+                                    hint="Recomendado: 800x600px"
+                                    value={s[`cat${n}_image`]}
+                                    fieldName={`cat${n}_image`}
+                                    onChange={set}
+                                />
+                                <Field label="Título">
+                                    <input className={INPUT} value={s[`cat${n}_title`] || ''} onChange={e => set(`cat${n}_title`, e.target.value)} placeholder="Cortinas Roller" />
+                                </Field>
+                                <Field label="Enlace">
+                                    <input className={INPUT} value={s[`cat${n}_link`] || ''} onChange={e => set(`cat${n}_link`, e.target.value)} placeholder="/catalog?category=Cortinas Roller" />
+                                </Field>
+                            </div>
+                        ))}
+                    </div>
+                </Section>
+
+                <Section title="Sección Proyectos Destacados" desc="Título y subtítulo de la sección de proyectos en la página de inicio.">
+                    <div className="space-y-4">
+                        <Field label="Título">
+                            <input className={INPUT} name="home_projects_title" value={s.home_projects_title || ''} onChange={onChange} placeholder="Proyectos Destacados" />
+                        </Field>
+                        <Field label="Subtítulo">
+                            <input className={INPUT} name="home_projects_subtitle" value={s.home_projects_subtitle || ''} onChange={onChange} placeholder="Trabajos reales en hogares y empresas de Chile." />
+                        </Field>
+                        <p className="text-xs text-gray-400">Para agregar o editar los proyectos con fotos, ve a <strong>Proyectos</strong> en el menú lateral.</p>
                     </div>
                 </Section>
 

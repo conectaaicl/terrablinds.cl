@@ -38,6 +38,10 @@ const PUBLIC_KEYS = [
     'domotica_feat4_title', 'domotica_feat4_desc',
     'domotica_feat5_title', 'domotica_feat5_desc',
     'domotica_feat6_title', 'domotica_feat6_desc',
+    'cat1_image', 'cat1_title', 'cat1_link',
+    'cat2_image', 'cat2_title', 'cat2_link',
+    'cat3_image', 'cat3_title', 'cat3_link',
+    'home_projects_title', 'home_projects_subtitle',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -80,6 +84,10 @@ const ALLOWED_CONFIG_KEYS = [
     'domotica_feat4_title', 'domotica_feat4_desc',
     'domotica_feat5_title', 'domotica_feat5_desc',
     'domotica_feat6_title', 'domotica_feat6_desc',
+    'cat1_image', 'cat1_title', 'cat1_link',
+    'cat2_image', 'cat2_title', 'cat2_link',
+    'cat3_image', 'cat3_title', 'cat3_link',
+    'home_projects_title', 'home_projects_subtitle',
 ];
 
 // Get all config (admin only - masks sensitive values)
