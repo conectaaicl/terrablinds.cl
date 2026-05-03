@@ -27,8 +27,13 @@ const FAQItem = ({ q, a }) => {
 const FAQ = () => {
     const [faqs, setFaqs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cfg, setCfg] = useState({});
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         api.get('/api/faqs')
             .then(res => setFaqs(res.data))
             .catch(() => setFaqs([]))
@@ -44,9 +49,9 @@ const FAQ = () => {
             />
 
             <div className="bg-gray-900 py-16 text-center text-white">
-                <h1 className="text-4xl font-bold mb-4">Preguntas Frecuentes</h1>
+                <h1 className="text-4xl font-bold mb-4">{cfg.faq_title || 'Preguntas Frecuentes'}</h1>
                 <p className="text-gray-400 max-w-xl mx-auto">
-                    Todo lo que necesitas saber antes de cotizar.
+                    {cfg.faq_subtitle || 'Todo lo que necesitas saber antes de cotizar.'}
                 </p>
             </div>
 

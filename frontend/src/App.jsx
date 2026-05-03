@@ -37,6 +37,8 @@ import Automatizacion from './pages/Automatizacion';
 import AdminAutomatizacion from './pages/AdminAutomatizacion';
 import AdminLeads from './pages/AdminLeads';
 import AdminBookings from './pages/AdminBookings';
+import AdminContenido from './pages/AdminContenido';
+import AdminBlog from './pages/AdminBlog';
 import Booking from './pages/Booking';
 import BookingResult from './pages/BookingResult';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -89,6 +91,8 @@ function App() {
             <Route path="/admin/paginas/automatizacion" element={<AdminAutomatizacion />} />
             <Route path="/admin/leads" element={<AdminLeads />} />
             <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/contenido" element={<AdminContenido />} />
+            <Route path="/admin/blog" element={<AdminBlog />} />
           </Route>
 
           {/* 404 */}

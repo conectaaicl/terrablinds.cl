@@ -6,7 +6,7 @@ import api from '../api';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-const FEATURES = [
+const DEFAULT_FEATURES = [
     { icon: Smartphone, title: 'Control por App', desc: 'Maneja todo desde tu smartphone, en casa o desde cualquier lugar del mundo.' },
     { icon: Volume2, title: 'Control por Voz', desc: 'Compatible con Alexa, Google Home y Apple HomeKit.' },
     { icon: Sun, title: 'Horarios Automáticos', desc: 'Programa aperturas y cierres por hora o según la luz solar.' },
@@ -70,9 +70,14 @@ function ProductCard({ product, onAddToCart }) {
 export default function Domotica() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cfg, setCfg] = useState({});
     const { addToCart } = useCart();
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         api.get('/api/products').then(res => {
             const data = res.data
                 .filter(p => p.category === 'Domótica / Hub' || p.category === 'Domotica Motor Roller')
@@ -95,6 +100,14 @@ export default function Domotica() {
         });
     };
 
+    const features = DEFAULT_FEATURES.map((f, i) => ({
+        icon: f.icon,
+        title: cfg[`domotica_feat${i + 1}_title`] || f.title,
+        desc: cfg[`domotica_feat${i + 1}_desc`] || f.desc,
+    }));
+    const heroTitle = cfg.domotica_title || 'Domótica e Interruptores Inteligentes';
+    const heroSubtitle = cfg.domotica_subtitle || 'Controla cortinas, persianas, luces y más desde tu smartphone o con tu voz. Compatible con Alexa, Google Home y Apple HomeKit.';
+
     return (
         <Layout>
             <SEO
@@ -114,14 +127,8 @@ export default function Domotica() {
                     <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
                         <Wifi className="w-4 h-4" /> Hogar Inteligente
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                        Domótica e Interruptores<br />
-                        <span className="text-blue-300">Inteligentes</span>
-                    </h1>
-                    <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">
-                        Controla cortinas, persianas, luces y más desde tu smartphone o con tu voz.
-                        Compatible con Alexa, Google Home y Apple HomeKit.
-                    </p>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{heroTitle}</h1>
+                    <p className="text-lg text-blue-100 mb-8 max-w-2xl mx-auto">{heroSubtitle}</p>
                     <div className="flex flex-wrap justify-center gap-4">
                         <Link to="/quote"
                             className="flex items-center gap-2 bg-white text-blue-700 font-bold px-6 py-3 rounded-xl hover:bg-blue-50 transition-colors shadow-lg">
@@ -141,7 +148,7 @@ export default function Domotica() {
                     <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">¿Por qué automatizar tu hogar?</h2>
                     <p className="text-gray-500 text-center mb-8 text-sm">Un sistema inteligente te da control total con mínimo esfuerzo</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                        {FEATURES.map(f => (
+                        {features.map(f => (
                             <div key={f.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
                                 <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
                                     <f.icon className="w-5 h-5 text-blue-600" />
@@ -153,6 +160,22 @@ export default function Domotica() {
                     </div>
                 </div>
             </section>
+
+            {/* Photo Gallery */}
+            {[1,2,3,4].some(i => cfg[`domotica_photo${i}`]) && (
+                <section className="py-14 px-4 bg-gray-50">
+                    <div className="container mx-auto max-w-5xl">
+                        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Galería</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[1,2,3,4].filter(i => cfg[`domotica_photo${i}`]).map(i => (
+                                <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden shadow-sm">
+                                    <img src={cfg[`domotica_photo${i}`]} alt={`Domótica ${i}`} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Products */}
             <section id="productos" className="py-14 px-4">

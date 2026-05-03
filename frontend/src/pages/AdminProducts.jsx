@@ -478,7 +478,7 @@ const AdminProducts = () => {
                                                     onChange={handleImageUpload} disabled={uploadingImage} />
                                             </label>
                                         </div>
-                                        <p className="text-xs text-gray-400">Formatos: JPG, PNG, WebP. Máx. 5MB por imagen.</p>
+                                        <p className="text-xs text-gray-400">Formatos: JPG, PNG, WebP. Máx. 50MB por imagen.</p>
                                     </div>
                                 </div>
                             </div>

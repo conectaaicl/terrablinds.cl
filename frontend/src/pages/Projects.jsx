@@ -16,8 +16,13 @@ const FALLBACK_COLORS = [
 const Projects = () => {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cfg, setCfg] = useState({});
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         api.get('/api/projects')
             .then(res => setProjects(res.data))
             .catch(() => setProjects([]))
@@ -33,9 +38,9 @@ const Projects = () => {
             />
 
             <div className="bg-gray-900 py-16 text-center text-white">
-                <h1 className="text-4xl font-bold mb-4">Proyectos Realizados</h1>
+                <h1 className="text-4xl font-bold mb-4">{cfg.projects_title || 'Proyectos Realizados'}</h1>
                 <p className="text-gray-400 max-w-xl mx-auto">
-                    Más de 500 proyectos exitosos en hogares y empresas a lo largo de Chile.
+                    {cfg.projects_subtitle || 'Más de 500 proyectos exitosos en hogares y empresas a lo largo de Chile.'}
                 </p>
             </div>
 

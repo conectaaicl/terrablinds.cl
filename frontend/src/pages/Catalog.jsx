@@ -9,11 +9,16 @@ const Catalog = () => {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [cfg, setCfg] = useState({});
     const [filters, setFilters] = useState({
         category: 'all',
     });
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         const fetchProducts = async () => {
             try {
                 setLoading(true);
@@ -68,9 +73,9 @@ const Catalog = () => {
                 }}
             />
             <div className="bg-gray-900 py-16 text-center text-white">
-                <h1 className="text-4xl font-bold mb-4">Catalogo de Productos</h1>
+                <h1 className="text-4xl font-bold mb-4">{cfg.catalog_title || 'Catálogo de Productos'}</h1>
                 <p className="text-gray-400 max-w-xl mx-auto">
-                    Explora nuestra coleccion de cortinas y persianas disenadas a medida para tus espacios.
+                    {cfg.catalog_subtitle || 'Explora nuestra colección de cortinas y persianas diseñadas a medida para tus espacios.'}
                 </p>
             </div>
 

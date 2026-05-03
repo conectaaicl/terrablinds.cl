@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
     Image, HelpCircle, ChevronDown, ChevronRight, Home, Users, Phone,
-    MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap,
+    MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen,
 } from 'lucide-react';
 import api from '../api';
 
@@ -123,12 +123,14 @@ const AdminLayout = ({ children }) => {
                 <NavGroup label="Contenido" groupKey="contenido">
                     <NavItem to="/admin/projects" icon={Image} label="Proyectos" />
                     <NavItem to="/admin/faq" icon={HelpCircle} label="Preguntas Frecuentes" />
+                    <NavItem to="/admin/blog" icon={BookOpen} label="Blog" />
                 </NavGroup>
 
                 <NavGroup label="Páginas del Sitio" groupKey="paginas">
                     <NavItem to="/admin/paginas/inicio" icon={Home} label="Inicio" />
                     <NavItem to="/admin/paginas/nosotros" icon={Users} label="Nosotros" />
                     <NavItem to="/admin/paginas/contacto" icon={Phone} label="Contacto" />
+                    <NavItem to="/admin/contenido" icon={BookOpen} label="Contenido General" />
                     <NavItem to="/admin/paginas/software" icon={MonitorSmartphone} label="Software" />
                     <NavItem to="/admin/paginas/domotica" icon={Wifi} label="Domótica" />
                     <NavItem to="/admin/paginas/cortinas-metalicas" icon={Shield} label="Cortinas Metálicas" />

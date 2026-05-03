@@ -12,7 +12,7 @@ const ProductCard = ({ product }) => {
 
     return (
         <div className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow border border-gray-100 overflow-hidden group">
-            <div className="relative h-64 overflow-hidden">
+            <div className="relative aspect-[4/3] overflow-hidden">
                 {product.images && product.images.length > 0 ? (
                     <img
                         src={getImageUrl(product.images[0])}

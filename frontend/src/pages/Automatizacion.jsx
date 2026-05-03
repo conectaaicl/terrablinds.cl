@@ -6,7 +6,7 @@ import api from '../api';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-const FEATURES = [
+const DEFAULT_FEATURES = [
     { icon: Smartphone, title: 'Control desde tu celular', desc: 'Abre y cierra tu cortina o persiana desde cualquier lugar con la app del motor.' },
     { icon: Radio, title: 'Control remoto incluido', desc: 'Cada motor viene con control remoto de hasta 15 canales. Maneja varias cortinas desde un solo dispositivo.' },
     { icon: Wifi, title: 'Integración inteligente', desc: 'Compatible con nuestro sistema de domótica TerraBlinds — Alexa, Google Home y Apple HomeKit.' },
@@ -97,9 +97,14 @@ function ProductCard({ product, onAddToCart }) {
 export default function Automatizacion() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cfg, setCfg] = useState({});
     const { addToCart } = useCart();
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         api.get('/api/products').then(res => {
             const data = res.data
                 .filter(p =>
@@ -127,6 +132,14 @@ export default function Automatizacion() {
         });
     };
 
+    const features = DEFAULT_FEATURES.map((f, i) => ({
+        icon: f.icon,
+        title: cfg[`auto_feat${i + 1}_title`] || f.title,
+        desc: cfg[`auto_feat${i + 1}_desc`] || f.desc,
+    }));
+    const heroTitle = cfg.auto_title || 'Automatización de Cortinas y Persianas';
+    const heroSubtitle = cfg.auto_subtitle || 'Convierte cualquier cortina en inteligente. Motores tubulares silenciosos, control remoto incluido y compatible con tu smartphone y asistentes de voz.';
+
     return (
         <Layout>
             <SEO
@@ -147,14 +160,8 @@ export default function Automatizacion() {
                     <div className="inline-flex items-center gap-2 bg-white/20 border border-white/30 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
                         <Zap className="w-4 h-4" /> Motores + Control Remoto
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                        Automatización de<br />
-                        <span className="text-yellow-200">Cortinas y Persianas</span>
-                    </h1>
-                    <p className="text-lg text-orange-100 mb-8 max-w-2xl mx-auto">
-                        Convierte cualquier cortina en inteligente. Motores tubulares silenciosos,
-                        control remoto incluido y compatible con tu smartphone y asistentes de voz.
-                    </p>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{heroTitle}</h1>
+                    <p className="text-lg text-orange-100 mb-8 max-w-2xl mx-auto">{heroSubtitle}</p>
                     <div className="flex flex-wrap justify-center gap-4">
                         <Link to="/quote"
                             className="flex items-center gap-2 bg-white text-orange-600 font-bold px-8 py-4 rounded-2xl hover:bg-orange-50 transition-all shadow-xl hover:scale-105 text-base">
@@ -224,7 +231,7 @@ export default function Automatizacion() {
                     <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">Todo lo que incluye tu motor</h2>
                     <p className="text-gray-500 text-center mb-8 text-sm">Tecnología profesional, precio accesible</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                        {FEATURES.map(f => (
+                        {features.map(f => (
                             <div key={f.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
                                 <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center mb-3">
                                     <f.icon className="w-5 h-5 text-amber-600" />
@@ -236,6 +243,22 @@ export default function Automatizacion() {
                     </div>
                 </div>
             </section>
+
+            {/* Photo Gallery */}
+            {[1,2,3,4].some(i => cfg[`auto_photo${i}`]) && (
+                <section className="py-14 px-4">
+                    <div className="container mx-auto max-w-5xl">
+                        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Galería</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[1,2,3,4].filter(i => cfg[`auto_photo${i}`]).map(i => (
+                                <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden shadow-sm">
+                                    <img src={cfg[`auto_photo${i}`]} alt={`Automatización ${i}`} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Products */}
             <section id="productos" className="py-14 px-4 bg-gray-50">

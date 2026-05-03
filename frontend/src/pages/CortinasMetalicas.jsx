@@ -6,7 +6,7 @@ import api from '../api';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-const FEATURES = [
+const DEFAULT_FEATURES = [
     { icon: Shield, title: 'Seguridad Máxima', desc: 'Láminas de acero galvanizado de alta resistencia. Protege tu local o garage de robos e intrusiones.' },
     { icon: Lock, title: 'Cierre Hermético', desc: 'Sistema de guías laterales y faldón inferior que garantiza cierre sin filtraciones de aire ni polvo.' },
     { icon: Zap, title: 'Automatizable', desc: 'Instala un motor tubular y maneja la cortina con control remoto, app o botón. Sin esfuerzo.' },
@@ -80,9 +80,14 @@ function ProductCard({ product, onAddToCart }) {
 export default function CortinasMetalicas() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [cfg, setCfg] = useState({});
     const { addToCart } = useCart();
 
     useEffect(() => {
+        api.get('/api/config/public').then(res => {
+            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
+            setCfg(d);
+        }).catch(() => {});
         api.get('/api/products').then(res => {
             const data = res.data
                 .filter(p => p.category === 'Cortinas Metálicas' || p.category === 'Cortina Metálica')
@@ -104,6 +109,14 @@ export default function CortinasMetalicas() {
             width: null, height: null, color: null,
         });
     };
+
+    const features = DEFAULT_FEATURES.map((f, i) => ({
+        icon: f.icon,
+        title: cfg[`metalicas_feat${i + 1}_title`] || f.title,
+        desc: cfg[`metalicas_feat${i + 1}_desc`] || f.desc,
+    }));
+    const heroTitle = cfg.metalicas_title || 'Cortinas Enrollables Metálicas';
+    const heroSubtitle = cfg.metalicas_subtitle || 'Protección resistente para locales comerciales, bodegas y garajes. Fabricadas en acero galvanizado, con opción de automatización total.';
 
     return (
         <Layout>
@@ -128,14 +141,8 @@ export default function CortinasMetalicas() {
                             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
                                 <Shield className="w-4 h-4" /> Seguridad Industrial
                             </div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                                Cortinas Enrollables<br />
-                                <span className="text-slate-300">Metálicas</span>
-                            </h1>
-                            <p className="text-lg text-slate-200 mb-8 leading-relaxed">
-                                Protección resistente para locales comerciales, bodegas y garajes.
-                                Fabricadas en acero galvanizado, con opción de automatización total.
-                            </p>
+                            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{heroTitle}</h1>
+                            <p className="text-lg text-slate-200 mb-8 leading-relaxed">{heroSubtitle}</p>
                             <div className="flex flex-wrap gap-4">
                                 <Link to="/quote"
                                     className="flex items-center gap-2 bg-white text-slate-800 font-bold px-6 py-3 rounded-xl hover:bg-slate-100 transition-colors shadow-lg text-base">
@@ -172,7 +179,7 @@ export default function CortinasMetalicas() {
                     <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">¿Por qué elegir una cortina metálica?</h2>
                     <p className="text-gray-500 text-center mb-8 text-sm">Seguridad, durabilidad y diseño en una sola solución</p>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                        {FEATURES.map(f => (
+                        {features.map(f => (
                             <div key={f.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
                                 <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
                                     <f.icon className="w-5 h-5 text-slate-700" />
@@ -242,6 +249,22 @@ export default function CortinasMetalicas() {
                     </div>
                 </div>
             </section>
+
+            {/* Photo Gallery */}
+            {[1,2,3,4].some(i => cfg[`metalicas_photo${i}`]) && (
+                <section className="py-14 px-4">
+                    <div className="container mx-auto max-w-5xl">
+                        <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Galería</h2>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {[1,2,3,4].filter(i => cfg[`metalicas_photo${i}`]).map(i => (
+                                <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden shadow-sm">
+                                    <img src={cfg[`metalicas_photo${i}`]} alt={`Cortina Metálica ${i}`} className="w-full h-full object-cover" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
 
             {/* Products */}
             <section id="productos" className="py-14 px-4 bg-gray-50">

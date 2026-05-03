@@ -1,8 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Save, Loader, CheckCircle, Shield } from 'lucide-react';
+import { Save, Loader, CheckCircle, Shield, Upload, X } from 'lucide-react';
 import api from '../api';
 import { Link } from 'react-router-dom';
+
+function PhotoUpload({ label, name, value, onChange }) {
+    const [uploading, setUploading] = useState(false);
+    const ref = useRef();
+    const baseUrl = import.meta.env.VITE_API_URL;
+    const handleFile = async (e) => {
+        const file = e.target.files[0]; if (!file) return;
+        setUploading(true);
+        try {
+            const fd = new FormData(); fd.append('image', file);
+            const res = await api.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            const url = res.data.url.startsWith('http') ? res.data.url : `${baseUrl}${res.data.url}`;
+            onChange({ target: { name, value: url } });
+        } catch { alert('Error al subir la imagen'); } finally { setUploading(false); }
+    };
+    return (
+        <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">{label}</label>
+            {value ? (
+                <div className="relative">
+                    <img src={value} alt={label} className="w-full h-36 object-cover rounded-lg border border-gray-200" />
+                    <button type="button" onClick={() => onChange({ target: { name, value: '' } })}
+                        className="absolute top-2 right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center">
+                        <X className="w-3 h-3" /></button>
+                </div>
+            ) : (
+                <div onClick={() => ref.current?.click()}
+                    className="w-full h-36 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                    {uploading ? <Loader className="w-6 h-6 animate-spin text-blue-500" />
+                        : <><Upload className="w-6 h-6 text-gray-400 mb-1" /><p className="text-xs text-gray-500">Subir foto (JPG, PNG, WebP)</p></>}
+                </div>
+            )}
+            <input type="file" ref={ref} accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={handleFile} />
+            <input type="text" name={name} value={value || ''} onChange={onChange}
+                placeholder="O pega una URL de imagen..." className="w-full px-3 py-1.5 text-xs border border-gray-200 rounded-lg focus:ring-1 focus:ring-blue-400 outline-none" />
+        </div>
+    );
+}
 
 const INPUT = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none";
 const TEXTAREA = INPUT + " resize-none";
@@ -42,6 +80,7 @@ const DEFAULTS = {
     metalicas_feat5_desc: 'Solución compacta y elegante para garajes de casas.',
     metalicas_feat6_title: 'Instalación Profesional',
     metalicas_feat6_desc: 'Técnicos certificados miden, fabrican e instalan con garantía.',
+    metalicas_photo1: '', metalicas_photo2: '', metalicas_photo3: '', metalicas_photo4: '',
 };
 
 export default function AdminCortinasMetalicas() {
@@ -130,6 +169,14 @@ export default function AdminCortinasMetalicas() {
                                     <input className={INPUT} name={`metalicas_feat${i}_desc`} value={s[`metalicas_feat${i}_desc`] || ''} onChange={onChange} />
                                 </Field>
                             </div>
+                        ))}
+                    </div>
+                </Section>
+
+                <Section title="Fotos de la página" desc="Sube hasta 4 fotos que aparecerán en la galería de cortinas metálicas">
+                    <div className="grid grid-cols-2 gap-4">
+                        {[1, 2, 3, 4].map(i => (
+                            <PhotoUpload key={i} label={`Foto ${i}`} name={`metalicas_photo${i}`} value={s[`metalicas_photo${i}`] || ''} onChange={onChange} />
                         ))}
                     </div>
                 </Section>
