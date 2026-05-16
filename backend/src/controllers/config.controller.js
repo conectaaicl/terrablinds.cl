@@ -42,6 +42,9 @@ const PUBLIC_KEYS = [
     'cat2_image', 'cat2_title', 'cat2_link',
     'cat3_image', 'cat3_title', 'cat3_link',
     'home_projects_title', 'home_projects_subtitle',
+    'slide1_url', 'slide1_label', 'slide2_url', 'slide2_label',
+    'slide3_url', 'slide3_label', 'slide4_url', 'slide4_label',
+    'slide5_url', 'slide5_label', 'slide6_url', 'slide6_label',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -88,6 +91,9 @@ const ALLOWED_CONFIG_KEYS = [
     'cat2_image', 'cat2_title', 'cat2_link',
     'cat3_image', 'cat3_title', 'cat3_link',
     'home_projects_title', 'home_projects_subtitle',
+    'slide1_url', 'slide1_label', 'slide2_url', 'slide2_label',
+    'slide3_url', 'slide3_label', 'slide4_url', 'slide4_label',
+    'slide5_url', 'slide5_label', 'slide6_url', 'slide6_label',
 ];
 
 // Get all config (admin only - masks sensitive values)

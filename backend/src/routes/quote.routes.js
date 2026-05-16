@@ -18,5 +18,6 @@ router.post('/', quoteCreateLimiter, quoteController.createQuote);
 router.get('/', protect, restrictTo('admin'), quoteController.getAllQuotes);
 router.get('/:id', protect, restrictTo('admin'), quoteController.getQuoteById);
 router.put('/:id/status', protect, restrictTo('admin'), quoteController.updateQuoteStatus);
+router.post('/:id/resend-email', protect, restrictTo('admin'), quoteController.resendEmail);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer } from 'lucide-react';
+import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw } from 'lucide-react';
 
 const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
 
@@ -89,6 +89,7 @@ const AdminQuotes = () => {
     const [filterStatus, setFilterStatus] = useState('all');
     const [selectedQuote, setSelectedQuote] = useState(null);
     const [updatingStatus, setUpdatingStatus] = useState(null);
+    const [resendingEmail, setResendingEmail] = useState(null);
 
     useEffect(() => { fetchQuotes(); }, []);
 
@@ -129,6 +130,18 @@ const AdminQuotes = () => {
         const num = phone.startsWith('56') ? phone : '56' + phone;
         const msg = encodeURIComponent(`Hola ${quote.customer_name}, te contactamos de TerraBlinds sobre tu cotización #${quote.id} por $${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}. ¿Cómo podemos ayudarte?`);
         return `https://wa.me/${num}?text=${msg}`;
+    };
+
+    const handleResendEmail = async (quoteId, email) => {
+        setResendingEmail(quoteId);
+        try {
+            await api.post(`/api/quotes/${quoteId}/resend-email`);
+            alert(`Email reenviado a ${email}`);
+        } catch {
+            alert('Error al reenviar el email. Verifica la configuración de correo.');
+        } finally {
+            setResendingEmail(null);
+        }
     };
 
     const emailLink = (quote) => {
@@ -324,32 +337,41 @@ const AdminQuotes = () => {
                         </div>
 
                         {/* Action footer */}
-                        <div className="p-6 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-3">
+                        <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-2 sm:gap-3">
                             <button
                                 onClick={() => printQuote(selectedQuote, parseItems(selectedQuote))}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl font-medium text-sm hover:bg-gray-700 transition-colors">
-                                <Printer className="w-4 h-4" /> Descargar PDF
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-gray-900 text-white rounded-xl font-medium text-sm hover:bg-gray-700 transition-colors">
+                                <Printer className="w-4 h-4" /> <span className="hidden sm:inline">Descargar</span> PDF
+                            </button>
+                            <button
+                                onClick={() => handleResendEmail(selectedQuote.id, selectedQuote.customer_email)}
+                                disabled={resendingEmail === selectedQuote.id}
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-medium text-sm hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+                                {resendingEmail === selectedQuote.id
+                                    ? <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                                    : <RotateCcw className="w-4 h-4" />}
+                                <span className="hidden sm:inline">Reenviar Email</span>
                             </button>
                             {whatsappLink(selectedQuote) && (
                                 <a href={whatsappLink(selectedQuote)} target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl font-medium text-sm hover:bg-green-700 transition-colors">
-                                    <MessageCircle className="w-4 h-4" /> WhatsApp
+                                    className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-green-600 text-white rounded-xl font-medium text-sm hover:bg-green-700 transition-colors">
+                                    <MessageCircle className="w-4 h-4" /> WA
                                 </a>
                             )}
                             <a href={emailLink(selectedQuote)}
-                                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
+                                className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-blue-600 text-white rounded-xl font-medium text-sm hover:bg-blue-700 transition-colors">
                                 <Mail className="w-4 h-4" /> Email
                             </a>
                             {selectedQuote.customer_phone && (
                                 <a href={`tel:${selectedQuote.customer_phone}`}
-                                    className="flex items-center gap-2 px-4 py-2.5 bg-gray-700 text-white rounded-xl font-medium text-sm hover:bg-gray-800 transition-colors">
+                                    className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-gray-700 text-white rounded-xl font-medium text-sm hover:bg-gray-800 transition-colors">
                                     <Phone className="w-4 h-4" /> Llamar
                                 </a>
                             )}
                             <select
                                 value={selectedQuote.status}
                                 onChange={e => handleStatusChange(selectedQuote.id, e.target.value)}
-                                className="ml-auto px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="ml-auto px-3 sm:px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-medium bg-white focus:ring-2 focus:ring-blue-500 outline-none"
                             >
                                 {Object.entries(STATUS_MAP).map(([v, { label }]) => <option key={v} value={v}>{label}</option>)}
                             </select>

@@ -1,5 +1,5 @@
 const { Quote, Config } = require('../models');
-const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail } = require('../services/email.service');
+const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail, resendQuoteEmail } = require('../services/email.service');
 const axios = require('axios');
 
 async function fireWebhook(quote) {
@@ -144,6 +144,27 @@ exports.getQuoteById = async (req, res) => {
     } catch (error) {
         console.error('Error fetching quote:', error.message);
         res.status(500).json({ error: 'Error fetching quote' });
+    }
+};
+
+// Resend quote email to customer (admin only)
+exports.resendEmail = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid quote ID' });
+        }
+
+        const quote = await Quote.findByPk(id);
+        if (!quote) {
+            return res.status(404).json({ error: 'Quote not found' });
+        }
+
+        await resendQuoteEmail(quote);
+        res.json({ success: true, message: `Email reenviado a ${quote.customer_email}` });
+    } catch (error) {
+        console.error('Error resending quote email:', error.message);
+        res.status(500).json({ error: 'Error al reenviar el email' });
     }
 };
 

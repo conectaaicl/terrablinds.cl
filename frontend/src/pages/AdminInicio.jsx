@@ -66,6 +66,12 @@ export default function AdminInicio() {
         hero_title: '', hero_subtitle: '',
         hero_cta_primary: '', hero_cta_secondary: '',
         hero_bg_image: '', hero_badge: '',
+        slide1_url: '', slide1_label: '',
+        slide2_url: '', slide2_label: '',
+        slide3_url: '', slide3_label: '',
+        slide4_url: '', slide4_label: '',
+        slide5_url: '', slide5_label: '',
+        slide6_url: '', slide6_label: '',
         stat1_num: '', stat1_label: '',
         stat2_num: '', stat2_label: '',
         stat3_num: '', stat3_label: '',
@@ -137,6 +143,27 @@ export default function AdminInicio() {
                             </Field>
                         </div>
                         <ImageUploadField label="Imagen de Fondo del Hero" hint="Recomendado: 1920×1080px. Deja vacío para fondo oscuro por defecto." value={s.hero_bg_image} fieldName="hero_bg_image" onChange={set} />
+                    </div>
+                </Section>
+
+                <Section title="Slides del Carrusel (Hero)" desc="Hasta 6 fotos para el carrusel del banner principal. Las vacías no se muestran.">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {[1, 2, 3, 4, 5, 6].map(n => (
+                            <div key={n} className="bg-gray-50 p-4 rounded-xl space-y-3 border border-gray-200">
+                                <p className="text-sm font-semibold text-gray-700">Slide {n}</p>
+                                <ImageUploadField
+                                    label="Imagen"
+                                    hint="Recomendado: 1920×1080px"
+                                    value={s[`slide${n}_url`]}
+                                    fieldName={`slide${n}_url`}
+                                    onChange={set}
+                                />
+                                <Field label="Etiqueta (opcional)" hint="Texto pequeño sobre la imagen (ej: 'Roller Blackout')">
+                                    <input className={INPUT} name={`slide${n}_label`} value={s[`slide${n}_label`] || ''} onChange={onChange}
+                                        placeholder={['Persianas Exteriores', 'Cortinas Roller', 'Roller Blackout', 'Cortinas de Tela', 'Domótica Inteligente', 'Toldos Retráctiles'][n - 1]} />
+                                </Field>
+                            </div>
+                        ))}
                     </div>
                 </Section>
 

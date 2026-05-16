@@ -59,16 +59,16 @@ const Layout = ({ children }) => {
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
             <header className="bg-white shadow-sm sticky top-0 z-50">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <Link to="/" className="text-2xl font-bold text-gray-800 tracking-tight flex items-center">
+                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
+                    <Link to="/" className="text-2xl font-bold text-gray-800 tracking-tight flex items-center flex-shrink-0">
                         {logoUrl ? (
-                            <img src={logoUrl} alt={brandName} className="h-20 w-auto object-contain rounded-lg" />
+                            <img src={logoUrl} alt={brandName} className="h-12 md:h-16 w-auto object-contain rounded-lg" />
                         ) : (
-                            <span>{brandName}</span>
+                            <span className="text-lg md:text-2xl">{brandName}</span>
                         )}
                     </Link>
 
-                    <nav className="hidden md:flex items-center space-x-1 text-sm font-semibold">
+                    <nav className="hidden lg:flex items-center space-x-0.5 text-sm font-semibold">
                         {[
                             { to: '/', label: 'Inicio' },
                             { to: '/catalog', label: 'Catálogo' },
@@ -77,65 +77,99 @@ const Layout = ({ children }) => {
                             { to: '/about', label: 'Nosotros' },
                             { to: '/software', label: 'Software', color: 'text-blue-600' },
                             { to: '/domotica', label: 'Domótica', color: 'text-indigo-600' },
-                            { to: '/cortinas-metalicas', label: 'Cortinas Metálicas', color: 'text-slate-700' },
+                            { to: '/cortinas-metalicas', label: 'C. Metálicas', color: 'text-slate-700' },
                             { to: '/automatizacion', label: 'Automatización', color: 'text-amber-600' },
-                            { to: '/servicio-tecnico', label: 'Serv. Técnico' },
                             { to: '/agendar', label: 'Agendar', color: 'text-emerald-700' },
                             { to: '/contact', label: 'Contacto' },
                         ].map(({ to, label, color }) => (
                             <Link key={to} to={to}
-                                className={`relative px-3 py-2 rounded-lg transition-all duration-200 ${color || 'text-gray-700'} hover:bg-blue-50 hover:text-blue-700 group`}>
+                                className={`relative px-2.5 py-2 rounded-lg transition-all duration-200 ${color || 'text-gray-700'} hover:bg-blue-50 hover:text-blue-700 group`}>
                                 {label}
-                                <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                                <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
                             </Link>
                         ))}
                     </nav>
 
-                    <div className="hidden md:flex items-center space-x-4">
+                    <div className="hidden lg:flex items-center space-x-3">
                         {waNumber && (
                             <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
                                 className="flex items-center text-gray-600 hover:text-green-600 transition-colors">
-                                <WhatsAppIcon className="w-5 h-5 mr-2" />
-                                {phoneDisplay && <span>{phoneDisplay}</span>}
+                                <WhatsAppIcon className="w-5 h-5 mr-1.5" />
+                                {phoneDisplay && <span className="text-sm">{phoneDisplay}</span>}
                             </a>
                         )}
                         <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
-                            <ShoppingCart className="w-6 h-6" />
+                            <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
-                        <Link to="/register"
-                            className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-lg transition-colors">
-                            Registrarse
+                        <Link to="/quote"
+                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                            Cotizar
                         </Link>
                     </div>
 
-                    <button className="md:hidden p-2 text-gray-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                        {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-                    </button>
+                    {/* Mobile right: cart + hamburger */}
+                    <div className="flex lg:hidden items-center gap-2">
+                        <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
+                            <ShoppingCart className="w-5 h-5" />
+                            {cartCount > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                        <button className="p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                        </button>
+                    </div>
                 </div>
 
+                {/* Mobile menu */}
                 {isMenuOpen && (
-                    <div className="md:hidden bg-white border-t border-gray-100 py-4 px-4 space-y-4">
-                        <Link to="/" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Inicio</Link>
-                        <Link to="/catalog" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Catálogo</Link>
-                        <Link to="/quote" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Cotizar</Link>
-                        <Link to="/projects" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Proyectos</Link>
-                        <Link to="/about" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Nosotros</Link>
-                        <Link to="/software" className="block text-blue-500 font-semibold hover:text-blue-600" onClick={() => setIsMenuOpen(false)}>Software</Link>
-                        <Link to="/domotica" className="block text-indigo-500 font-semibold hover:text-indigo-600" onClick={() => setIsMenuOpen(false)}>Domótica</Link>
-                        <Link to="/cortinas-metalicas" className="block text-slate-700 font-semibold hover:text-slate-800" onClick={() => setIsMenuOpen(false)}>Cortinas Metálicas</Link>
-                        <Link to="/automatizacion" className="block text-amber-600 font-semibold hover:text-amber-700" onClick={() => setIsMenuOpen(false)}>Automatización</Link>
-                        <Link to="/servicio-tecnico" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Servicio Técnico</Link>
-                        <Link to="/agendar" className="block text-emerald-700 font-semibold hover:text-emerald-800" onClick={() => setIsMenuOpen(false)}>Agendar Visita</Link>
-                        <Link to="/contact" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Contacto</Link>
-                        <Link to="/register" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>Registrarse</Link>
-                        <Link to="/cart" className="block text-gray-600 hover:text-primary-600" onClick={() => setIsMenuOpen(false)}>
-                            Cotización ({cartCount})
-                        </Link>
+                    <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
+                        <div className="container mx-auto px-4 py-3">
+                            {/* Quick action buttons */}
+                            <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
+                                <Link to="/quote" onClick={() => setIsMenuOpen(false)}
+                                    className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl text-center">
+                                    Cotizar ahora
+                                </Link>
+                                {waNumber && (
+                                    <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="flex-1 py-2.5 bg-green-500 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5">
+                                        <WhatsAppIcon className="w-4 h-4" /> WhatsApp
+                                    </a>
+                                )}
+                            </div>
+                            {/* Nav links in 2 columns */}
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                {[
+                                    { to: '/', label: 'Inicio' },
+                                    { to: '/catalog', label: 'Catálogo' },
+                                    { to: '/projects', label: 'Proyectos' },
+                                    { to: '/about', label: 'Nosotros' },
+                                    { to: '/software', label: 'Software' },
+                                    { to: '/domotica', label: 'Domótica' },
+                                    { to: '/cortinas-metalicas', label: 'Cortinas Metálicas' },
+                                    { to: '/automatizacion', label: 'Automatización' },
+                                    { to: '/servicio-tecnico', label: 'Serv. Técnico' },
+                                    { to: '/agendar', label: 'Agendar Visita' },
+                                    { to: '/contact', label: 'Contacto' },
+                                    { to: '/register', label: 'Registrarse' },
+                                ].map(({ to, label }) => (
+                                    <Link key={to} to={to}
+                                        className="py-2.5 text-sm text-gray-700 hover:text-blue-600 font-medium border-b border-gray-50 flex items-center gap-1.5"
+                                        onClick={() => setIsMenuOpen(false)}>
+                                        {label}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 )}
             </header>
@@ -150,7 +184,7 @@ const Layout = ({ children }) => {
                         <div className="mb-4">
                             {logoUrl ? (
                                 <Link to="/">
-                                    <img src={logoUrl} alt={brandName} className="h-20 w-auto object-contain rounded-lg" />
+                                    <img src={logoUrl} alt={brandName} className="h-14 w-auto object-contain rounded-lg" />
                                 </Link>
                             ) : (
                                 <h3 className="text-xl font-bold">{brandName}</h3>
