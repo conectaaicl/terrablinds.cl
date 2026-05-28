@@ -79,6 +79,9 @@ const Layout = ({ children }) => {
                             { to: '/domotica', label: 'Domótica', color: 'text-indigo-600' },
                             { to: '/cortinas-metalicas', label: 'C. Metálicas', color: 'text-slate-700' },
                             { to: '/automatizacion', label: 'Automatización', color: 'text-amber-600' },
+                            { to: '/camaras', label: 'Cámaras', color: 'text-gray-700' },
+                            { to: '/paneles-solares', label: 'Solar', color: 'text-yellow-600' },
+                            { to: '/control-acceso', label: 'Acceso', color: 'text-blue-700' },
                             { to: '/agendar', label: 'Agendar', color: 'text-emerald-700' },
                             { to: '/contact', label: 'Contacto' },
                         ].map(({ to, label, color }) => (
@@ -157,6 +160,9 @@ const Layout = ({ children }) => {
                                     { to: '/domotica', label: 'Domótica' },
                                     { to: '/cortinas-metalicas', label: 'Cortinas Metálicas' },
                                     { to: '/automatizacion', label: 'Automatización' },
+                                    { to: '/camaras', label: 'Cámaras' },
+                                    { to: '/paneles-solares', label: 'Paneles Solares' },
+                                    { to: '/control-acceso', label: 'Control Acceso' },
                                     { to: '/servicio-tecnico', label: 'Serv. Técnico' },
                                     { to: '/agendar', label: 'Agendar Visita' },
                                     { to: '/contact', label: 'Contacto' },
@@ -237,6 +243,9 @@ const Layout = ({ children }) => {
                             <li><Link to="/catalog?category=Toldos" className="hover:text-white">Toldos</Link></li>
                             <li><Link to="/cortinas-metalicas" className="hover:text-white">Cortinas Metálicas</Link></li>
                             <li><Link to="/automatizacion" className="hover:text-white">Automatización</Link></li>
+                            <li><Link to="/camaras" className="hover:text-white">Cámaras de Seguridad</Link></li>
+                            <li><Link to="/paneles-solares" className="hover:text-white">Paneles Solares</Link></li>
+                            <li><Link to="/control-acceso" className="hover:text-white">Control de Acceso</Link></li>
                         </ul>
                     </div>
                     <div>

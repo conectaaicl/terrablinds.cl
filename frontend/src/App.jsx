@@ -41,6 +41,12 @@ import AdminContenido from './pages/AdminContenido';
 import AdminBlog from './pages/AdminBlog';
 import Booking from './pages/Booking';
 import BookingResult from './pages/BookingResult';
+import Camaras from './pages/Camaras';
+import AdminCamaras from './pages/AdminCamaras';
+import PanelesSolares from './pages/PanelesSolares';
+import AdminPanelesSolares from './pages/AdminPanelesSolares';
+import ControlAcceso from './pages/ControlAcceso';
+import AdminControlAcceso from './pages/AdminControlAcceso';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -67,6 +73,9 @@ function App() {
           <Route path="/payment/result" element={<PaymentResult />} />
           <Route path="/agendar" element={<Booking />} />
           <Route path="/reserva/resultado" element={<BookingResult />} />
+          <Route path="/camaras" element={<Camaras />} />
+          <Route path="/paneles-solares" element={<PanelesSolares />} />
+          <Route path="/control-acceso" element={<ControlAcceso />} />
 
           {/* Admin auth */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -93,6 +102,9 @@ function App() {
             <Route path="/admin/bookings" element={<AdminBookings />} />
             <Route path="/admin/contenido" element={<AdminContenido />} />
             <Route path="/admin/blog" element={<AdminBlog />} />
+            <Route path="/admin/paginas/camaras" element={<AdminCamaras />} />
+            <Route path="/admin/paginas/paneles-solares" element={<AdminPanelesSolares />} />
+            <Route path="/admin/paginas/control-acceso" element={<AdminControlAcceso />} />
           </Route>
 
           {/* 404 */}
