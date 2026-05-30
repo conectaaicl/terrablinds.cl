@@ -47,6 +47,9 @@ import PanelesSolares from './pages/PanelesSolares';
 import AdminPanelesSolares from './pages/AdminPanelesSolares';
 import ControlAcceso from './pages/ControlAcceso';
 import AdminControlAcceso from './pages/AdminControlAcceso';
+import AdminReviews from './pages/AdminReviews';
+import AdminReferidos from './pages/AdminReferidos';
+import AdminSEO from './pages/AdminSEO';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -105,6 +108,9 @@ function App() {
             <Route path="/admin/paginas/camaras" element={<AdminCamaras />} />
             <Route path="/admin/paginas/paneles-solares" element={<AdminPanelesSolares />} />
             <Route path="/admin/paginas/control-acceso" element={<AdminControlAcceso />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
+            <Route path="/admin/referidos" element={<AdminReferidos />} />
+            <Route path="/admin/seo" element={<AdminSEO />} />
           </Route>
 
           {/* 404 */}

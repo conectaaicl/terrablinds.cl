@@ -4,6 +4,7 @@ import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
     Image, HelpCircle, ChevronDown, ChevronRight, Home, Users, Phone,
     MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen, Camera, Sun, KeyRound,
+    Star, Gift, BarChart2,
 } from 'lucide-react';
 import api from '../api';
 
@@ -13,7 +14,7 @@ const AdminLayout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
     const [pendingBookings, setPendingBookings] = useState(0);
-    const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'sistema']);
+    const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'marketing', 'sistema']);
     const [logoUrl, setLogoUrl] = useState('');
 
     useEffect(() => {
@@ -143,6 +144,12 @@ const AdminLayout = ({ children }) => {
 
                 <NavGroup label="Diseño" groupKey="diseno">
                     <NavItem to="/admin/apariencia" icon={Palette} label="Apariencia & Colores" />
+                </NavGroup>
+
+                <NavGroup label="Marketing" groupKey="marketing">
+                    <NavItem to="/admin/reviews" icon={Star} label="Reseñas" />
+                    <NavItem to="/admin/referidos" icon={Gift} label="Referidos" />
+                    <NavItem to="/admin/seo" icon={BarChart2} label="SEO" />
                 </NavGroup>
 
                 <NavGroup label="Sistema" groupKey="sistema">
