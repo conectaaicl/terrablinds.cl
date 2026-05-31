@@ -28,15 +28,15 @@
       border: 1px solid rgba(255,255,255,.08);
       border-radius: 20px;
       padding: 40px 36px;
-      width: 360px;
+      width: 380px;
       text-align: center;
     }
     .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px; }
-    .logo-wrap img { height: 32px; width: auto; }
+    .logo-wrap img { height: 36px; width: auto; object-fit: contain; }
     .logo-text { font-size: 18px; font-weight: 800; color: #fff; }
     .logo-text span { color: #6366f1; }
     .login-card h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-    .login-card p  { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+    .login-card .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
     .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
     .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #475569; }
     .field input {
@@ -58,19 +58,38 @@
       transition: all .2s;
     }
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,.4); }
+    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
     .login-err { color: #f87171; font-size: 13px; margin-top: 12px; display: none; }
-
+    .forgot-link {
+      display: block; margin-top: 14px;
+      font-size: 12px; color: #475569; cursor: pointer;
+      text-decoration: underline; text-underline-offset: 3px;
+      transition: color .2s;
+    }
+    .forgot-link:hover { color: #a5b4fc; }
+    #forgot-view { display: none; }
+    .back-btn {
+      background: none; border: none; color: #818cf8; font-size: 13px;
+      cursor: pointer; display: flex; align-items: center; gap: 4px;
+      margin-bottom: 20px; padding: 0;
+    }
+    .back-btn:hover { color: #a5b4fc; }
+    .forgot-msg { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
+    .success-msg {
+      background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.25);
+      border-radius: 10px; padding: 14px; color: #34d399;
+      font-size: 13px; display: none; margin-top: 12px;
+    }
     /* ── App ── */
     #app { display: none; }
     .topbar {
       background: rgba(255,255,255,.03);
       border-bottom: 1px solid rgba(255,255,255,.06);
-      padding: 0 24px;
-      height: 60px;
+      padding: 0 24px; height: 60px;
       display: flex; align-items: center; justify-content: space-between;
     }
-    .topbar-brand { display: flex; align-items: center; gap: 8px; }
-    .topbar-brand img { height: 28px; width: auto; }
+    .topbar-brand { display: flex; align-items: center; gap: 10px; }
+    .topbar-brand img { height: 30px; width: auto; object-fit: contain; }
     .topbar-brand span { font-size: 16px; font-weight: 800; color: #fff; }
     .topbar-brand b { color: #6366f1; }
     .topbar-right { display: flex; align-items: center; gap: 12px; }
@@ -85,30 +104,22 @@
       font-size: 12px; cursor: pointer; transition: all .2s;
     }
     .btn-logout:hover { background: rgba(255,255,255,.1); color: #fff; }
-
     .main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
     .page-header { margin-bottom: 28px; }
     .page-header h1 { font-size: 24px; font-weight: 900; color: #fff; }
     .page-header p  { font-size: 14px; color: #64748b; margin-top: 4px; }
-
-    /* KPIs */
     .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
     .kpi {
       background: rgba(255,255,255,.03);
       border: 1px solid rgba(255,255,255,.07);
-      border-radius: 14px;
-      padding: 18px 20px;
+      border-radius: 14px; padding: 18px 20px;
     }
     .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: #475569; margin-bottom: 6px; }
     .kpi-value { font-size: 28px; font-weight: 900; }
     .kpi-total  .kpi-value { color: #e2e8f0; }
     .kpi-active .kpi-value { color: #34d399; }
     .kpi-suspended .kpi-value { color: #f87171; }
-
-    /* Add domain */
-    .add-row {
-      display: flex; gap: 10px; margin-bottom: 20px;
-    }
+    .add-row { display: flex; gap: 10px; margin-bottom: 20px; }
     .add-row input {
       flex: 1;
       background: rgba(255,255,255,.05);
@@ -126,67 +137,46 @@
       transition: all .2s;
     }
     .btn-add:hover { background: rgba(99,102,241,.3); color: #c7d2fe; }
-
-    /* Table */
     .table-wrap {
       background: rgba(255,255,255,.02);
       border: 1px solid rgba(255,255,255,.07);
-      border-radius: 16px;
-      overflow: hidden;
+      border-radius: 16px; overflow: hidden;
     }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: rgba(255,255,255,.03); }
     th {
-      padding: 12px 20px;
-      text-align: left;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #475569;
+      padding: 12px 20px; text-align: left;
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #475569;
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
     td { padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 14px; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255,255,255,.02); }
-
     .domain-cell { font-family: monospace; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
     .domain-cell a { color: #818cf8; text-decoration: none; font-size: 11px; }
     .domain-cell a:hover { color: #a5b4fc; }
-
     .status-badge {
       display: inline-flex; align-items: center; gap: 5px;
       padding: 3px 10px; border-radius: 999px;
       font-size: 11px; font-weight: 700;
     }
-    .status-badge::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-    }
-    .status-active {
-      background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.3); color: #34d399;
-    }
+    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+    .status-active { background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.3); color: #34d399; }
     .status-active::before { background: #34d399; box-shadow: 0 0 6px #34d399; animation: pulse 2s infinite; }
-    .status-suspended {
-      background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.3); color: #f87171;
-    }
+    .status-suspended { background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.3); color: #f87171; }
     .status-suspended::before { background: #ef4444; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
-
     .since { font-size: 12px; color: #475569; }
-
     .actions { display: flex; gap: 8px; }
     .btn-suspend, .btn-activate {
       padding: 6px 14px; border-radius: 8px;
       font-size: 12px; font-weight: 700; cursor: pointer;
       transition: all .15s; border: none;
     }
-    .btn-suspend {
-      background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.25); color: #f87171;
-    }
+    .btn-suspend { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.25); color: #f87171; }
     .btn-suspend:hover { background: rgba(239,68,68,.25); }
-    .btn-activate {
-      background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.25); color: #34d399;
-    }
+    .btn-activate { background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.25); color: #34d399; }
     .btn-activate:hover { background: rgba(52,211,153,.25); }
     .btn-del {
       background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
@@ -194,7 +184,6 @@
       font-size: 12px; cursor: pointer; transition: all .15s;
     }
     .btn-del:hover { color: #f87171; border-color: rgba(239,68,68,.3); }
-
     .toast {
       position: fixed; bottom: 24px; right: 24px;
       background: rgba(30,35,50,.95); border: 1px solid rgba(255,255,255,.1);
@@ -204,10 +193,7 @@
       transition: all .3s; z-index: 999;
     }
     .toast.show { transform: translateY(0); opacity: 1; }
-    .empty {
-      text-align: center; padding: 40px;
-      color: #334155; font-size: 14px;
-    }
+    .empty { text-align: center; padding: 40px; color: #334155; font-size: 14px; }
     @media (max-width: 600px) {
       .kpis { grid-template-columns: repeat(2, 1fr); }
       td, th { padding: 10px 12px; }
@@ -221,19 +207,35 @@
   <div id="login-screen">
     <div class="login-card">
       <div class="logo-wrap">
-        <img src="https://conectaai.cl/logo.png" alt="ConectaAI"
-             onerror="this.style.display='none'">
+        <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
         <span class="logo-text">Conecta<span>AI</span></span>
       </div>
-      <h2>Panel de Control</h2>
-      <p>Gestión de clientes y suspensiones</p>
-      <div class="field">
-        <label>Contraseña de administrador</label>
-        <input type="password" id="pwd-input" placeholder="••••••••"
-               onkeydown="if(event.key==='Enter') doLogin()">
+
+      <!-- Login view -->
+      <div id="login-view">
+        <h2>Panel de Control</h2>
+        <p class="subtitle">Gestion de clientes y suspensiones</p>
+        <div class="field">
+          <label>Contrasena de administrador</label>
+          <input type="password" id="pwd-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                 onkeydown="if(event.key==='Enter') doLogin()">
+        </div>
+        <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+        <p class="login-err" id="login-err">Contrasena incorrecta</p>
+        <span class="forgot-link" onclick="showForgot()">Olvidaste tu contrasena?</span>
       </div>
-      <button class="btn-primary" onclick="doLogin()">Ingresar</button>
-      <p class="login-err" id="login-err">Contraseña incorrecta</p>
+
+      <!-- Forgot password view -->
+      <div id="forgot-view">
+        <button class="back-btn" onclick="showLogin()">&larr; Volver</button>
+        <h2>Recuperar acceso</h2>
+        <p class="forgot-msg">Te enviaremos la contrasena a <strong style="color:#a5b4fc">soporte@conectaai.cl</strong></p>
+        <button class="btn-primary" id="forgot-btn" onclick="sendForgot()">Enviar contrasena por email</button>
+        <div class="success-msg" id="forgot-ok">
+          Email enviado. Revisa soporte@conectaai.cl
+        </div>
+        <p class="login-err" id="forgot-err">No se pudo enviar. Intenta mas tarde.</p>
+      </div>
     </div>
   </div>
 
@@ -241,9 +243,8 @@
   <div id="app">
     <div class="topbar">
       <div class="topbar-brand">
-        <img src="https://conectaai.cl/logo.png" alt="ConectaAI"
-             onerror="this.style.display='none'">
-        <span>Conecta<b>AI</b> · Clientes</span>
+        <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
+        <span>Conecta<b>AI</b> &middot; Clientes</span>
       </div>
       <div class="topbar-right">
         <span class="badge-admin">SuperAdmin</span>
@@ -260,15 +261,15 @@
       <div class="kpis">
         <div class="kpi kpi-total">
           <div class="kpi-label">Total dominios</div>
-          <div class="kpi-value" id="kpi-total">—</div>
+          <div class="kpi-value" id="kpi-total">0</div>
         </div>
         <div class="kpi kpi-active">
           <div class="kpi-label">Activos</div>
-          <div class="kpi-value" id="kpi-active">—</div>
+          <div class="kpi-value" id="kpi-active">0</div>
         </div>
         <div class="kpi kpi-suspended">
           <div class="kpi-label">Suspendidos</div>
-          <div class="kpi-value" id="kpi-suspended">—</div>
+          <div class="kpi-value" id="kpi-suspended">0</div>
         </div>
       </div>
 
@@ -299,14 +300,52 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    let SECRET = '';
+    var SECRET = '';
+
+    function showForgot() {
+      document.getElementById('login-view').style.display = 'none';
+      document.getElementById('forgot-view').style.display = 'block';
+      document.getElementById('forgot-ok').style.display = 'none';
+      document.getElementById('forgot-err').style.display = 'none';
+      var btn = document.getElementById('forgot-btn');
+      btn.disabled = false;
+      btn.textContent = 'Enviar contrasena por email';
+    }
+
+    function showLogin() {
+      document.getElementById('forgot-view').style.display = 'none';
+      document.getElementById('login-view').style.display = 'block';
+    }
+
+    function sendForgot() {
+      var btn = document.getElementById('forgot-btn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      fetch('/api/forgot-password', { method: 'POST' })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          if (data.status === 'sent') {
+            document.getElementById('forgot-ok').style.display = 'block';
+            btn.textContent = 'Enviado';
+          } else {
+            document.getElementById('forgot-err').style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Enviar contrasena por email';
+          }
+        })
+        .catch(function() {
+          document.getElementById('forgot-err').style.display = 'block';
+          btn.disabled = false;
+          btn.textContent = 'Enviar contrasena por email';
+        });
+    }
 
     function doLogin() {
-      const pwd = document.getElementById('pwd-input').value.trim();
+      var pwd = document.getElementById('pwd-input').value.trim();
       if (!pwd) return;
       SECRET = pwd;
       fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } })
-        .then(r => {
+        .then(function(r) {
           if (r.status === 401) {
             document.getElementById('login-err').style.display = 'block';
             SECRET = '';
@@ -314,7 +353,7 @@
           }
           return r.json();
         })
-        .then(data => {
+        .then(function(data) {
           if (!data) return;
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app').style.display = 'block';
@@ -327,12 +366,13 @@
       document.getElementById('login-screen').style.display = 'flex';
       document.getElementById('app').style.display = 'none';
       document.getElementById('pwd-input').value = '';
+      showLogin();
     }
 
     function renderTable(domains) {
-      const tbody = document.getElementById('tbody');
-      const total = domains.length;
-      const suspended = domains.filter(d => d.suspended).length;
+      var tbody = document.getElementById('tbody');
+      var total = domains.length;
+      var suspended = domains.filter(function(d) { return d.suspended; }).length;
       document.getElementById('kpi-total').textContent = total;
       document.getElementById('kpi-active').textContent = total - suspended;
       document.getElementById('kpi-suspended').textContent = suspended;
@@ -341,85 +381,71 @@
         tbody.innerHTML = '<tr><td colspan="4" class="empty">Sin dominios registrados. Agrega uno arriba.</td></tr>';
         return;
       }
-      tbody.innerHTML = domains.map(d => `
-        <tr id="row-${d.domain.replace(/\./g,'_')}">
-          <td>
-            <div class="domain-cell">
-              ${d.domain}
-              <a href="https://${d.domain}" target="_blank">↗</a>
-            </div>
-          </td>
-          <td>
-            <span class="status-badge ${d.suspended ? 'status-suspended' : 'status-active'}">
-              ${d.suspended ? 'Suspendido' : 'Activo'}
-            </span>
-          </td>
-          <td><span class="since">${d.since || '—'}</span></td>
-          <td>
-            <div class="actions">
-              ${d.suspended
-                ? `<button class="btn-activate" onclick="toggle('${d.domain}', 'activate')">✓ Activar</button>`
-                : `<button class="btn-suspend" onclick="toggle('${d.domain}', 'suspend')">⊘ Suspender</button>`
-              }
-              <button class="btn-del" title="Quitar de lista" onclick="removeDomain('${d.domain}')">✕</button>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = domains.map(function(d) {
+        var actionBtn = d.suspended
+          ? '<button class="btn-activate" onclick="toggle(\'' + d.domain + '\', \'activate\')">Activar</button>'
+          : '<button class="btn-suspend" onclick="toggle(\'' + d.domain + '\', \'suspend\')">Suspender</button>';
+        return '<tr>' +
+          '<td><div class="domain-cell">' + d.domain + ' <a href="https://' + d.domain + '" target="_blank">ver</a></div></td>' +
+          '<td><span class="status-badge ' + (d.suspended ? 'status-suspended' : 'status-active') + '">' + (d.suspended ? 'Suspendido' : 'Activo') + '</span></td>' +
+          '<td><span class="since">' + (d.since || '&mdash;') + '</span></td>' +
+          '<td><div class="actions">' + actionBtn + '<button class="btn-del" onclick="removeDomain(\'' + d.domain + '\')">Quitar</button></div></td>' +
+          '</tr>';
+      }).join('');
     }
 
     function toggle(domain, action) {
-      fetch(`/api/${action}/${domain}`, {
+      fetch('/api/' + action + '/' + domain, {
         method: 'POST',
         headers: { 'X-Admin-Secret': SECRET }
       })
-      .then(r => r.json())
-      .then(() => {
-        toast(action === 'suspend' ? `${domain} suspendido` : `${domain} activado`);
+      .then(function(r) { return r.json(); })
+      .then(function() {
+        toast(action === 'suspend' ? domain + ' suspendido' : domain + ' activado');
         loadDomains();
       });
     }
 
     function addDomain() {
-      const val = document.getElementById('new-domain').value.trim().toLowerCase();
+      var val = document.getElementById('new-domain').value.trim().toLowerCase();
       if (!val) return;
-      // Just add to list as active (no file creation, no suspension yet)
-      fetch(`/api/activate/${val}`, {
+      fetch('/api/domains', {
         method: 'POST',
-        headers: { 'X-Admin-Secret': SECRET }
+        headers: { 'X-Admin-Secret': SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain: val })
       })
-      .then(r => r.json())
-      .then(() => {
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.error) { toast('Error: ' + data.error); return; }
         document.getElementById('new-domain').value = '';
-        toast(`${val} agregado`);
+        toast(val + ' agregado');
         loadDomains();
       });
     }
 
     function removeDomain(domain) {
-      if (!confirm(`¿Quitar "${domain}" de la lista? Si está suspendido, se activará.`)) return;
-      fetch(`/api/domains/${domain}`, {
+      if (!confirm('Quitar "' + domain + '" de la lista?')) return;
+      fetch('/api/domains/' + domain, {
         method: 'DELETE',
         headers: { 'X-Admin-Secret': SECRET }
       })
-      .then(() => { toast(`${domain} removido`); loadDomains(); });
+      .then(function() { toast(domain + ' removido'); loadDomains(); });
     }
 
     function loadDomains() {
       fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } })
-        .then(r => r.json())
+        .then(function(r) { return r.json(); })
         .then(renderTable);
     }
 
     function toast(msg) {
-      const el = document.getElementById('toast');
+      var el = document.getElementById('toast');
       el.textContent = msg;
       el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 3000);
+      setTimeout(function() { el.classList.remove('show'); }, 3000);
     }
 
-    // Auto-focus password field
-    window.onload = () => document.getElementById('pwd-input').focus();
+    window.onload = function() { document.getElementById('pwd-input').focus(); };
   </script>
 </body>
 </html>
