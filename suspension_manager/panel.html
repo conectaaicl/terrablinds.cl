@@ -3,471 +3,723 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Clientes — ConectaAI</title>
+  <title>Panel de Clientes — ConectaAI</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #070b12;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      color: #e2e8f0;
-      min-height: 100vh;
-    }
-    .glow-1 {
-      position: fixed; top: -100px; right: -100px;
-      width: 400px; height: 400px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(99,102,241,.15) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    /* ── Login ── */
-    #login-screen {
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .login-card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 20px;
-      padding: 40px 36px;
-      width: 380px;
-      text-align: center;
-    }
-    .logo-wrap { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px; }
-    .logo-wrap img { height: 36px; width: auto; object-fit: contain; }
-    .logo-text { font-size: 18px; font-weight: 800; color: #fff; }
-    .logo-text span { color: #6366f1; }
-    .login-card h2 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
-    .login-card .subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; text-align: left; }
-    .field label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #475569; }
-    .field input {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px;
-      padding: 11px 14px;
-      font-size: 14px;
-      color: #fff;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .field input:focus { border-color: rgba(99,102,241,.5); }
-    .btn-primary {
-      width: 100%; padding: 13px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff; border: none; border-radius: 10px;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      transition: all .2s;
-    }
-    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,70,229,.4); }
-    .btn-primary:disabled { opacity: .6; cursor: not-allowed; transform: none; }
-    .login-err { color: #f87171; font-size: 13px; margin-top: 12px; display: none; }
-    .forgot-link {
-      display: block; margin-top: 14px;
-      font-size: 12px; color: #475569; cursor: pointer;
-      text-decoration: underline; text-underline-offset: 3px;
-      transition: color .2s;
-    }
-    .forgot-link:hover { color: #a5b4fc; }
-    #forgot-view { display: none; }
-    .back-btn {
-      background: none; border: none; color: #818cf8; font-size: 13px;
-      cursor: pointer; display: flex; align-items: center; gap: 4px;
-      margin-bottom: 20px; padding: 0;
-    }
-    .back-btn:hover { color: #a5b4fc; }
-    .forgot-msg { font-size: 13px; color: #94a3b8; margin-bottom: 20px; line-height: 1.5; }
-    .success-msg {
-      background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.25);
-      border-radius: 10px; padding: 14px; color: #34d399;
-      font-size: 13px; display: none; margin-top: 12px;
-    }
-    /* ── App ── */
-    #app { display: none; }
-    .topbar {
-      background: rgba(255,255,255,.03);
-      border-bottom: 1px solid rgba(255,255,255,.06);
-      padding: 0 24px; height: 60px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .topbar-brand { display: flex; align-items: center; gap: 10px; }
-    .topbar-brand img { height: 30px; width: auto; object-fit: contain; }
-    .topbar-brand span { font-size: 16px; font-weight: 800; color: #fff; }
-    .topbar-brand b { color: #6366f1; }
-    .topbar-right { display: flex; align-items: center; gap: 12px; }
-    .badge-admin {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      background: rgba(99,102,241,.2); border: 1px solid rgba(99,102,241,.3);
-      color: #a5b4fc; border-radius: 999px; padding: 3px 10px;
-    }
-    .btn-logout {
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      color: #94a3b8; border-radius: 8px; padding: 6px 12px;
-      font-size: 12px; cursor: pointer; transition: all .2s;
-    }
-    .btn-logout:hover { background: rgba(255,255,255,.1); color: #fff; }
-    .main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
-    .page-header { margin-bottom: 28px; }
-    .page-header h1 { font-size: 24px; font-weight: 900; color: #fff; }
-    .page-header p  { font-size: 14px; color: #64748b; margin-top: 4px; }
-    .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-    .kpi {
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 14px; padding: 18px 20px;
-    }
-    .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; color: #475569; margin-bottom: 6px; }
-    .kpi-value { font-size: 28px; font-weight: 900; }
-    .kpi-total  .kpi-value { color: #e2e8f0; }
-    .kpi-active .kpi-value { color: #34d399; }
-    .kpi-suspended .kpi-value { color: #f87171; }
-    .add-row { display: flex; gap: 10px; margin-bottom: 20px; }
-    .add-row input {
-      flex: 1;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px; padding: 11px 16px;
-      font-size: 14px; font-family: monospace; color: #fff; outline: none;
-      transition: border-color .2s;
-    }
-    .add-row input:focus { border-color: rgba(99,102,241,.5); }
-    .add-row input::placeholder { color: #334155; }
-    .btn-add {
-      background: rgba(99,102,241,.2); border: 1px solid rgba(99,102,241,.3);
-      color: #a5b4fc; border-radius: 10px; padding: 11px 18px;
-      font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;
-      transition: all .2s;
-    }
-    .btn-add:hover { background: rgba(99,102,241,.3); color: #c7d2fe; }
-    .table-wrap {
-      background: rgba(255,255,255,.02);
-      border: 1px solid rgba(255,255,255,.07);
-      border-radius: 16px; overflow: hidden;
-    }
-    table { width: 100%; border-collapse: collapse; }
-    thead tr { background: rgba(255,255,255,.03); }
-    th {
-      padding: 12px 20px; text-align: left;
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1px; color: #475569;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    td { padding: 14px 20px; border-bottom: 1px solid rgba(255,255,255,.04); font-size: 14px; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,.02); }
-    .domain-cell { font-family: monospace; color: #e2e8f0; display: flex; align-items: center; gap: 8px; }
-    .domain-cell a { color: #818cf8; text-decoration: none; font-size: 11px; }
-    .domain-cell a:hover { color: #a5b4fc; }
-    .status-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      padding: 3px 10px; border-radius: 999px;
-      font-size: 11px; font-weight: 700;
-    }
-    .status-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
-    .status-active { background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.3); color: #34d399; }
-    .status-active::before { background: #34d399; box-shadow: 0 0 6px #34d399; animation: pulse 2s infinite; }
-    .status-suspended { background: rgba(248,113,113,.15); border: 1px solid rgba(248,113,113,.3); color: #f87171; }
-    .status-suspended::before { background: #ef4444; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
-    .since { font-size: 12px; color: #475569; }
-    .visits-cell { display: flex; align-items: center; gap: 8px; }
-    .visits-num { font-size: 16px; font-weight: 700; color: #a5b4fc; min-width: 32px; }
-    .btn-reset {
-      background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.2);
-      color: #818cf8; padding: 4px 10px; border-radius: 6px;
-      font-size: 11px; cursor: pointer; transition: all .15s;
-    }
-    .btn-reset:hover { background: rgba(99,102,241,.25); color: #c7d2fe; }
-    .actions { display: flex; gap: 8px; }
-    .btn-suspend, .btn-activate {
-      padding: 6px 14px; border-radius: 8px;
-      font-size: 12px; font-weight: 700; cursor: pointer;
-      transition: all .15s; border: none;
-    }
-    .btn-suspend { background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.25); color: #f87171; }
-    .btn-suspend:hover { background: rgba(239,68,68,.25); }
-    .btn-activate { background: rgba(52,211,153,.15); border: 1px solid rgba(52,211,153,.25); color: #34d399; }
-    .btn-activate:hover { background: rgba(52,211,153,.25); }
-    .btn-del {
-      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
-      color: #475569; padding: 6px 10px; border-radius: 8px;
-      font-size: 12px; cursor: pointer; transition: all .15s;
-    }
-    .btn-del:hover { color: #f87171; border-color: rgba(239,68,68,.3); }
-    .toast {
-      position: fixed; bottom: 24px; right: 24px;
-      background: rgba(30,35,50,.95); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 12px; padding: 12px 18px;
-      font-size: 13px; color: #e2e8f0;
-      transform: translateY(80px); opacity: 0;
-      transition: all .3s; z-index: 999;
-    }
-    .toast.show { transform: translateY(0); opacity: 1; }
-    .empty { text-align: center; padding: 40px; color: #334155; font-size: 14px; }
-    @media (max-width: 600px) {
-      .kpis { grid-template-columns: repeat(2, 1fr); }
-      td, th { padding: 10px 12px; }
-    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:#070b12;font-family:'Inter',-apple-system,sans-serif;color:#e2e8f0;min-height:100vh}
+    .glow-1{position:fixed;top:-120px;right:-120px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,.14) 0%,transparent 70%);pointer-events:none}
+    .glow-2{position:fixed;bottom:-100px;left:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.1) 0%,transparent 70%);pointer-events:none}
+
+    /* ── LOGIN ── */
+    #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .login-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:40px 36px;width:380px;text-align:center;backdrop-filter:blur(12px)}
+    .logo-wrap{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:28px}
+    .logo-wrap img{height:36px;width:auto;object-fit:contain}
+    .logo-text{font-size:18px;font-weight:800;color:#fff}
+    .logo-text span{color:#6366f1}
+    .login-card h2{font-size:20px;font-weight:900;color:#fff;margin-bottom:6px}
+    .login-card .sub{font-size:13px;color:#64748b;margin-bottom:24px}
+    .field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;text-align:left}
+    .field label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#475569}
+    .field input,.field textarea,.field select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;outline:none;transition:border-color .2s;font-family:inherit;width:100%}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(99,102,241,.5)}
+    .field select option{background:#1e293b;color:#e2e8f0}
+    .btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(79,70,229,.4)}
+    .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .err-msg{color:#f87171;font-size:13px;margin-top:12px;display:none}
+    .ok-msg{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.25);border-radius:10px;padding:14px;color:#34d399;font-size:13px;display:none;margin-top:12px}
+    .forgot-link{display:block;margin-top:14px;font-size:12px;color:#475569;cursor:pointer;text-decoration:underline;text-underline-offset:3px;transition:color .2s}
+    .forgot-link:hover{color:#a5b4fc}
+    #forgot-view{display:none}
+    .back-btn{background:none;border:none;color:#818cf8;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:4px;margin-bottom:20px;padding:0}
+    .back-btn:hover{color:#a5b4fc}
+
+    /* ── APP ── */
+    #app{display:none}
+    .topbar{background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.06);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+    .topbar-brand{display:flex;align-items:center;gap:10px}
+    .topbar-brand img{height:28px;width:auto;object-fit:contain}
+    .topbar-brand span{font-size:15px;font-weight:800;color:#fff}
+    .topbar-brand b{color:#6366f1}
+    .topbar-right{display:flex;align-items:center;gap:10px}
+    .badge-admin{font-size:10px;font-weight:700;text-transform:uppercase;background:rgba(99,102,241,.2);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;border-radius:999px;padding:3px 10px}
+    .btn-logout{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;transition:all .2s}
+    .btn-logout:hover{background:rgba(255,255,255,.1);color:#fff}
+
+    .main{max-width:1040px;margin:0 auto;padding:28px 20px}
+    .page-header{margin-bottom:24px}
+    .page-header h1{font-size:22px;font-weight:900;color:#fff}
+    .page-header p{font-size:13px;color:#64748b;margin-top:4px}
+
+    /* ── KPIs ── */
+    .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+    .kpi{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:16px 20px}
+    .kpi-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:#475569;margin-bottom:6px}
+    .kpi-value{font-size:26px;font-weight:900}
+    .kpi-total .kpi-value{color:#e2e8f0}
+    .kpi-active .kpi-value{color:#34d399}
+    .kpi-suspended .kpi-value{color:#f87171}
+
+    /* ── ANUNCIO SECTION ── */
+    .anuncio-card{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.07);border-radius:18px;margin-bottom:24px;overflow:hidden}
+    .anuncio-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;cursor:pointer;user-select:none;transition:background .2s}
+    .anuncio-head:hover{background:rgba(255,255,255,.03)}
+    .anuncio-head-left{display:flex;align-items:center;gap:12px}
+    .anuncio-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(99,102,241,.3),rgba(139,92,246,.2));border:1px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .anuncio-title{font-size:15px;font-weight:700;color:#fff}
+    .anuncio-subtitle{font-size:12px;color:#64748b;margin-top:2px}
+    .anuncio-status{display:flex;align-items:center;gap:8px}
+    .status-dot{width:8px;height:8px;border-radius:50%;background:#475569}
+    .status-dot.on{background:#34d399;box-shadow:0 0 8px rgba(52,211,153,.6);animation:pulse 2s infinite}
+    .status-txt{font-size:12px;color:#64748b}
+    .anuncio-chevron{color:#475569;transition:transform .3s;font-size:18px}
+    .anuncio-chevron.open{transform:rotate(180deg)}
+    .anuncio-body{display:none;border-top:1px solid rgba(255,255,255,.06);padding:22px}
+    .anuncio-body.open{display:block}
+
+    /* Type selector */
+    .type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+    .type-btn{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;transition:all .2s}
+    .type-btn:hover{background:rgba(99,102,241,.1);border-color:rgba(99,102,241,.3)}
+    .type-btn.active{background:rgba(99,102,241,.15);border-color:rgba(99,102,241,.5)}
+    .type-btn .type-icon{font-size:24px;margin-bottom:6px}
+    .type-btn .type-name{font-size:13px;font-weight:700;color:#e2e8f0}
+    .type-btn .type-desc{font-size:11px;color:#64748b;margin-top:3px;line-height:1.4}
+
+    /* Image upload */
+    .img-upload-area{border:2px dashed rgba(255,255,255,.1);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:16px;position:relative}
+    .img-upload-area:hover{border-color:rgba(99,102,241,.4);background:rgba(99,102,241,.05)}
+    .img-upload-area.has-img{border-style:solid;border-color:rgba(99,102,241,.3);padding:0;overflow:hidden}
+    .img-upload-area img{width:100%;max-height:240px;object-fit:contain;display:block;border-radius:10px}
+    .img-placeholder{pointer-events:none}
+    .img-placeholder .img-icon{font-size:32px;margin-bottom:8px}
+    .img-placeholder p{font-size:13px;color:#64748b}
+    .img-placeholder small{font-size:11px;color:#334155}
+    #img-file-input{display:none}
+    .img-actions{display:flex;gap:8px;margin-bottom:16px}
+    .btn-img-upload{background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-img-upload:hover{background:rgba(99,102,241,.25)}
+    .btn-img-remove{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:none}
+    .btn-img-remove:hover{background:rgba(239,68,68,.2)}
+
+    /* Banner controls row */
+    .banner-controls{display:flex;gap:12px;align-items:flex-end}
+    .banner-controls .field{flex:1;margin:0}
+    .toggle-wrap{display:flex;align-items:center;gap:8px;flex-shrink:0;margin-bottom:2px}
+    .toggle-label{font-size:12px;color:#94a3b8;white-space:nowrap}
+    .toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+    .toggle input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;inset:0;background:#1e293b;border-radius:12px;cursor:pointer;transition:.2s;border:1px solid rgba(255,255,255,.1)}
+    .toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:2px;bottom:2px;background:#475569;border-radius:50%;transition:.2s}
+    input:checked+.toggle-slider{background:#4f46e5;border-color:#6366f1}
+    input:checked+.toggle-slider::before{transform:translateX(18px);background:#fff}
+    .btn-save-banner{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;transition:all .2s;white-space:nowrap}
+    .btn-save-banner:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,70,229,.4)}
+    .upload-progress{display:none;font-size:12px;color:#a5b4fc;margin-top:8px;text-align:center}
+
+    /* ── ADD DOMAIN ── */
+    .add-row{display:flex;gap:10px;margin-bottom:20px}
+    .add-row input{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:11px 16px;font-size:14px;font-family:monospace;color:#fff;outline:none;transition:border-color .2s}
+    .add-row input:focus{border-color:rgba(99,102,241,.5)}
+    .add-row input::placeholder{color:#334155}
+    .btn-add{background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;border-radius:10px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+    .btn-add:hover{background:rgba(99,102,241,.25);color:#c7d2fe}
+
+    /* ── TABLE ── */
+    .table-wrap{background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.07);border-radius:16px;overflow:hidden;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;min-width:780px}
+    thead tr{background:rgba(255,255,255,.03)}
+    th{padding:11px 16px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#475569;border-bottom:1px solid rgba(255,255,255,.06)}
+    td{padding:13px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:rgba(255,255,255,.015)}
+    .domain-cell{font-family:monospace;color:#e2e8f0}
+    .domain-cell .client-info{font-family:sans-serif;font-size:11px;color:#64748b;margin-top:3px}
+    .domain-cell a{color:#818cf8;text-decoration:none;font-size:10px;margin-left:6px}
+    .domain-cell a:hover{color:#a5b4fc}
+    .status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10px;font-weight:700}
+    .status-badge::before{content:'';width:5px;height:5px;border-radius:50%}
+    .status-active{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.25);color:#34d399}
+    .status-active::before{background:#34d399;box-shadow:0 0 5px #34d399;animation:pulse 2s infinite}
+    .status-suspended{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.25);color:#f87171}
+    .status-suspended::before{background:#ef4444;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .sched-cell{font-size:12px}
+    .sched-soon{color:#f87171;font-weight:700}
+    .sched-warn{color:#fbbf24;font-weight:600}
+    .sched-ok{color:#64748b}
+    .visits-cell{display:flex;align-items:center;gap:6px}
+    .visits-num{font-size:15px;font-weight:700;color:#a5b4fc;min-width:28px}
+    .btn-reset{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);color:#818cf8;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s}
+    .btn-reset:hover{background:rgba(99,102,241,.2);color:#c7d2fe}
+    .actions{display:flex;gap:6px;flex-wrap:wrap}
+    .btn-sm{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;transition:all .15s;white-space:nowrap}
+    .btn-suspend{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.25);color:#f87171}
+    .btn-suspend:hover{background:rgba(239,68,68,.22)}
+    .btn-activate{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.25);color:#34d399}
+    .btn-activate:hover{background:rgba(52,211,153,.22)}
+    .btn-edit{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.25);color:#a5b4fc}
+    .btn-edit:hover{background:rgba(99,102,241,.22)}
+    .btn-notify{background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.25);color:#fbbf24}
+    .btn-notify:hover{background:rgba(251,191,36,.2)}
+    .btn-del{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.08);color:#475569}
+    .btn-del:hover{color:#f87171;border-color:rgba(239,68,68,.3)}
+    .empty{text-align:center;padding:40px;color:#334155;font-size:14px}
+
+    /* ── MODAL ── */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+    .modal-overlay.open{display:flex}
+    .modal-card{background:#0f1520;border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .modal-header h3{font-size:17px;font-weight:800;color:#fff}
+    .btn-close-modal{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#94a3b8;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .btn-close-modal:hover{background:rgba(255,255,255,.1);color:#fff}
+    .modal-divider{height:1px;background:rgba(255,255,255,.06);margin:16px 0}
+    .modal-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#4f46e5;margin-bottom:14px}
+    .clear-sched{display:inline-block;margin-top:8px;font-size:12px;color:#64748b;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+    .clear-sched:hover{color:#f87171}
+    .modal-actions{display:flex;gap:10px;margin-top:22px}
+    .btn-modal-save{flex:1;padding:12px;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+    .btn-modal-save:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(79,70,229,.4)}
+    .btn-modal-cancel{padding:12px 18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#94a3b8;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+    .btn-modal-cancel:hover{background:rgba(255,255,255,.1);color:#fff}
+
+    /* ── TOAST NOTIFICATION ── */
+    .toast-notif{position:fixed;bottom:24px;right:24px;background:rgba(15,21,32,.96);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 18px;font-size:13px;color:#e2e8f0;transform:translateY(80px);opacity:0;transition:all .3s;z-index:9999;max-width:300px}
+    .toast-notif.show{transform:translateY(0);opacity:1}
+
+    @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}.type-selector{grid-template-columns:1fr}.banner-controls{flex-direction:column}}
   </style>
 </head>
 <body>
-  <div class="glow-1"></div>
+<div class="glow-1"></div><div class="glow-2"></div>
 
-  <!-- LOGIN -->
-  <div id="login-screen">
-    <div class="login-card">
-      <div class="logo-wrap">
-        <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
-        <span class="logo-text">Conecta<span>AI</span></span>
-      </div>
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="logo-wrap">
+      <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
+      <span class="logo-text">Conecta<span>AI</span></span>
+    </div>
 
-      <!-- Login view -->
-      <div id="login-view">
-        <h2>Panel de Control</h2>
-        <p class="subtitle">Gestion de clientes y suspensiones</p>
-        <div class="field">
-          <label>Contrasena de administrador</label>
-          <input type="password" id="pwd-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                 onkeydown="if(event.key==='Enter') doLogin()">
-        </div>
-        <button class="btn-primary" onclick="doLogin()">Ingresar</button>
-        <p class="login-err" id="login-err">Contrasena incorrecta</p>
-        <span class="forgot-link" onclick="showForgot()">Olvidaste tu contrasena?</span>
+    <div id="login-view">
+      <h2>Panel de Control</h2>
+      <p class="sub">Gestión de clientes y suspensiones</p>
+      <div class="field">
+        <label>Contraseña de administrador</label>
+        <input type="password" id="pwd-input" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter')doLogin()">
       </div>
+      <button class="btn-primary" onclick="doLogin()">Ingresar</button>
+      <p class="err-msg" id="login-err">Contraseña incorrecta</p>
+      <span class="forgot-link" onclick="showForgot()">¿Olvidaste tu contraseña?</span>
+    </div>
 
-      <!-- Forgot password view -->
-      <div id="forgot-view">
-        <button class="back-btn" onclick="showLogin()">&larr; Volver</button>
-        <h2>Recuperar acceso</h2>
-        <p class="forgot-msg">Te enviaremos la contrasena a <strong style="color:#a5b4fc">soporte@conectaai.cl</strong></p>
-        <button class="btn-primary" id="forgot-btn" onclick="sendForgot()">Enviar contrasena por email</button>
-        <div class="success-msg" id="forgot-ok">
-          Email enviado. Revisa soporte@conectaai.cl
-        </div>
-        <p class="login-err" id="forgot-err">No se pudo enviar. Intenta mas tarde.</p>
-      </div>
+    <div id="forgot-view">
+      <button class="back-btn" onclick="showLogin()">&#8592; Volver</button>
+      <h2>Recuperar acceso</h2>
+      <p class="sub" style="margin-bottom:20px">Te enviaremos la contraseña a <strong style="color:#a5b4fc">soporte@conectaai.cl</strong></p>
+      <button class="btn-primary" id="forgot-btn" onclick="sendForgot()">Enviar contraseña por email</button>
+      <div class="ok-msg" id="forgot-ok">Email enviado. Revisa soporte@conectaai.cl</div>
+      <p class="err-msg" id="forgot-err">No se pudo enviar. Intenta más tarde.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
+      <span>Conecta<b>AI</b> · Clientes</span>
+    </div>
+    <div class="topbar-right">
+      <span class="badge-admin">SuperAdmin</span>
+      <button class="btn-logout" onclick="logout()">Salir</button>
     </div>
   </div>
 
-  <!-- APP -->
-  <div id="app">
-    <div class="topbar">
-      <div class="topbar-brand">
-        <img src="/logo.png" alt="ConectaAI" onerror="this.style.display='none'">
-        <span>Conecta<b>AI</b> &middot; Clientes</span>
+  <div class="main">
+    <div class="page-header">
+      <h1>Control de Servicios</h1>
+      <p>Activa, suspende y gestiona los dominios de tus clientes</p>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi kpi-total"><div class="kpi-label">Total dominios</div><div class="kpi-value" id="kpi-total">0</div></div>
+      <div class="kpi kpi-active"><div class="kpi-label">Activos</div><div class="kpi-value" id="kpi-active">0</div></div>
+      <div class="kpi kpi-suspended"><div class="kpi-label">Suspendidos</div><div class="kpi-value" id="kpi-suspended">0</div></div>
+    </div>
+
+    <!-- ══ ANUNCIO CARD ══ -->
+    <div class="anuncio-card">
+      <div class="anuncio-head" onclick="toggleAnuncio()">
+        <div class="anuncio-head-left">
+          <div class="anuncio-icon">📢</div>
+          <div>
+            <div class="anuncio-title">Anuncio publicitario en sitios de clientes</div>
+            <div class="anuncio-subtitle">Popup, toast o barra — con imagen y texto</div>
+          </div>
+        </div>
+        <div class="anuncio-status">
+          <div class="status-dot" id="banner-dot"></div>
+          <span class="status-txt" id="banner-status-txt">Inactivo</span>
+          <span class="anuncio-chevron" id="anuncio-chevron">&#8964;</span>
+        </div>
       </div>
-      <div class="topbar-right">
-        <span class="badge-admin">SuperAdmin</span>
-        <button class="btn-logout" onclick="logout()">Salir</button>
+
+      <div class="anuncio-body" id="anuncio-body">
+        <!-- Type selector -->
+        <div class="type-selector" id="type-selector">
+          <div class="type-btn active" id="type-popup" onclick="selectType('popup')">
+            <div class="type-icon">🎯</div>
+            <div class="type-name">Popup</div>
+            <div class="type-desc">Modal centrado con imagen grande al abrir la página</div>
+          </div>
+          <div class="type-btn" id="type-toast" onclick="selectType('toast')">
+            <div class="type-icon">🔔</div>
+            <div class="type-name">Toast</div>
+            <div class="type-desc">Notificación esquina inferior derecha, como Windows</div>
+          </div>
+          <div class="type-btn" id="type-bar" onclick="selectType('bar')">
+            <div class="type-icon">📌</div>
+            <div class="type-name">Barra</div>
+            <div class="type-desc">Barra fija en la parte inferior con texto</div>
+          </div>
+        </div>
+
+        <!-- Image upload -->
+        <div style="margin-bottom:6px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#475569;margin-bottom:10px">Imagen del anuncio</div>
+          <div class="img-upload-area" id="img-upload-area" onclick="document.getElementById('img-file-input').click()">
+            <div class="img-placeholder" id="img-placeholder">
+              <div class="img-icon">🖼️</div>
+              <p>Haz clic para subir una imagen</p>
+              <small>JPG, PNG, WEBP — recomendado 800×600px o similar</small>
+            </div>
+          </div>
+          <input type="file" id="img-file-input" accept="image/*" onchange="uploadImage(this)">
+          <div class="img-actions">
+            <button class="btn-img-upload" onclick="document.getElementById('img-file-input').click()">📁 Subir imagen</button>
+            <button class="btn-img-remove" id="btn-img-remove" onclick="removeImage()">✕ Quitar imagen</button>
+          </div>
+          <div class="upload-progress" id="upload-progress">Subiendo imagen...</div>
+        </div>
+
+        <!-- Text + controls -->
+        <div class="banner-controls">
+          <div class="field">
+            <label>Texto del anuncio (opcional)</label>
+            <input type="text" id="banner-text" placeholder="Ej: ¡Oferta especial este mes! Contáctanos">
+          </div>
+          <div class="toggle-wrap">
+            <span class="toggle-label">Activo</span>
+            <label class="toggle">
+              <input type="checkbox" id="banner-active" onchange="updateBannerDot()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <button class="btn-save-banner" onclick="saveBanner()">Guardar anuncio</button>
+        </div>
       </div>
     </div>
 
-    <div class="main">
-      <div class="page-header">
-        <h1>Control de Servicios</h1>
-        <p>Activa o suspende el acceso a cualquier dominio de cliente</p>
-      </div>
+    <!-- Add domain -->
+    <div class="add-row">
+      <input type="text" id="new-domain" placeholder="ej: cliente.conectaai.cl"
+             onkeydown="if(event.key==='Enter')addDomain()">
+      <button class="btn-add" onclick="addDomain()">+ Agregar dominio</button>
+    </div>
 
-      <div class="kpis">
-        <div class="kpi kpi-total">
-          <div class="kpi-label">Total dominios</div>
-          <div class="kpi-value" id="kpi-total">0</div>
-        </div>
-        <div class="kpi kpi-active">
-          <div class="kpi-label">Activos</div>
-          <div class="kpi-value" id="kpi-active">0</div>
-        </div>
-        <div class="kpi kpi-suspended">
-          <div class="kpi-label">Suspendidos</div>
-          <div class="kpi-value" id="kpi-suspended">0</div>
-        </div>
-      </div>
-
-      <div class="add-row">
-        <input type="text" id="new-domain" placeholder="ej: cliente.conectaai.cl"
-               onkeydown="if(event.key==='Enter') addDomain()">
-        <button class="btn-add" onclick="addDomain()">+ Agregar dominio</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Dominio</th>
-              <th>Estado</th>
-              <th>Visitas</th>
-              <th>Suspendido desde</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tbody">
-            <tr><td colspan="4" class="empty">Cargando...</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Table -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Dominio / Cliente</th>
+            <th>Estado</th>
+            <th>Visitas</th>
+            <th>Suspensión programada</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="5" class="empty">Cargando...</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<!-- ═══════════════ MODAL EDITAR CLIENTE ═══════════════ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 id="modal-title">Editar cliente</h3>
+      <button class="btn-close-modal" onclick="closeModal()">✕</button>
+    </div>
 
-  <script>
-    var SECRET = '';
+    <div class="modal-section-label">Datos del cliente</div>
+    <div class="field">
+      <label>Nombre o empresa</label>
+      <input type="text" id="m-name" placeholder="Ej: Juan Pérez / EmpresaXYZ">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="m-email" placeholder="cliente@email.com">
+    </div>
+    <div class="field">
+      <label>WhatsApp (con código país, sin +)</label>
+      <input type="text" id="m-wa" placeholder="56912345678">
+    </div>
 
-    function showForgot() {
-      document.getElementById('login-view').style.display = 'none';
-      document.getElementById('forgot-view').style.display = 'block';
-      document.getElementById('forgot-ok').style.display = 'none';
-      document.getElementById('forgot-err').style.display = 'none';
-      var btn = document.getElementById('forgot-btn');
-      btn.disabled = false;
-      btn.textContent = 'Enviar contrasena por email';
-    }
+    <div class="modal-divider"></div>
+    <div class="modal-section-label">Suspensión programada</div>
+    <div class="field">
+      <label>Fecha y hora de suspensión automática</label>
+      <input type="datetime-local" id="m-sched">
+      <span class="clear-sched" id="clear-sched" onclick="clearSched()" style="display:none">Quitar suspensión programada</span>
+    </div>
+    <p style="font-size:11px;color:#475569;margin-top:6px">El sistema enviará aviso automático 5 días antes y suspenderá el sitio en la fecha indicada.</p>
 
-    function showLogin() {
-      document.getElementById('forgot-view').style.display = 'none';
-      document.getElementById('login-view').style.display = 'block';
-    }
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-modal-save" onclick="saveModal()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
 
-    function sendForgot() {
-      var btn = document.getElementById('forgot-btn');
-      btn.disabled = true;
-      btn.textContent = 'Enviando...';
-      fetch('/api/forgot-password', { method: 'POST' })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          if (data.status === 'sent') {
-            document.getElementById('forgot-ok').style.display = 'block';
-            btn.textContent = 'Enviado';
-          } else {
-            document.getElementById('forgot-err').style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = 'Enviar contrasena por email';
-          }
-        })
-        .catch(function() {
-          document.getElementById('forgot-err').style.display = 'block';
-          btn.disabled = false;
-          btn.textContent = 'Enviar contrasena por email';
-        });
-    }
+<div class="toast-notif" id="toast"></div>
 
-    function doLogin() {
-      var pwd = document.getElementById('pwd-input').value.trim();
-      if (!pwd) return;
-      SECRET = pwd;
-      fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } })
-        .then(function(r) {
-          if (r.status === 401) {
-            document.getElementById('login-err').style.display = 'block';
-            SECRET = '';
-            return null;
-          }
-          return r.json();
-        })
-        .then(function(data) {
-          if (!data) return;
-          document.getElementById('login-screen').style.display = 'none';
-          document.getElementById('app').style.display = 'block';
-          loadDomains();
-        });
-    }
+<script>
+var SECRET = '';
+var _modalDomain = '';
+var _bannerType = 'popup';
+var _bannerImageUrl = '';
 
-    function logout() {
-      SECRET = '';
-      document.getElementById('login-screen').style.display = 'flex';
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('pwd-input').value = '';
-      showLogin();
-    }
-
-    function renderTable(domains, visits) {
-      visits = visits || {};
-      var tbody = document.getElementById('tbody');
-      var total = domains.length;
-      var suspended = domains.filter(function(d) { return d.suspended; }).length;
-      document.getElementById('kpi-total').textContent = total;
-      document.getElementById('kpi-active').textContent = total - suspended;
-      document.getElementById('kpi-suspended').textContent = suspended;
-
-      if (total === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin dominios registrados. Agrega uno arriba.</td></tr>';
-        return;
+/* ── AUTH ── */
+function showForgot(){
+  document.getElementById('login-view').style.display='none';
+  document.getElementById('forgot-view').style.display='block';
+  document.getElementById('forgot-ok').style.display='none';
+  document.getElementById('forgot-err').style.display='none';
+  var btn=document.getElementById('forgot-btn');
+  btn.disabled=false; btn.textContent='Enviar contraseña por email';
+}
+function showLogin(){
+  document.getElementById('forgot-view').style.display='none';
+  document.getElementById('login-view').style.display='block';
+}
+function sendForgot(){
+  var btn=document.getElementById('forgot-btn');
+  btn.disabled=true; btn.textContent='Enviando...';
+  fetch('/api/forgot-password',{method:'POST'})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.status==='sent'){
+        document.getElementById('forgot-ok').style.display='block';
+        btn.textContent='Enviado ✓';
+      } else {
+        document.getElementById('forgot-err').style.display='block';
+        btn.disabled=false; btn.textContent='Enviar contraseña por email';
       }
-      tbody.innerHTML = domains.map(function(d) {
-        var actionBtn = d.suspended
-          ? '<button class="btn-activate" onclick="toggle(\'' + d.domain + '\', \'activate\')">Activar</button>'
-          : '<button class="btn-suspend" onclick="toggle(\'' + d.domain + '\', \'suspend\')">Suspender</button>';
-        var v = visits[d.domain] || 0;
-        return '<tr>' +
-          '<td><div class="domain-cell">' + d.domain + ' <a href="https://' + d.domain + '" target="_blank">ver</a></div></td>' +
-          '<td><span class="status-badge ' + (d.suspended ? 'status-suspended' : 'status-active') + '">' + (d.suspended ? 'Suspendido' : 'Activo') + '</span></td>' +
-          '<td><div class="visits-cell"><span class="visits-num">' + v + '</span>' +
-          '<button class="btn-reset" onclick="resetVisits(\'' + d.domain + '\')" title="Resetear contador">↺</button></div></td>' +
-          '<td><span class="since">' + (d.since || '&mdash;') + '</span></td>' +
-          '<td><div class="actions">' + actionBtn + '<button class="btn-del" onclick="removeDomain(\'' + d.domain + '\')">Quitar</button></div></td>' +
-          '</tr>';
-      }).join('');
-    }
+    }).catch(function(){
+      document.getElementById('forgot-err').style.display='block';
+      btn.disabled=false; btn.textContent='Enviar contraseña por email';
+    });
+}
+function doLogin(){
+  var pwd=document.getElementById('pwd-input').value.trim();
+  if(!pwd)return;
+  SECRET=pwd;
+  fetch('/api/domains',{headers:{'X-Admin-Secret':SECRET}})
+    .then(function(r){
+      if(r.status===401){
+        document.getElementById('login-err').style.display='block';
+        SECRET=''; return null;
+      }
+      return r.json();
+    })
+    .then(function(d){
+      if(!d)return;
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('app').style.display='block';
+      loadAll();
+    });
+}
+function logout(){
+  SECRET='';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('pwd-input').value='';
+  showLogin();
+}
 
-    function toggle(domain, action) {
-      fetch('/api/' + action + '/' + domain, {
-        method: 'POST',
-        headers: { 'X-Admin-Secret': SECRET }
-      })
-      .then(function(r) { return r.json(); })
-      .then(function() {
-        toast(action === 'suspend' ? domain + ' suspendido' : domain + ' activado');
-        loadDomains();
-      });
-    }
+/* ── BANNER / ANUNCIO ── */
+function toggleAnuncio(){
+  var body=document.getElementById('anuncio-body');
+  var chev=document.getElementById('anuncio-chevron');
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+function selectType(t){
+  _bannerType=t;
+  ['popup','toast','bar'].forEach(function(x){
+    document.getElementById('type-'+x).classList.toggle('active',x===t);
+  });
+}
+function updateBannerDot(){
+  var on=document.getElementById('banner-active').checked;
+  document.getElementById('banner-dot').className='status-dot'+(on?' on':'');
+  document.getElementById('banner-status-txt').textContent=on?'Activo':'Inactivo';
+}
+function loadBanner(){
+  fetch('/api/banner',{headers:{'X-Admin-Secret':SECRET}})
+    .then(function(r){return r.json();})
+    .then(function(b){
+      document.getElementById('banner-text').value=b.text||'';
+      document.getElementById('banner-active').checked=!!b.active;
+      _bannerType=b.type||'popup';
+      _bannerImageUrl=b.imageUrl||'';
+      selectType(_bannerType);
+      updateBannerDot();
+      if(_bannerImageUrl){
+        showImagePreview(_bannerImageUrl);
+      }
+    });
+}
+function showImagePreview(url){
+  var area=document.getElementById('img-upload-area');
+  var ph=document.getElementById('img-placeholder');
+  area.classList.add('has-img');
+  ph.style.display='none';
+  var existing=area.querySelector('img');
+  if(!existing){
+    var img=document.createElement('img');
+    area.insertBefore(img,ph);
+    existing=img;
+  }
+  existing.src=url;
+  existing.style.display='block';
+  document.getElementById('btn-img-remove').style.display='inline-flex';
+}
+function removeImage(){
+  _bannerImageUrl='';
+  var area=document.getElementById('img-upload-area');
+  area.classList.remove('has-img');
+  var img=area.querySelector('img');
+  if(img)img.style.display='none';
+  document.getElementById('img-placeholder').style.display='block';
+  document.getElementById('btn-img-remove').style.display='none';
+}
+function uploadImage(input){
+  var file=input.files[0];
+  if(!file)return;
+  var progress=document.getElementById('upload-progress');
+  progress.style.display='block';
+  var fd=new FormData();
+  fd.append('image',file);
+  fetch('/api/banner/image',{method:'POST',headers:{'X-Admin-Secret':SECRET},body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      progress.style.display='none';
+      if(d.url){
+        _bannerImageUrl=d.url;
+        showImagePreview(d.url);
+        toast('Imagen subida correctamente');
+      } else {
+        toast('Error: '+(d.error||'No se pudo subir'));
+      }
+    })
+    .catch(function(){
+      progress.style.display='none';
+      toast('Error al subir la imagen');
+    });
+}
+function saveBanner(){
+  var body={
+    type:_bannerType,
+    text:document.getElementById('banner-text').value.trim(),
+    active:document.getElementById('banner-active').checked,
+    imageUrl:_bannerImageUrl
+  };
+  fetch('/api/banner',{method:'PUT',headers:{'X-Admin-Secret':SECRET,'Content-Type':'application/json'},body:JSON.stringify(body)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      updateBannerDot();
+      toast('Anuncio guardado' + (d.active?' — ACTIVO':''));
+    });
+}
 
-    function addDomain() {
-      var val = document.getElementById('new-domain').value.trim().toLowerCase();
-      if (!val) return;
-      fetch('/api/domains', {
-        method: 'POST',
-        headers: { 'X-Admin-Secret': SECRET, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain: val })
-      })
-      .then(function(r) { return r.json(); })
-      .then(function(data) {
-        if (data.error) { toast('Error: ' + data.error); return; }
-        document.getElementById('new-domain').value = '';
-        toast(val + ' agregado');
-        loadDomains();
-      });
+/* ── DOMAINS TABLE ── */
+function renderTable(domains){
+  var tbody=document.getElementById('tbody');
+  var total=domains.length;
+  var susp=domains.filter(function(d){return d.suspended;}).length;
+  document.getElementById('kpi-total').textContent=total;
+  document.getElementById('kpi-active').textContent=total-susp;
+  document.getElementById('kpi-suspended').textContent=susp;
+  if(!total){
+    tbody.innerHTML='<tr><td colspan="5" class="empty">Sin dominios. Agrega uno arriba.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=domains.map(function(d){
+    var togBtn=d.suspended
+      ? '<button class="btn-sm btn-activate" onclick="toggle(\''+d.domain+'\',\'activate\')">Activar</button>'
+      : '<button class="btn-sm btn-suspend"  onclick="toggle(\''+d.domain+'\',\'suspend\')">Suspender</button>';
+    var schedHtml='<span class="sched-ok">—</span>';
+    if(d.scheduled_suspension){
+      try{
+        var dt=new Date(d.scheduled_suspension);
+        var now=new Date();
+        var diff=(dt-now)/86400000;
+        var label=dt.toLocaleDateString('es-CL',{day:'2-digit',month:'2-digit',year:'2-digit'})+' '+dt.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+        if(diff<=2)schedHtml='<span class="sched-soon">⚠ '+label+'</span>';
+        else if(diff<=5)schedHtml='<span class="sched-warn">'+label+'</span>';
+        else schedHtml='<span class="sched-ok">'+label+'</span>';
+      }catch(e){schedHtml='<span class="sched-ok">'+d.scheduled_suspension+'</span>';}
     }
+    var clientInfo='';
+    if(d.name||d.email)clientInfo='<div class="client-info">'+(d.name||'')+(d.name&&d.email?' · ':'')+((d.email)?d.email:'')+'</div>';
+    return '<tr>'+
+      '<td><div class="domain-cell">'+d.domain+' <a href="https://'+d.domain+'" target="_blank">↗</a>'+clientInfo+'</div></td>'+
+      '<td><span class="status-badge '+(d.suspended?'status-suspended':'status-active')+'">'+(d.suspended?'Suspendido':'Activo')+'</span></td>'+
+      '<td><div class="visits-cell"><span class="visits-num">'+(d.visits||0)+'</span>'+
+        '<button class="btn-reset" onclick="resetVisits(\''+d.domain+'\')" title="Resetear">↺</button></div></td>'+
+      '<td>'+schedHtml+'</td>'+
+      '<td><div class="actions">'+togBtn+
+        '<button class="btn-sm btn-edit"   onclick="openModal(\''+d.domain+'\')">✏ Editar</button>'+
+        '<button class="btn-sm btn-notify" onclick="notifyNow(\''+d.domain+'\')">📨 Avisar</button>'+
+        '<button class="btn-sm btn-del"    onclick="removeDomain(\''+d.domain+'\')">✕</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('');
+}
 
-    function removeDomain(domain) {
-      if (!confirm('Quitar "' + domain + '" de la lista?')) return;
-      fetch('/api/domains/' + domain, {
-        method: 'DELETE',
-        headers: { 'X-Admin-Secret': SECRET }
-      })
-      .then(function() { toast(domain + ' removido'); loadDomains(); });
+function loadAll(){
+  Promise.all([
+    fetch('/api/domains',{headers:{'X-Admin-Secret':SECRET}}).then(function(r){return r.json();}),
+  ]).then(function(res){renderTable(res[0]);});
+  loadBanner();
+}
+
+function toggle(domain,action){
+  fetch('/api/'+action+'/'+domain,{method:'POST',headers:{'X-Admin-Secret':SECRET}})
+    .then(function(r){return r.json();})
+    .then(function(){
+      toast(action==='suspend'?domain+' suspendido':domain+' activado');
+      loadAll();
+    });
+}
+
+function addDomain(){
+  var val=document.getElementById('new-domain').value.trim().toLowerCase();
+  if(!val)return;
+  fetch('/api/domains',{method:'POST',headers:{'X-Admin-Secret':SECRET,'Content-Type':'application/json'},body:JSON.stringify({domain:val})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.error){toast('Error: '+d.error);return;}
+      document.getElementById('new-domain').value='';
+      toast(val+' agregado');
+      loadAll();
+    });
+}
+
+function removeDomain(domain){
+  if(!confirm('¿Quitar "'+domain+'" de la lista?'))return;
+  fetch('/api/domains/'+domain,{method:'DELETE',headers:{'X-Admin-Secret':SECRET}})
+    .then(function(){toast(domain+' eliminado');loadAll();});
+}
+
+function resetVisits(domain){
+  fetch('/api/visits/'+domain+'/reset',{method:'POST',headers:{'X-Admin-Secret':SECRET}})
+    .then(function(){toast('Visitas de '+domain+' reseteadas');loadAll();});
+}
+
+function notifyNow(domain){
+  fetch('/api/domains/'+domain+'/notify',{method:'POST',headers:{'X-Admin-Secret':SECRET}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      var parts=[];
+      if(d.email_sent)parts.push('email ✓');else parts.push('email ✗');
+      if(d.wa_sent)parts.push('WhatsApp ✓');else parts.push('WhatsApp ✗');
+      toast('Aviso enviado — '+parts.join(' · '));
+    });
+}
+
+/* ── MODAL ── */
+var _allDomains=[];
+function openModal(domain){
+  _modalDomain=domain;
+  document.getElementById('modal-title').textContent='Editar: '+domain;
+  var d=_allDomains.find(function(x){return x.domain===domain;});
+  if(d){
+    document.getElementById('m-name').value=d.name||'';
+    document.getElementById('m-email').value=d.email||'';
+    document.getElementById('m-wa').value=d.wa||'';
+    if(d.scheduled_suspension){
+      var dt=new Date(d.scheduled_suspension);
+      var local=dt.getFullYear()+'-'+pad(dt.getMonth()+1)+'-'+pad(dt.getDate())+'T'+pad(dt.getHours())+':'+pad(dt.getMinutes());
+      document.getElementById('m-sched').value=local;
+      document.getElementById('clear-sched').style.display='inline-block';
+    } else {
+      document.getElementById('m-sched').value='';
+      document.getElementById('clear-sched').style.display='none';
     }
+  }
+  document.getElementById('modal').classList.add('open');
+}
+function clearSched(){
+  document.getElementById('m-sched').value='';
+  document.getElementById('clear-sched').style.display='none';
+}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+}
+function saveModal(){
+  var updates={name:document.getElementById('m-name').value.trim(),email:document.getElementById('m-email').value.trim(),wa:document.getElementById('m-wa').value.trim()};
+  var schedVal=document.getElementById('m-sched').value;
+  Promise.all([
+    fetch('/api/domains/'+_modalDomain,{method:'PATCH',headers:{'X-Admin-Secret':SECRET,'Content-Type':'application/json'},body:JSON.stringify(updates)}),
+    fetch('/api/domains/'+_modalDomain+'/schedule',{method:'POST',headers:{'X-Admin-Secret':SECRET,'Content-Type':'application/json'},body:JSON.stringify({scheduled_suspension:schedVal||null})})
+  ]).then(function(){
+    closeModal();
+    toast('Cliente guardado');
+    loadAll();
+  });
+}
+function pad(n){return n<10?'0'+n:n;}
 
-    function loadDomains() {
-      Promise.all([
-        fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } }).then(function(r) { return r.json(); }),
-        fetch('/api/visits',  { headers: { 'X-Admin-Secret': SECRET } }).then(function(r) { return r.json(); })
-      ]).then(function(results) { renderTable(results[0], results[1]); });
-    }
+/* ── TOAST ── */
+function toast(msg){
+  var el=document.getElementById('toast');
+  el.textContent=msg;
+  el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},3000);
+}
 
-    function resetVisits(domain) {
-      fetch('/api/visits/' + domain + '/reset', {
-        method: 'POST',
-        headers: { 'X-Admin-Secret': SECRET }
-      })
-      .then(function() { toast('Visitas de ' + domain + ' reseteadas'); loadDomains(); });
-    }
+/* ── INIT ── */
+fetch('/api/domains',{headers:{'X-Admin-Secret':SECRET}}).then(function(r){
+  return r.json();
+}).then(function(d){
+  _allDomains=d;
+});
 
-    function toast(msg) {
-      var el = document.getElementById('toast');
-      el.textContent = msg;
-      el.classList.add('show');
-      setTimeout(function() { el.classList.remove('show'); }, 3000);
-    }
+var _origLoadAll=loadAll;
+loadAll=function(){
+  Promise.all([
+    fetch('/api/domains',{headers:{'X-Admin-Secret':SECRET}}).then(function(r){return r.json();})
+  ]).then(function(res){
+    _allDomains=res[0];
+    renderTable(res[0]);
+  });
+  loadBanner();
+};
 
-    window.onload = function() { document.getElementById('pwd-input').focus(); };
-  </script>
+window.onload=function(){document.getElementById('pwd-input').focus();};
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+</script>
 </body>
 </html>

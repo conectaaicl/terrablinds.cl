@@ -1,7 +1,6 @@
 """
 ConectaAI - Suspension Manager API
-Controla activacion/suspension de dominios de clientes.
-Corre en puerto 8199 (localhost only).
+Puerto 8199 (localhost only).
 """
 import os
 import re
@@ -10,7 +9,7 @@ import hmac
 import threading
 import urllib.request
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
 from flask import Flask, jsonify, request, send_file, abort, make_response
 
@@ -21,6 +20,7 @@ TEMPLATE_FILE   = SUSPENSIONS_DIR / '_template.html'
 DOMAINS_FILE    = SUSPENSIONS_DIR / '_domains.json'
 VISITS_FILE     = SUSPENSIONS_DIR / '_visits.json'
 BANNER_FILE     = SUSPENSIONS_DIR / '_banner.json'
+STATIC_DIR      = Path('/var/www/suspension-manager/static')
 LOGO_FILE       = Path('/var/www/suspension-manager/logo.conectaai.png')
 
 ADMIN_SECRET    = os.environ.get('ADMIN_SECRET',    '')
@@ -34,6 +34,7 @@ EVO_INSTANCE    = os.environ.get('EVO_INSTANCE',    'social')
 
 DEFAULT_DOMAINS = ['ama.conectaai.cl', 'amav2.conectaai.cl']
 DOMAIN_RE       = re.compile(r'^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$')
+ALLOWED_IMG_EXT = {'jpg', 'jpeg', 'png', 'gif', 'webp'}
 
 PIXEL_GIF = (
     b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff'
@@ -45,19 +46,14 @@ PIXEL_GIF = (
 # ── Storage helpers ───────────────────────────────────────────────────────────
 
 def _empty_client():
-    return {
-        'email': '', 'wa': '', 'name': '',
-        'scheduled_suspension': None, 'notified_5d': False,
-    }
+    return {'email': '', 'wa': '', 'name': '', 'scheduled_suspension': None, 'notified_5d': False}
 
 
 def load_clients() -> dict:
-    """Returns {domain: {email, wa, name, scheduled_suspension, notified_5d}}"""
     if DOMAINS_FILE.exists():
         try:
             data = json.loads(DOMAINS_FILE.read_text())
             if isinstance(data, list):
-                # Migrate old format (list of strings)
                 return {d: _empty_client() for d in data}
             return data
         except Exception:
@@ -85,10 +81,15 @@ def save_visits(visits: dict):
 def load_banner() -> dict:
     if BANNER_FILE.exists():
         try:
-            return json.loads(BANNER_FILE.read_text())
+            b = json.loads(BANNER_FILE.read_text())
+            b.setdefault('type', 'popup')
+            b.setdefault('imageUrl', '')
+            b.setdefault('text', '')
+            b.setdefault('active', False)
+            return b
         except Exception:
             pass
-    return {'text': '', 'active': False}
+    return {'type': 'popup', 'imageUrl': '', 'text': '', 'active': False}
 
 
 def save_banner(banner: dict):
@@ -111,17 +112,12 @@ def make_suspension_html(domain: str) -> str:
 
 
 def all_known_domains() -> list:
-    clients = load_clients()
-    visits  = load_visits()
-    suspended = {
-        f.stem for f in SUSPENSIONS_DIR.glob('*.html')
-        if not f.name.startswith('_')
-    }
-    # Include any suspended domains not in persistent list
+    clients  = load_clients()
+    visits   = load_visits()
+    suspended = {f.stem for f in SUSPENSIONS_DIR.glob('*.html') if not f.name.startswith('_')}
     for d in suspended:
         if d not in clients:
             clients[d] = _empty_client()
-
     result = []
     for d in sorted(clients):
         meta = clients[d]
@@ -131,8 +127,7 @@ def all_known_domains() -> list:
             'since': (
                 datetime.fromtimestamp(
                     (SUSPENSIONS_DIR / f'{d}.html').stat().st_mtime
-                ).strftime('%Y-%m-%d %H:%M')
-                if d in suspended else None
+                ).strftime('%Y-%m-%d %H:%M') if d in suspended else None
             ),
             'email':  meta.get('email', ''),
             'wa':     meta.get('wa', ''),
@@ -150,7 +145,7 @@ def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         secret = request.headers.get('X-Admin-Secret', '')
-        if not hmac.compare_digest(secret, ADMIN_SECRET):
+        if not ADMIN_SECRET or not hmac.compare_digest(secret, ADMIN_SECRET):
             return jsonify({'error': 'No autorizado'}), 401
         return f(*args, **kwargs)
     return decorated
@@ -212,7 +207,6 @@ def _suspension_email_html(domain: str, name: str, scheduled: str, warning: bool
             f'por falta de pago.'
         )
         color = '#dc2626'
-
     wa_link = f'https://wa.me/{WA_NUMBER}?text=Hola,%20quiero%20reactivar%20el%20sitio%20{domain}'
     return (
         f'<div style="font-family:Inter,sans-serif;max-width:520px;margin:0 auto;'
@@ -243,36 +237,27 @@ def _suspension_wa_text(domain: str, name: str, scheduled: str, warning: bool) -
             f'- WhatsApp: wa.me/{WA_NUMBER}\n'
             f'- Email: soporte@conectaai.cl'
         )
-    return (
-        f'Hola {n}, tu sitio *{domain}* ha sido *suspendido* por falta de pago.\n'
-        f'Contactanos para reactivarlo: wa.me/{WA_NUMBER}'
-    )
+    return f'Hola {n}, tu sitio *{domain}* ha sido *suspendido* por falta de pago.\nContactanos: wa.me/{WA_NUMBER}'
 
 
 def notify_domain(domain: str, warning: bool = True) -> dict:
-    """Send email + WA notification. Returns {email_sent, wa_sent}."""
-    clients = load_clients()
-    meta = clients.get(domain, _empty_client())
-    name = meta.get('name', '')
-    email = meta.get('email', '')
-    wa = meta.get('wa', '')
-    sched = meta.get('scheduled_suspension', '')
+    clients  = load_clients()
+    meta     = clients.get(domain, _empty_client())
+    name     = meta.get('name', '')
+    email    = meta.get('email', '')
+    wa       = meta.get('wa', '')
+    sched    = meta.get('scheduled_suspension', '')
     if sched:
         try:
-            dt = datetime.fromisoformat(sched)
-            sched_str = dt.strftime('%d/%m/%Y a las %H:%M')
+            sched_str = datetime.fromisoformat(sched).strftime('%d/%m/%Y a las %H:%M')
         except Exception:
             sched_str = sched
     else:
         sched_str = 'fecha programada'
-
-    html = _suspension_email_html(domain, name, sched_str, warning)
-    subj = ('Aviso de suspension proxima - ' if warning else 'Servicio suspendido - ') + domain
+    html     = _suspension_email_html(domain, name, sched_str, warning)
+    subj     = ('Aviso de suspension proxima - ' if warning else 'Servicio suspendido - ') + domain
     email_ok = send_email(email, subj, html)
-
-    wa_text = _suspension_wa_text(domain, name, sched_str, warning)
-    wa_ok = send_whatsapp(wa, wa_text)
-
+    wa_ok    = send_whatsapp(wa, _suspension_wa_text(domain, name, sched_str, warning))
     return {'email_sent': email_ok, 'wa_sent': wa_ok}
 
 
@@ -301,20 +286,18 @@ def send_password_email():
 # ── Background scheduler ──────────────────────────────────────────────────────
 
 def _run_scheduler():
-    """Checks every 5 minutes for pending suspensions."""
     while True:
         try:
             _check_scheduled_suspensions()
         except Exception:
             pass
-        threading.Event().wait(300)  # 5 minutes
+        threading.Event().wait(300)
 
 
 def _check_scheduled_suspensions():
     clients = load_clients()
     changed = False
-    now = datetime.now()
-
+    now     = datetime.now()
     for domain, meta in clients.items():
         sched = meta.get('scheduled_suspension')
         if not sched:
@@ -323,30 +306,25 @@ def _check_scheduled_suspensions():
             dt = datetime.fromisoformat(sched)
         except Exception:
             continue
-
-        delta = dt - now
+        delta    = dt - now
         days_left = delta.total_seconds() / 86400
-
         if not meta.get('notified_5d') and 0 < days_left <= 5:
             result = notify_domain(domain, warning=True)
             if result['email_sent'] or result['wa_sent']:
                 meta['notified_5d'] = True
                 changed = True
-
         if days_left <= 0 and not is_suspended(domain):
-            # Auto-suspend
             html = make_suspension_html(domain)
             suspension_path(domain).write_text(html, encoding='utf-8')
             notify_domain(domain, warning=False)
             meta['scheduled_suspension'] = None
             meta['notified_5d'] = False
             changed = True
-
     if changed:
         save_clients(clients)
 
 
-# ── API ───────────────────────────────────────────────────────────────────────
+# ── API: Domains ──────────────────────────────────────────────────────────────
 
 @app.get('/api/domains')
 @require_auth
@@ -357,7 +335,7 @@ def list_domains():
 @app.post('/api/domains')
 @require_auth
 def add_domain():
-    data = request.get_json(silent=True) or {}
+    data   = request.get_json(silent=True) or {}
     domain = (data.get('domain') or '').strip().lower()
     if not domain or not DOMAIN_RE.match(domain):
         return jsonify({'error': 'Dominio invalido'}), 400
@@ -371,8 +349,7 @@ def add_domain():
 @app.patch('/api/domains/<domain>')
 @require_auth
 def update_domain(domain):
-    """Update client metadata: name, email, wa."""
-    data = request.get_json(silent=True) or {}
+    data    = request.get_json(silent=True) or {}
     clients = load_clients()
     if domain not in clients:
         clients[domain] = _empty_client()
@@ -386,16 +363,14 @@ def update_domain(domain):
 @app.post('/api/domains/<domain>/schedule')
 @require_auth
 def schedule_suspension(domain):
-    """Set or clear a scheduled suspension datetime (ISO format)."""
-    data = request.get_json(silent=True) or {}
-    dt_str = data.get('scheduled_suspension')
+    data    = request.get_json(silent=True) or {}
+    dt_str  = data.get('scheduled_suspension')
     clients = load_clients()
     if domain not in clients:
         clients[domain] = _empty_client()
-
     if dt_str:
         try:
-            datetime.fromisoformat(dt_str)  # validate
+            datetime.fromisoformat(dt_str)
         except ValueError:
             return jsonify({'error': 'Formato de fecha invalido'}), 400
         clients[domain]['scheduled_suspension'] = dt_str
@@ -403,16 +378,13 @@ def schedule_suspension(domain):
     else:
         clients[domain]['scheduled_suspension'] = None
         clients[domain]['notified_5d'] = False
-
     save_clients(clients)
-    return jsonify({'status': 'scheduled', 'domain': domain,
-                    'scheduled_suspension': dt_str})
+    return jsonify({'status': 'scheduled', 'domain': domain, 'scheduled_suspension': dt_str})
 
 
 @app.post('/api/domains/<domain>/notify')
 @require_auth
 def notify_now(domain):
-    """Send notification immediately."""
     result = notify_domain(domain, warning=True)
     return jsonify({'domain': domain, **result})
 
@@ -462,7 +434,7 @@ def status(domain):
     return jsonify({'domain': domain, 'suspended': is_suspended(domain)})
 
 
-# ── Visit counter ─────────────────────────────────────────────────────────────
+# ── API: Visits ───────────────────────────────────────────────────────────────
 
 @app.get('/api/visits')
 @require_auth
@@ -487,12 +459,12 @@ def track_visit(domain):
         save_visits(visits)
     resp = make_response(PIXEL_GIF)
     resp.headers['Content-Type']  = 'image/gif'
-    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    resp.headers['Cache-Control'] = 'no-store, no-cache'
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
 
 
-# ── Banner ────────────────────────────────────────────────────────────────────
+# ── API: Banner ───────────────────────────────────────────────────────────────
 
 @app.get('/api/banner/public')
 def banner_public():
@@ -511,13 +483,113 @@ def get_banner():
 @app.put('/api/banner')
 @require_auth
 def update_banner():
-    data = request.get_json(silent=True) or {}
-    banner = {
-        'text':   str(data.get('text', '')).strip(),
-        'active': bool(data.get('active', False)),
-    }
+    data   = request.get_json(silent=True) or {}
+    banner = load_banner()
+    if 'text'     in data: banner['text']     = str(data['text']).strip()
+    if 'active'   in data: banner['active']   = bool(data['active'])
+    if 'type'     in data: banner['type']     = str(data['type']).strip()
+    if 'imageUrl' in data: banner['imageUrl'] = str(data['imageUrl']).strip()
     save_banner(banner)
     return jsonify({'status': 'updated', **banner})
+
+
+@app.post('/api/banner/image')
+@require_auth
+def upload_banner_image():
+    f = request.files.get('image')
+    if not f or not f.filename:
+        return jsonify({'error': 'No se recibio imagen'}), 400
+    ext = f.filename.rsplit('.', 1)[-1].lower() if '.' in f.filename else ''
+    if ext not in ALLOWED_IMG_EXT:
+        return jsonify({'error': 'Formato no permitido. Usa JPG, PNG, GIF o WEBP'}), 400
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
+    for old in STATIC_DIR.glob('banner.*'):
+        old.unlink()
+    save_path = STATIC_DIR / f'banner.{ext}'
+    f.save(str(save_path))
+    url = f'https://clientes.conectaai.cl/static/banner.{ext}'
+    banner = load_banner()
+    banner['imageUrl'] = url
+    save_banner(banner)
+    return jsonify({'status': 'uploaded', 'url': url})
+
+
+@app.get('/static/<path:filename>')
+def serve_static(filename):
+    file_path = STATIC_DIR / filename
+    if not file_path.exists() or not file_path.is_file():
+        abort(404)
+    return send_file(str(file_path))
+
+
+@app.get('/banner.js')
+def banner_js():
+    """Client-side banner script injected into all client sites."""
+    js = r"""
+(function(){
+  var SK='cai_banner_v3';
+  var now=Date.now();
+  var sup=localStorage.getItem(SK);
+  if(sup&&now<parseInt(sup,10))return;
+  fetch('https://clientes.conectaai.cl/api/banner/public')
+  .then(function(r){return r.json();})
+  .then(function(b){
+    if(!b.active)return;
+    var type=b.type||'popup';
+    var text=b.text||'';
+    var img=b.imageUrl||'';
+    if(!text&&!img)return;
+    if(type==='popup'){
+      var ov=document.createElement('div');
+      ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;animation:caiFadeIn .3s ease';
+      var card=document.createElement('div');
+      card.style.cssText='background:#fff;border-radius:18px;max-width:440px;width:100%;overflow:hidden;position:relative;box-shadow:0 40px 100px rgba(0,0,0,.6)';
+      var html='';
+      if(img)html+='<img src="'+img+'" style="width:100%;display:block;max-height:520px;object-fit:cover">';
+      if(text)html+='<div style="padding:16px 20px 20px;font-family:sans-serif;font-size:14px;color:#1e293b;line-height:1.6">'+text+'</div>';
+      var close1Day=now+86400000;
+      html+='<button id="cai-close" style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);border:none;color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;line-height:1;display:flex;align-items:center;justify-content:center">&#215;</button>';
+      card.innerHTML=html;
+      ov.appendChild(card);
+      document.body.appendChild(ov);
+      card.querySelector('#cai-close').onclick=function(){ov.remove();localStorage.setItem(SK,close1Day);};
+      ov.onclick=function(e){if(e.target===ov){ov.remove();localStorage.setItem(SK,close1Day);}};
+    } else if(type==='toast'){
+      var t=document.createElement('div');
+      t.style.cssText='position:fixed;bottom:24px;right:24px;width:310px;background:#fff;border-radius:16px;box-shadow:0 12px 50px rgba(0,0,0,.28);z-index:999999;overflow:hidden;transform:translateY(140px);opacity:0;transition:transform .45s cubic-bezier(.34,1.56,.64,1),opacity .35s ease';
+      var th='';
+      if(img)th+='<img src="'+img+'" style="width:100%;height:170px;object-fit:cover;display:block">';
+      if(text)th+='<div style="padding:12px 36px 14px 14px;font-family:sans-serif;font-size:13px;color:#1e293b;line-height:1.5">'+text+'</div>';
+      th+='<button id="cai-tc" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.5);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">&#215;</button>';
+      t.innerHTML=th;
+      document.body.appendChild(t);
+      var hide=function(){t.style.transform='translateY(140px)';t.style.opacity='0';setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},450);};
+      t.querySelector('#cai-tc').onclick=function(){hide();localStorage.setItem(SK,now+3600000);};
+      setTimeout(function(){t.style.transform='translateY(0)';t.style.opacity='1';},120);
+      setTimeout(function(){hide();},9000);
+    } else {
+      var bar=document.createElement('div');
+      bar.style.cssText='position:fixed;bottom:0;left:0;width:100%;background:#1e1b4b;color:#e2e8f0;padding:11px 44px 11px 20px;font-size:13px;font-family:sans-serif;text-align:center;z-index:99999;border-top:1px solid rgba(99,102,241,.4)';
+      bar.textContent=text;
+      var xb=document.createElement('button');
+      xb.textContent='×';
+      xb.style.cssText='position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#94a3b8;cursor:pointer;font-size:20px;line-height:1;padding:0';
+      xb.onclick=function(){bar.remove();localStorage.setItem(SK,now+3600000);};
+      bar.appendChild(xb);
+      document.body.appendChild(bar);
+    }
+    var s=document.createElement('style');
+    s.textContent='@keyframes caiFadeIn{from{opacity:0}to{opacity:1}}';
+    document.head.appendChild(s);
+  })
+  .catch(function(){});
+})();
+""".strip()
+    resp = make_response(js)
+    resp.headers['Content-Type']  = 'application/javascript; charset=utf-8'
+    resp.headers['Cache-Control'] = 'no-store'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
 
 
 # ── Auth / misc ───────────────────────────────────────────────────────────────
@@ -544,10 +616,9 @@ def index():
 
 if __name__ == '__main__':
     SUSPENSIONS_DIR.mkdir(parents=True, exist_ok=True)
-    # Migrate domain list on first run
+    STATIC_DIR.mkdir(parents=True, exist_ok=True)
     clients = load_clients()
     save_clients(clients)
-    # Start background scheduler
     t = threading.Thread(target=_run_scheduler, daemon=True)
     t.start()
     app.run(host='127.0.0.1', port=8199)
