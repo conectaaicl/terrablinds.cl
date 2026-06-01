@@ -30,7 +30,15 @@ DEFAULT_DOMAINS = [
     'amav2.conectaai.cl',
 ]
 
-DOMAIN_RE = re.compile(r'^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$')
+DOMAIN_RE   = re.compile(r'^[a-z0-9][a-z0-9\-\.]+\.[a-z]{2,}$')
+VISITS_FILE = SUSPENSIONS_DIR / '_visits.json'
+
+# 1×1 transparent GIF
+PIXEL_GIF = (
+    b'\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x80\x00\x00\xff\xff\xff'
+    b'\x00\x00\x00\x21\xf9\x04\x00\x00\x00\x00\x00\x2c\x00\x00\x00\x00'
+    b'\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b'
+)
 
 
 # ── Persistent domain list ────────────────────────────────────────────────────
@@ -98,6 +106,21 @@ def all_known_domains() -> list:
             ),
         })
     return result
+
+
+# ── Visit counter ────────────────────────────────────────────────────────────
+
+def load_visits() -> dict:
+    if VISITS_FILE.exists():
+        try:
+            return json.loads(VISITS_FILE.read_text())
+        except Exception:
+            pass
+    return {}
+
+
+def save_visits(visits: dict):
+    VISITS_FILE.write_text(json.dumps(visits))
 
 
 def send_password_email():
@@ -199,6 +222,36 @@ def delete_domain(domain):
 @require_auth
 def status(domain):
     return jsonify({'domain': domain, 'suspended': is_suspended(domain)})
+
+
+@app.get('/api/visits')
+@require_auth
+def get_visits():
+    return jsonify(load_visits())
+
+
+@app.post('/api/visits/<domain>/reset')
+@require_auth
+def reset_visits(domain):
+    visits = load_visits()
+    visits[domain] = 0
+    save_visits(visits)
+    return jsonify({'domain': domain, 'visits': 0})
+
+
+@app.get('/track/<domain>')
+def track_visit(domain):
+    """Public pixel endpoint — called by JS on client sites."""
+    if DOMAIN_RE.match(domain):
+        visits = load_visits()
+        visits[domain] = visits.get(domain, 0) + 1
+        save_visits(visits)
+    from flask import make_response
+    resp = make_response(PIXEL_GIF)
+    resp.headers['Content-Type'] = 'image/gif'
+    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate'
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
 
 
 @app.post('/api/forgot-password')

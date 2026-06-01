@@ -168,6 +168,14 @@
     .status-suspended::before { background: #ef4444; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
     .since { font-size: 12px; color: #475569; }
+    .visits-cell { display: flex; align-items: center; gap: 8px; }
+    .visits-num { font-size: 16px; font-weight: 700; color: #a5b4fc; min-width: 32px; }
+    .btn-reset {
+      background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.2);
+      color: #818cf8; padding: 4px 10px; border-radius: 6px;
+      font-size: 11px; cursor: pointer; transition: all .15s;
+    }
+    .btn-reset:hover { background: rgba(99,102,241,.25); color: #c7d2fe; }
     .actions { display: flex; gap: 8px; }
     .btn-suspend, .btn-activate {
       padding: 6px 14px; border-radius: 8px;
@@ -285,6 +293,7 @@
             <tr>
               <th>Dominio</th>
               <th>Estado</th>
+              <th>Visitas</th>
               <th>Suspendido desde</th>
               <th>Acciones</th>
             </tr>
@@ -357,7 +366,7 @@
           if (!data) return;
           document.getElementById('login-screen').style.display = 'none';
           document.getElementById('app').style.display = 'block';
-          renderTable(data);
+          loadDomains();
         });
     }
 
@@ -369,7 +378,8 @@
       showLogin();
     }
 
-    function renderTable(domains) {
+    function renderTable(domains, visits) {
+      visits = visits || {};
       var tbody = document.getElementById('tbody');
       var total = domains.length;
       var suspended = domains.filter(function(d) { return d.suspended; }).length;
@@ -378,16 +388,19 @@
       document.getElementById('kpi-suspended').textContent = suspended;
 
       if (total === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="empty">Sin dominios registrados. Agrega uno arriba.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">Sin dominios registrados. Agrega uno arriba.</td></tr>';
         return;
       }
       tbody.innerHTML = domains.map(function(d) {
         var actionBtn = d.suspended
           ? '<button class="btn-activate" onclick="toggle(\'' + d.domain + '\', \'activate\')">Activar</button>'
           : '<button class="btn-suspend" onclick="toggle(\'' + d.domain + '\', \'suspend\')">Suspender</button>';
+        var v = visits[d.domain] || 0;
         return '<tr>' +
           '<td><div class="domain-cell">' + d.domain + ' <a href="https://' + d.domain + '" target="_blank">ver</a></div></td>' +
           '<td><span class="status-badge ' + (d.suspended ? 'status-suspended' : 'status-active') + '">' + (d.suspended ? 'Suspendido' : 'Activo') + '</span></td>' +
+          '<td><div class="visits-cell"><span class="visits-num">' + v + '</span>' +
+          '<button class="btn-reset" onclick="resetVisits(\'' + d.domain + '\')" title="Resetear contador">↺</button></div></td>' +
           '<td><span class="since">' + (d.since || '&mdash;') + '</span></td>' +
           '<td><div class="actions">' + actionBtn + '<button class="btn-del" onclick="removeDomain(\'' + d.domain + '\')">Quitar</button></div></td>' +
           '</tr>';
@@ -433,9 +446,18 @@
     }
 
     function loadDomains() {
-      fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } })
-        .then(function(r) { return r.json(); })
-        .then(renderTable);
+      Promise.all([
+        fetch('/api/domains', { headers: { 'X-Admin-Secret': SECRET } }).then(function(r) { return r.json(); }),
+        fetch('/api/visits',  { headers: { 'X-Admin-Secret': SECRET } }).then(function(r) { return r.json(); })
+      ]).then(function(results) { renderTable(results[0], results[1]); });
+    }
+
+    function resetVisits(domain) {
+      fetch('/api/visits/' + domain + '/reset', {
+        method: 'POST',
+        headers: { 'X-Admin-Secret': SECRET }
+      })
+      .then(function() { toast('Visitas de ' + domain + ' reseteadas'); loadDomains(); });
     }
 
     function toast(msg) {
