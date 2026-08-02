@@ -1,0 +1,190 @@
+{
+  "name": "TerraBlinds — WhatsApp Bot IA",
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "WhatsApp Incoming Message",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        100,
+        300
+      ],
+      "parameters": {
+        "path": "terrablinds-whatsapp-bot",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "id": "extract-msg",
+      "name": "Extract Message Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\n// Extract message from OmniFlow/Evolution webhook payload\nconst body = $input.first().json;\nconst msg = body?.data?.message?.conversation\n  || body?.data?.message?.extendedTextMessage?.text\n  || body?.message?.conversation\n  || body?.text\n  || '';\nconst phone = body?.data?.key?.remoteJid\n  || body?.from\n  || body?.phone\n  || '';\nconst from = phone.replace('@s.whatsapp.net', '').replace('@c.us', '');\nreturn [{ json: { msg: msg.trim(), phone: from, rawMsg: msg } }];\n"
+      }
+    },
+    {
+      "id": "classify-intent",
+      "name": "Classify Intent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\nconst msg = $input.first().json.msg.toLowerCase();\nconst phone = $input.first().json.phone;\n\n// Classify intent\nlet intent = 'greeting';\nlet query = '';\n\nif (/precio|cuanto|cuesta|valor|cotiz|presupuesto|cuánto/i.test(msg)) {\n  intent = 'price_query';\n  query = msg.replace(/precio|cuanto|cuesta|valor|cotiz|presupuesto|cuánto/gi, '').trim();\n} else if (/catalogo|catálogo|productos|tienen|venden|tipos/i.test(msg)) {\n  intent = 'catalog';\n} else if (/agendar|agenda|visita|instalar|instalacion|instalación|cuando/i.test(msg)) {\n  intent = 'booking';\n} else if (/hola|buenas|buen dia|buenos dias|saludos|hi|hello/i.test(msg)) {\n  intent = 'greeting';\n} else if (/gracias|ok|perfecto|excelente|listo/i.test(msg)) {\n  intent = 'thanks';\n}\n\nreturn [{ json: { intent, query: query || msg, phone, original: $input.first().json.msg } }];\n"
+      }
+    },
+    {
+      "id": "search-products",
+      "name": "Search Products (price query)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        700,
+        200
+      ],
+      "parameters": {
+        "url": "https://terrablinds.cl/api/bot/products",
+        "method": "GET",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{$json.query}}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-bot-token",
+              "value": "6bc8b46af29f2af1d27d6bf10c3969e7a987d675b5ccab6b"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "build-response",
+      "name": "Build WhatsApp Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "jsCode": "\nconst intent = $('Classify Intent').first().json.intent;\nconst original = $('Classify Intent').first().json.original;\nconst phone = $('Classify Intent').first().json.phone;\nlet response = '';\n\nif (intent === 'price_query') {\n  try {\n    const products = $('Search Products (price query)').first().json.products || [];\n    if (products.length > 0) {\n      response = `Hola 👋 Encontré estos productos relacionados:\\n\\n`;\n      products.forEach(p => {\n        response += `• *${p.name}*\\n  ${p.price}\\n  ${p.description || ''}\\n\\n`;\n      });\n      response += `Para una cotización exacta a medida, visita: https://terrablinds.cl/quote 📐`;\n    } else {\n      response = `Hola 👋 No encontré ese producto específico. Puedes ver todo nuestro catálogo en: https://terrablinds.cl/catalog\\n\\nO escríbeme qué tipo de cortina buscas y te ayudo.`;\n    }\n  } catch (e) {\n    response = `Hola 👋 Para consultar precios exactos a medida, visita: https://terrablinds.cl/quote\\n\\nNuestro equipo también puede asesorarte personalmente 😊`;\n  }\n} else if (intent === 'catalog') {\n  response = `Hola 👋 Trabajamos con:\\n\\n• Cortinas Roller (Blackout, Sunscreen, Duo)\\n• Persianas de Madera y PVC\\n• Toldos Retráctiles\\n• Cierres de Terraza (PVC y Cristal)\\n• Cortinas Motorizadas\\n• Domótica y Control WiFi\\n\\nVer catálogo completo: https://terrablinds.cl/catalog`;\n} else if (intent === 'booking') {\n  response = `Hola 👋 Para agendar una visita técnica o toma de medidas, puedes hacerlo online aquí:\\n\\n📅 https://terrablinds.cl/agendar\\n\\nO si prefieres, dime tu nombre y disponibilidad y te contacto directamente.`;\n} else if (intent === 'thanks') {\n  response = `¡Gracias a ti! 😊 Si necesitas algo más, aquí estoy. Puedes cotizar en cualquier momento en: https://terrablinds.cl/quote`;\n} else {\n  response = `¡Hola! 👋 Soy el asistente de *TerraBlinds*.\\n\\nPuedo ayudarte con:\\n• 💰 Precios de cortinas y persianas\\n• 📋 Información sobre productos\\n• 📅 Agendar visita técnica\\n\\n¿En qué te puedo ayudar hoy?`;\n}\n\nreturn [{ json: { phone, response, intent } }];\n"
+      }
+    },
+    {
+      "id": "send-whatsapp",
+      "name": "Send WhatsApp Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "url": "https://osw.conectaai.cl/api/v1/whatsapp/send",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Tenant-Id",
+              "value": "1"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "to",
+              "value": "={{$json.phone}}"
+            },
+            {
+              "name": "message",
+              "value": "={{$json.response}}"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp Incoming Message": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message Data": {
+      "main": [
+        [
+          {
+            "node": "Classify Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Intent": {
+      "main": [
+        [
+          {
+            "node": "Search Products (price query)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Products (price query)": {
+      "main": [
+        [
+          {
+            "node": "Build WhatsApp Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build WhatsApp Response": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

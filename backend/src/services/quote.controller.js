@@ -1,0 +1,202 @@
+const { Quote, Config } = require('../models');
+const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail, resendQuoteEmail } = require('../services/email.service');
+const axios = require('axios');
+
+async function fireWebhook(quote) {
+    try {
+        const cfg = await Config.findOne({ where: { key: 'webhook_url' } });
+        const url = cfg?.value;
+        if (!url || !url.startsWith('http')) return;
+        await axios.post(url, {
+            event: 'new_quote',
+            quote_id: quote.id,
+            customer_name: quote.customer_name,
+            customer_email: quote.customer_email,
+            customer_phone: quote.customer_phone,
+            total_amount: quote.total_amount,
+            items: quote.items,
+            created_at: quote.created_at,
+        }, { timeout: 5000 });
+        console.log(`Webhook fired for quote #${quote.id}`);
+    } catch (err) {
+        console.warn(`Webhook failed (non-blocking): ${err.message}`);
+    }
+}
+
+// Create quote (public, rate-limited)
+exports.createQuote = async (req, res) => {
+    try {
+        const { customer_name, customer_email, customer_phone, notes, items } = req.body;
+
+        // Validation
+        if (!customer_name || typeof customer_name !== 'string' || customer_name.trim().length < 2) {
+            return res.status(400).json({ error: 'Valid customer name is required (min 2 characters)' });
+        }
+
+        if (!customer_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer_email)) {
+            return res.status(400).json({ error: 'Valid email address is required' });
+        }
+
+        if (!items || !Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({ error: 'At least one item is required' });
+        }
+
+        if (items.length > 50) {
+            return res.status(400).json({ error: 'Maximum 50 items per quote' });
+        }
+
+        // Sanitize items
+        const sanitizedItems = items.map(item => ({
+            productId: item.productId ? parseInt(item.productId) : null,
+            productName: String(item.productName || item.product || '').substring(0, 200),
+            category: String(item.category || '').substring(0, 100),
+            color: item.color ? String(item.color).substring(0, 100) : null,
+            width: parseFloat(item.width) || 0,
+            height: parseFloat(item.height) || 0,
+            quantity: parseInt(item.quantity) || 1,
+            price: parseFloat(item.price) || 0
+        }));
+
+        const total_amount = sanitizedItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+
+        const quote = await Quote.create({
+            customer_name: customer_name.trim().substring(0, 200),
+            customer_email: customer_email.trim().toLowerCase(),
+            customer_phone: customer_phone ? String(customer_phone).substring(0, 20) : null,
+            notes: notes ? String(notes).substring(0, 1000) : null,
+            items: sanitizedItems,
+            total_amount,
+            status: 'pending'
+        });
+
+        // Send emails (non-blocking)
+        sendQuoteEmail(customer_email, quote).catch(err => {
+            console.error('Customer email failed (non-blocking):', err.message);
+        });
+        sendAdminQuoteNotification(quote).catch(err => {
+            console.error('Admin notification failed (non-blocking):', err.message);
+        });
+
+        // Fire n8n/webhook (non-blocking)
+        fireWebhook(quote).catch(() => {});
+
+        res.status(201).json(quote);
+    } catch (error) {
+        console.error('Error creating quote:', error.message);
+        res.status(500).json({ error: 'Error creating quote' });
+    }
+};
+
+// Get all quotes (admin only) - supports pagination
+exports.getAllQuotes = async (req, res) => {
+    try {
+        const { status, page, limit: limitParam } = req.query;
+        const where = {};
+
+        if (status && ['pending', 'contacted', 'sent', 'accepted', 'rejected', 'completed'].includes(status)) {
+            where.status = status;
+        }
+
+        const queryOptions = {
+            where,
+            order: [['created_at', 'DESC']]
+        };
+
+        // Optional pagination: ?page=1&limit=50
+        if (page) {
+            const pageNum = Math.max(1, parseInt(page) || 1);
+            const limit = Math.min(100, Math.max(1, parseInt(limitParam) || 50));
+            queryOptions.limit = limit;
+            queryOptions.offset = (pageNum - 1) * limit;
+
+            const { count, rows } = await Quote.findAndCountAll(queryOptions);
+            return res.json({
+                quotes: rows,
+                total: count,
+                page: pageNum,
+                totalPages: Math.ceil(count / limit)
+            });
+        }
+
+        // No pagination - return all (backwards compatible)
+        const quotes = await Quote.findAll(queryOptions);
+        res.json(quotes);
+    } catch (error) {
+        console.error('Error fetching quotes:', error.message);
+        res.status(500).json({ error: 'Error fetching quotes' });
+    }
+};
+
+// Get quote by ID (admin only)
+exports.getQuoteById = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid quote ID' });
+        }
+
+        const quote = await Quote.findByPk(id);
+        if (!quote) {
+            return res.status(404).json({ error: 'Quote not found' });
+        }
+
+        res.json(quote);
+    } catch (error) {
+        console.error('Error fetching quote:', error.message);
+        res.status(500).json({ error: 'Error fetching quote' });
+    }
+};
+
+// Resend quote email to customer (admin only)
+exports.resendEmail = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid quote ID' });
+        }
+
+        const quote = await Quote.findByPk(id);
+        if (!quote) {
+            return res.status(404).json({ error: 'Quote not found' });
+        }
+
+        await resendQuoteEmail(quote);
+        res.json({ success: true, message: `Email reenviado a ${quote.customer_email}` });
+    } catch (error) {
+        console.error('Error resending quote email:', error.message);
+        res.status(500).json({ error: 'Error al reenviar el email' });
+    }
+};
+
+// Update quote status (admin only)
+exports.updateQuoteStatus = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) {
+            return res.status(400).json({ error: 'Invalid quote ID' });
+        }
+
+        const { status } = req.body;
+        const validStatuses = ['pending', 'contacted', 'sent', 'accepted', 'rejected', 'completed'];
+        if (!status || !validStatuses.includes(status)) {
+            return res.status(400).json({ error: `Status must be one of: ${validStatuses.join(', ')}` });
+        }
+
+        const quote = await Quote.findByPk(id);
+        if (!quote) {
+            return res.status(404).json({ error: 'Quote not found' });
+        }
+
+        await quote.update({ status });
+
+        // Send status update email to client (non-blocking)
+        sendStatusUpdateEmail(quote, status).catch(err => {
+            console.error('Status update email failed (non-blocking):', err.message);
+        });
+
+        res.json(quote);
+    } catch (error) {
+        console.error('Error updating quote:', error.message);
+        res.status(500).json({ error: 'Error updating quote' });
+    }
+};

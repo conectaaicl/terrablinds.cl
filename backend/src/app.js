@@ -1,0 +1,137 @@
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
+const path = require('path');
+const { sequelize } = require('./models');
+
+const app = express();
+
+// Trust proxy (2 hops: host nginx SSL + frontend container nginx)
+app.set('trust proxy', 2);
+
+// Security headers
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
+
+// Compression
+app.use(compression());
+
+// CORS - restrict to allowed origins
+const allowedOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+    : ['http://localhost:5173', 'http://localhost'];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true
+}));
+
+// Global rate limiting
+const globalLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 300,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+app.use(globalLimiter);
+
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
+
+// Health check with uptime and version
+const startedAt = new Date();
+app.get('/', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'TerraBlinds API',
+        uptime: Math.floor((Date.now() - startedAt.getTime()) / 1000),
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
+
+app.get('/health', async (req, res) => {
+    try {
+        await sequelize.authenticate();
+        res.json({ status: 'ok', db: 'connected' });
+    } catch (err) {
+        res.status(503).json({ status: 'error', db: 'disconnected' });
+    }
+});
+
+// Serve static files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
+    maxAge: '7d',
+    etag: true
+}));
+
+// Routes
+const productRoutes = require('./routes/product.routes');
+const quoteRoutes = require('./routes/quote.routes');
+const authRoutes = require('./routes/auth.routes');
+const configRoutes = require('./routes/config.routes');
+const uploadRoutes = require('./routes/upload.routes');
+const flowRoutes = require('./routes/flow.routes');
+const mercadopagoRoutes = require('./routes/mercadopago.routes');
+const contactRoutes = require('./routes/contact.routes');
+const seoRoutes = require('./routes/seo.routes');
+const statsRoutes = require('./routes/stats.routes');
+const projectRoutes = require('./routes/project.routes');
+const faqRoutes = require('./routes/faq.routes');
+const chatRoutes = require('./routes/chat.routes');
+const leadRoutes = require('./routes/lead.routes');
+const bookingRoutes = require('./routes/booking.routes');
+const blogRoutes = require('./routes/blog.routes');
+const reviewRoutes = require('./routes/review.routes');
+const referralRoutes = require('./routes/referral.routes');
+const botRoutes = require('./routes/bot.routes');
+const citiesRoutes = require('./routes/cities.routes');
+
+app.use('/api/products', productRoutes);
+app.use('/api/quotes', quoteRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/config', configRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/payment', flowRoutes);
+app.use('/api/payment/mercadopago', mercadopagoRoutes);
+app.use('/api/contact', contactRoutes);
+app.use('/api', seoRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/cities', citiesRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/faqs', faqRoutes);
+app.use('/api/chat', chatRoutes);
+app.use('/api/leads', leadRoutes);
+app.use('/api/bookings', bookingRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/referrals', referralRoutes);
+app.use('/api/bot', botRoutes);
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ error: 'Route not found' });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(`[${new Date().toISOString()}] Error:`, err.message);
+    if (process.env.NODE_ENV === 'development') {
+        console.error(err.stack);
+    }
+    res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+});
+
+module.exports = app;

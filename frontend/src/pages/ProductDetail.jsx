@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import Layout from '../components/Layout';
+import SEO from '../components/SEO';
+import ProductCalculator from '../components/ProductCalculator';
+import { Check, Shield, Truck, PenTool } from 'lucide-react';
+import api from '../api';
+
+const ProductDetail = () => {
+    const { id } = useParams();
+    const [product, setProduct] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [activeImage, setActiveImage] = useState(0);
+
+    const baseUrl = import.meta.env.VITE_API_URL || '';
+
+    useEffect(() => {
+        const fetchProduct = async () => {
+            if (!id) return;
+            try {
+                setLoading(true);
+                setError(null);
+                let data;
+                if (/^\d+$/.test(id)) {
+                    const res = await api.get(`/api/products/${id}`);
+                    data = res.data;
+                } else {
+                    // Slug-based URL (e.g. /product/roller-blackout)
+                    const res = await api.get('/api/products');
+                    const all = Array.isArray(res.data) ? res.data : (res.data.products || []);
+                    const toSlug = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                    data = all.find(p => toSlug(p.name) === id || p.slug === id);
+                    if (!data) throw new Error('not found');
+                }
+                if (typeof data.images === 'string') try { data.images = JSON.parse(data.images); } catch (e) { data.images = []; }
+                if (typeof data.features === 'string') try { data.features = JSON.parse(data.features); } catch (e) { data.features = []; }
+                if (Array.isArray(data.images)) {
+                    data.images = data.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`);
+                }
+                setProduct(data);
+            } catch (err) {
+                console.error('Error fetching product:', err);
+                setError('No se pudo cargar el producto.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProduct();
+    }, [id]);
+
+    if (loading) {
+        return (
+            <Layout>
+                <div className="container mx-auto px-4 py-20 text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+                    <p className="text-gray-500 mt-4">Cargando producto...</p>
+                </div>
+            </Layout>
+        );
+    }
+
+    if (error || !product) {
+        return (
+            <Layout>
+                <div className="container mx-auto px-4 py-20 text-center">
+                    <h2 className="text-2xl font-bold mb-4">Producto no encontrado</h2>
+                    <p className="text-gray-500 mb-8">{error || 'El producto no existe o no esta disponible.'}</p>
+                    <Link to="/catalog" className="text-primary-600 hover:underline font-bold">Volver al catalogo</Link>
+                </div>
+            </Layout>
+        );
+    }
+
+    const productJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": product.name,
+        "description": product.description || product.short_description,
+        "image": product.images?.[0],
+        "brand": { "@type": "Brand", "name": "TerraBlinds" },
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "CLP",
+            "price": product.is_unit_price ? product.price_unit : product.base_price_m2,
+            "availability": "https://schema.org/InStock"
+        }
+    };
+
+    const breadcrumbJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://terrablinds.cl/" },
+            { "@type": "ListItem", "position": 2, "name": "Catálogo", "item": "https://terrablinds.cl/catalog" },
+            { "@type": "ListItem", "position": 3, "name": product.name, "item": `https://terrablinds.cl/product/${id}` }
+        ]
+    };
+
+    return (
+        <Layout>
+            <SEO
+                title={product.name}
+                description={product.description || product.short_description || `${product.name} - Cortinas y persianas a medida en TerraBlinds.`}
+                path={`/product/${id}`}
+                image={product.images?.[0]}
+                jsonLd={[productJsonLd, breadcrumbJsonLd]}
+            />
+            <div className="bg-gray-50 py-16">
+                <div className="container mx-auto px-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                        {/* Left: Gallery */}
+                        <div className="space-y-4">
+                            <div className="aspect-square bg-gray-200 rounded-2xl overflow-hidden shadow-sm">
+                                {product.images && product.images.length > 0 ? (
+                                    <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-400">Sin imagen</div>
+                                )}
+                            </div>
+                            <div className="flex space-x-4 overflow-x-auto pb-2">
+                                {Array.isArray(product.images) && product.images.map((img, idx) => (
+                                    <button
+                                        key={idx}
+                                        onClick={() => setActiveImage(idx)}
+                                        className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary-600 ring-2 ring-primary-100' : 'border-transparent hover:border-gray-300'}`}
+                                    >
+                                        <img src={img} alt={`${product.name} - vista ${idx + 1}`} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Right: Info & Calculator */}
+                        <div>
+                            <div className="mb-2">
+                                <span className="text-xs font-bold uppercase tracking-widest text-primary-600">
+                                    {product.category}
+                                </span>
+                            </div>
+                            <h1 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-6">{product.name}</h1>
+                            <p className="text-gray-600 text-lg leading-relaxed mb-8">
+                                {product.description || product.short_description}
+                            </p>
+
+                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                {Array.isArray(product.features) && product.features.map((feature, idx) => (
+                                    <div key={idx} className="flex items-center text-gray-700">
+                                        <Check className="w-5 h-5 text-green-500 mr-2" />
+                                        <span>{feature}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="mb-8">
+                                <h3 className="font-display text-lg font-bold text-gray-900 mb-4">Calcula tu precio a medida</h3>
+                                <ProductCalculator product={product} />
+                            </div>
+
+                            <div className="grid grid-cols-3 gap-4 border-t border-gray-200 pt-8">
+                                <div className="text-center">
+                                    <Shield className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <span className="text-xs text-gray-500 font-medium">Garantia 1 ano</span>
+                                </div>
+                                <div className="text-center">
+                                    <Truck className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <span className="text-xs text-gray-500">Despacho Todo Chile</span>
+                                </div>
+                                <div className="text-center">
+                                    <PenTool className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <span className="text-xs text-gray-500">Instalacion Expertos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Layout>
+    );
+};
+
+export default ProductDetail;

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /api/
+Disallow: /cart
+Disallow: /payment/
+
+Sitemap: https://terrablinds.cl/sitemap.xml

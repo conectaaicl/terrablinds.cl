@@ -1,0 +1,137 @@
+import React from 'react';
+import { HelmetProvider } from 'react-helmet-async';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
+import Home from './pages/Home';
+import Catalog from './pages/Catalog';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import Quote from './pages/Quote';
+import Contact from './pages/Contact';
+import About from './pages/About';
+import Projects from './pages/Projects';
+import FAQ from './pages/FAQ';
+import Register from './pages/Register';
+import Software from './pages/Software';
+import NotFound from './pages/NotFound';
+import PaymentResult from './pages/PaymentResult';
+// Admin
+import AdminDashboard from './pages/AdminDashboard';
+import AdminProducts from './pages/AdminProducts';
+import AdminQuotes from './pages/AdminQuotes';
+import AdminSettings from './pages/AdminSettings';
+import AdminProjects from './pages/AdminProjects';
+import AdminFAQ from './pages/AdminFAQ';
+import AdminLogin from './pages/AdminLogin';
+import AdminApariencia from './pages/AdminApariencia';
+import AdminInicio from './pages/AdminInicio';
+import AdminNosotros from './pages/AdminNosotros';
+import AdminContacto from './pages/AdminContacto';
+import AdminSoftware from './pages/AdminSoftware';
+import AdminServicioTecnico from './pages/AdminServicioTecnico';
+import ServicioTecnico from './pages/ServicioTecnico';
+import Domotica from './pages/Domotica';
+import AdminDomotica from './pages/AdminDomotica';
+import CortinasMetalicas from './pages/CortinasMetalicas';
+import AdminCortinasMetalicas from './pages/AdminCortinasMetalicas';
+import Automatizacion from './pages/Automatizacion';
+import AdminAutomatizacion from './pages/AdminAutomatizacion';
+import AdminLeads from './pages/AdminLeads';
+import AdminBookings from './pages/AdminBookings';
+import AdminContenido from './pages/AdminContenido';
+import AdminBlog from './pages/AdminBlog';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
+import Booking from './pages/Booking';
+import BookingResult from './pages/BookingResult';
+import Camaras from './pages/Camaras';
+import AdminCamaras from './pages/AdminCamaras';
+import PanelesSolares from './pages/PanelesSolares';
+import AdminPanelesSolares from './pages/AdminPanelesSolares';
+import ControlAcceso from './pages/ControlAcceso';
+import AdminControlAcceso from './pages/AdminControlAcceso';
+import AdminReviews from './pages/AdminReviews';
+import AdminReferidos from './pages/AdminReferidos';
+import AdminSEO from './pages/AdminSEO';
+import AdminCiudades from './pages/AdminCiudades';
+import ProtectedRoute from './components/ProtectedRoute';
+import CiudadPage from './pages/CiudadPage';
+
+function App() {
+  return (
+    <HelmetProvider>
+    <CartProvider>
+      <Router>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<Home />} />
+          <Route path="/catalog" element={<Catalog />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/quote" element={<Quote />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/software" element={<Software />} />
+          <Route path="/servicio-tecnico" element={<ServicioTecnico />} />
+          <Route path="/domotica" element={<Domotica />} />
+          <Route path="/cortinas-metalicas" element={<CortinasMetalicas />} />
+          <Route path="/automatizacion" element={<Automatizacion />} />
+          <Route path="/payment/result" element={<PaymentResult />} />
+          <Route path="/agendar" element={<Booking />} />
+          <Route path="/reserva/resultado" element={<BookingResult />} />
+          <Route path="/camaras" element={<Camaras />} />
+          <Route path="/paneles-solares" element={<PanelesSolares />} />
+          <Route path="/control-acceso" element={<ControlAcceso />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+
+          {/* Admin auth */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/reset-password" element={<AdminLogin />} />
+
+          {/* Admin Protected */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/products" element={<AdminProducts />} />
+            <Route path="/admin/quotes" element={<AdminQuotes />} />
+            <Route path="/admin/projects" element={<AdminProjects />} />
+            <Route path="/admin/faq" element={<AdminFAQ />} />
+            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/apariencia" element={<AdminApariencia />} />
+            <Route path="/admin/paginas/inicio" element={<AdminInicio />} />
+            <Route path="/admin/paginas/nosotros" element={<AdminNosotros />} />
+            <Route path="/admin/paginas/contacto" element={<AdminContacto />} />
+            <Route path="/admin/paginas/software" element={<AdminSoftware />} />
+            <Route path="/admin/paginas/servicio-tecnico" element={<AdminServicioTecnico />} />
+            <Route path="/admin/paginas/domotica" element={<AdminDomotica />} />
+            <Route path="/admin/paginas/cortinas-metalicas" element={<AdminCortinasMetalicas />} />
+            <Route path="/admin/paginas/automatizacion" element={<AdminAutomatizacion />} />
+            <Route path="/admin/leads" element={<AdminLeads />} />
+            <Route path="/admin/bookings" element={<AdminBookings />} />
+            <Route path="/admin/contenido" element={<AdminContenido />} />
+            <Route path="/admin/blog" element={<AdminBlog />} />
+            <Route path="/admin/paginas/camaras" element={<AdminCamaras />} />
+            <Route path="/admin/paginas/paneles-solares" element={<AdminPanelesSolares />} />
+            <Route path="/admin/paginas/control-acceso" element={<AdminControlAcceso />} />
+            <Route path="/admin/reviews" element={<AdminReviews />} />
+            <Route path="/admin/referidos" element={<AdminReferidos />} />
+            <Route path="/admin/seo" element={<AdminSEO />} />
+            <Route path="/admin/ciudades" element={<AdminCiudades />} />
+          </Route>
+
+          {/* Páginas SEO por ciudad — una ruta dinámica cubre todas */}
+          <Route path="/cortinas-roller/:slug" element={<CiudadPage />} />
+
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </CartProvider>
+    </HelmetProvider>
+  );
+}
+
+export default App;
