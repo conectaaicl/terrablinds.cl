@@ -28,6 +28,8 @@ const AdminProducts = () => {
     const [showCatManager, setShowCatManager] = useState(false);
     const [newCatName, setNewCatName] = useState('');
     const [savingCat, setSavingCat] = useState(false);
+    const [editingCat, setEditingCat] = useState(null); // { id, name }
+    const [editCatName, setEditCatName] = useState('');
     const fileInputRef = useRef(null);
 
     const baseUrl = import.meta.env.VITE_API_URL;
@@ -237,6 +239,19 @@ const AdminProducts = () => {
         }
     };
 
+    const handleRenameCategory = async (id) => {
+        if (!editCatName.trim()) return;
+        setSavingCat(true);
+        try {
+            await api.put(`/api/categories/${id}`, { name: editCatName.trim() });
+            setEditingCat(null);
+            setEditCatName('');
+            await fetchCategories();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Error al renombrar categoría.');
+        } finally { setSavingCat(false); }
+    };
+
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -278,13 +293,30 @@ const AdminProducts = () => {
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {categories.map(cat => (
-                            <span key={cat.id} className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
-                                {cat.name}
-                                <button onClick={() => handleDeleteCategory(cat.id)} className="ml-1 text-gray-300 hover:text-red-500 transition-colors">
-                                    <X className="w-3 h-3" />
-                                </button>
-                            </span>
+                            editingCat?.id === cat.id ? (
+                                <span key={cat.id} className="inline-flex items-center gap-1.5 bg-blue-50 border border-blue-200 text-blue-700 px-2 py-1 rounded-full text-sm">
+                                    <input
+                                        autoFocus
+                                        className="outline-none bg-transparent text-sm w-32"
+                                        value={editCatName}
+                                        onChange={e => setEditCatName(e.target.value)}
+                                        onKeyDown={e => { if (e.key === 'Enter') handleRenameCategory(cat.id); if (e.key === 'Escape') { setEditingCat(null); setEditCatName(''); } }}
+                                    />
+                                    <button onClick={() => handleRenameCategory(cat.id)} disabled={savingCat} className="text-blue-500 hover:text-blue-700"><CheckCircle className="w-3.5 h-3.5" /></button>
+                                    <button onClick={() => { setEditingCat(null); setEditCatName(''); }} className="text-gray-400 hover:text-gray-600"><X className="w-3 h-3" /></button>
+                                </span>
+                            ) : (
+                                <span key={cat.id} className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm group">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
+                                    {cat.name}
+                                    <button onClick={() => { setEditingCat(cat); setEditCatName(cat.name); }} className="ml-0.5 text-gray-300 hover:text-blue-500 transition-colors opacity-0 group-hover:opacity-100">
+                                        <Edit className="w-3 h-3" />
+                                    </button>
+                                    <button onClick={() => handleDeleteCategory(cat.id)} className="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                </span>
+                            )
                         ))}
                         {categories.length === 0 && <p className="text-sm text-gray-400">Sin categorías. Agrega una arriba.</p>}
                     </div>

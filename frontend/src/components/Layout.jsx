@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import api from '../api';
+import { useSiteConfig } from '../context/SiteConfigContext';
 import VisitCounter from './VisitCounter';
 import ChatWidget from './ChatWidget';
 
@@ -29,30 +29,24 @@ const YouTubeIcon = () => (
 
 const Layout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-    const [siteConfig, setSiteConfig] = React.useState({});
+    const siteConfig = useSiteConfig();
     const { cartCount } = useCart();
     const location = useLocation();
 
     React.useEffect(() => { setIsMenuOpen(false); }, [location.pathname]);
 
     React.useEffect(() => {
-        api.get('/api/config/public')
-            .then(res => {
-                setSiteConfig(res.data);
-                // Dynamic favicon
-                if (res.data.favicon_url) {
-                    const link = document.querySelector("link[rel='icon']") || document.createElement('link');
-                    link.rel = 'icon';
-                    link.href = res.data.favicon_url;
-                    document.head.appendChild(link);
-                }
-                // Dynamic page title brand name
-                if (res.data.brand_name) {
-                    document.title = res.data.brand_name + ' - Cortinas y Persianas a Medida';
-                }
-            })
-            .catch(() => {});
-    }, []);
+        if (!siteConfig._loaded) return;
+        if (siteConfig.favicon_url) {
+            const link = document.querySelector("link[rel='icon']") || document.createElement('link');
+            link.rel = 'icon';
+            link.href = siteConfig.favicon_url;
+            document.head.appendChild(link);
+        }
+        if (siteConfig.brand_name) {
+            document.title = siteConfig.brand_name + ' - Cortinas y Persianas a Medida';
+        }
+    }, [siteConfig._loaded]);
 
     const waNumber = siteConfig.whatsapp_number || '';
     const phoneDisplay = siteConfig.company_phone || '';

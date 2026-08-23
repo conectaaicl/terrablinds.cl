@@ -7,7 +7,7 @@ import {
     CreditCard, Building2, Zap, Globe,
 } from 'lucide-react';
 import api from '../api';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
 const WhatsAppIcon = () => (
@@ -72,6 +72,7 @@ const MeasureGuide = ({ unit }) => (
 
 export default function Quote() {
     const { addToCart } = useCart();
+    const navigate = useNavigate();
 
     // Multi-step form state: step 1 = data, step 2 = products, step 3 = confirm
     const [formStep, setFormStep] = useState(1);
@@ -238,7 +239,7 @@ export default function Quote() {
                 images: [],
             });
         });
-        window.location.href = '/cart';
+        navigate('/cart');
     };
 
     // ── SUCCESS SCREEN ────────────────────────────────────────────────────────────

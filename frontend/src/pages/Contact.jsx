@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock } from 'lucide-react';
 import api from '../api';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 const Contact = () => {
-    const [siteConfig, setSiteConfig] = useState({});
+    const siteConfig = useSiteConfig();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -16,10 +17,6 @@ const Contact = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
-
-    useEffect(() => {
-        api.get('/api/config/public').then(r => setSiteConfig(r.data)).catch(() => {});
-    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,7 +69,7 @@ const Contact = () => {
                                     <Phone className="w-6 h-6 mr-4 mt-1 text-primary-200" />
                                     <div>
                                         <p className="font-semibold">Teléfono</p>
-                                        <p className="text-primary-100">Consulte en WhatsApp</p>
+                                        <p className="text-primary-100">{siteConfig.company_phone || siteConfig.whatsapp_number || 'Consultar por WhatsApp'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start">

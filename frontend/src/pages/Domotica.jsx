@@ -5,6 +5,7 @@ import { Wifi, Smartphone, Volume2, Sun, ShieldCheck, Zap, ChevronRight, Shoppin
 import api from '../api';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 const DEFAULT_FEATURES = [
     { icon: Smartphone, title: 'Control por App', desc: 'Maneja todo desde tu smartphone, en casa o desde cualquier lugar del mundo.' },
@@ -70,14 +71,10 @@ function ProductCard({ product, onAddToCart }) {
 export default function Domotica() {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [cfg, setCfg] = useState({});
+    const cfg = useSiteConfig();
     const { addToCart } = useCart();
 
     useEffect(() => {
-        api.get('/api/config/public').then(res => {
-            const d = Object.fromEntries(Object.entries(res.data).filter(([, v]) => v !== '' && v !== null && v !== undefined));
-            setCfg(d);
-        }).catch(() => {});
         api.get('/api/products').then(res => {
             const data = res.data
                 .filter(p => p.category === 'Domótica / Hub' || p.category === 'Domotica Motor Roller')

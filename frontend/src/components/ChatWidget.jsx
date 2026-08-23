@@ -172,8 +172,13 @@ export default function ChatWidget({ logoUrl }) {
 
                     {/* Header */}
                     <div className="flex items-center gap-3 px-4 py-3 bg-[#0d3a8a] flex-shrink-0">
-                        <img src={logoUrl || '/uploads/image-1773550576065-529383678.jpeg'} alt="TerraBlinds"
-                            className="h-9 w-auto object-contain rounded-lg flex-shrink-0" />
+                        {logoUrl ? (
+                            <img src={logoUrl} alt="TerraBlinds" className="h-9 w-auto object-contain rounded-lg flex-shrink-0" />
+                        ) : (
+                            <div className="h-9 w-9 bg-white/20 rounded-lg flex-shrink-0 flex items-center justify-center">
+                                <span className="text-white font-bold text-xs">TB</span>
+                            </div>
+                        )}
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-white">Asistente TerraBlinds</p>
                             <p className="text-xs text-blue-200">Responde al instante con IA</p>

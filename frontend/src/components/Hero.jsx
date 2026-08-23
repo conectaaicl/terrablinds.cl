@@ -1,43 +1,36 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import api from '../api';
+import { useSiteConfig } from '../context/SiteConfigContext';
 
 const INTERVAL = 5500;
 
 export default function Hero() {
-    const [config, setConfig] = useState({
-        hero_title: 'Elegancia y Control para tus Espacios',
-        hero_subtitle: 'Cortinas roller, persianas y toldos a medida. Calidad premium con instalación experta.',
-        hero_cta_primary: 'Ver Catálogo',
-        hero_cta_secondary: 'Cotizar Ahora',
-        hero_badge: 'Fabricación a Medida · Santiago, Chile',
-    });
+    const d = useSiteConfig();
+    const config = {
+        hero_title: d.hero_title || 'Elegancia y Control para tus Espacios',
+        hero_subtitle: d.hero_subtitle || 'Cortinas roller, persianas y toldos a medida. Calidad premium con instalación experta.',
+        hero_cta_primary: d.hero_cta_primary || 'Ver Catálogo',
+        hero_cta_secondary: d.hero_cta_secondary || 'Cotizar Ahora',
+        hero_badge: d.hero_badge || 'Fabricación a Medida · Santiago, Chile',
+        theme_primary: d.theme_primary,
+    };
     const [slides, setSlides] = useState(null); // null = loading
     const [current, setCurrent] = useState(0);
     const [prev, setPrev] = useState(null);
     const [animKey, setAnimKey] = useState(0);
     const [paused, setPaused] = useState(false);
+    const touchStartX = useRef(null);
 
     useEffect(() => {
-        api.get('/api/config/public').then(res => {
-            const d = res.data;
-            setConfig(p => ({
-                hero_title: d.hero_title || p.hero_title,
-                hero_subtitle: d.hero_subtitle || p.hero_subtitle,
-                hero_cta_primary: d.hero_cta_primary || p.hero_cta_primary,
-                hero_cta_secondary: d.hero_cta_secondary || p.hero_cta_secondary,
-                hero_badge: d.hero_badge || p.hero_badge,
-            }));
-            // Load slides from DB keys: slide1_url / slide1_label … slide8_url / slide8_label
-            const dbSlides = [];
-            for (let i = 1; i <= 8; i++) {
-                const url = d[`slide${i}_url`];
-                if (url) dbSlides.push({ url, label: d[`slide${i}_label`] || '' });
-            }
-            setSlides(dbSlides.length > 0 ? dbSlides : null);
-        }).catch(() => { setSlides(null); });
-    }, []);
+        if (!d._loaded) return;
+        const dbSlides = [];
+        for (let i = 1; i <= 8; i++) {
+            const url = d[`slide${i}_url`];
+            if (url) dbSlides.push({ url, label: d[`slide${i}_label`] || '' });
+        }
+        setSlides(dbSlides.length > 0 ? dbSlides : []);
+    }, [d._loaded]);
 
     const goTo = useCallback((idx, total) => {
         setPrev(current);
@@ -134,8 +127,15 @@ export default function Hero() {
             style={{ height: heroHeight }}
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
-            onTouchStart={() => setPaused(true)}
-            onTouchEnd={() => setPaused(false)}
+            onTouchStart={e => { touchStartX.current = e.touches[0].clientX; setPaused(true); }}
+            onTouchEnd={e => {
+                if (touchStartX.current !== null && count > 1) {
+                    const diff = touchStartX.current - e.changedTouches[0].clientX;
+                    if (Math.abs(diff) > 50) { diff > 0 ? next() : prev_(); }
+                }
+                touchStartX.current = null;
+                setPaused(false);
+            }}
         >
             {/* Slides */}
             {activeSlides.map((slide, i) => {

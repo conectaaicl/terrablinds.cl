@@ -75,6 +75,7 @@ export default function AdminInicio() {
         stat1_num: '', stat1_label: '',
         stat2_num: '', stat2_label: '',
         stat3_num: '', stat3_label: '',
+        stat4_num: '', stat4_label: '',
         section_features_title: '', section_features_subtitle: '',
         feature1_title: '', feature1_text: '',
         feature2_title: '', feature2_text: '',
@@ -168,15 +169,15 @@ export default function AdminInicio() {
                 </Section>
 
                 <Section title="Estadísticas / Contadores" desc="Los números que aparecen destacados en la sección de stats. Ej: '500+ Proyectos'">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {[1, 2, 3].map(n => (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {[1, 2, 3, 4].map(n => (
                             <div key={n} className="bg-gray-50 p-4 rounded-xl space-y-2">
                                 <p className="text-sm font-semibold text-gray-700">Estadística {n}</p>
                                 <Field label="Número / Valor">
-                                    <input className={INPUT} name={`stat${n}_num`} value={s[`stat${n}_num`] || ''} onChange={onChange} placeholder={n === 1 ? '500+' : n === 2 ? '12 años' : '100%'} />
+                                    <input className={INPUT} name={`stat${n}_num`} value={s[`stat${n}_num`] || ''} onChange={onChange} placeholder={['500+', '12 años', '100%', '5★'][n-1]} />
                                 </Field>
                                 <Field label="Etiqueta">
-                                    <input className={INPUT} name={`stat${n}_label`} value={s[`stat${n}_label`] || ''} onChange={onChange} placeholder={n === 1 ? 'Proyectos realizados' : n === 2 ? 'De experiencia' : 'Garantía de calidad'} />
+                                    <input className={INPUT} name={`stat${n}_label`} value={s[`stat${n}_label`] || ''} onChange={onChange} placeholder={['Proyectos realizados', 'De experiencia', 'Garantía de calidad', 'Clientes satisfechos'][n-1]} />
                                 </Field>
                             </div>
                         ))}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
+import { SiteConfigProvider } from './context/SiteConfigContext';
 import Home from './pages/Home';
 import Catalog from './pages/Catalog';
 import ProductDetail from './pages/ProductDetail';
@@ -69,7 +70,8 @@ const GE = ({ Page }) => <React.Suspense fallback={GE_FALLBACK}><Page /></React.
 
 function App() {
   return (
-    <CartProvider>
+    <SiteConfigProvider>
+      <CartProvider>
       <Router>
         <Routes>
           {/* Public */}
@@ -140,7 +142,8 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
-    </CartProvider>
+      </CartProvider>
+    </SiteConfigProvider>
   );
 }
 

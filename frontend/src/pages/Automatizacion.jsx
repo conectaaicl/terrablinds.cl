@@ -110,8 +110,7 @@ export default function Automatizacion() {
                 .filter(p =>
                     p.category === 'Automatización' ||
                     p.category === 'Motor Tubular' ||
-                    p.category === 'Control Remoto' ||
-                    p.category === 'Domotica Motor Roller'
+                    p.category === 'Control Remoto'
                 )
                 .map(p => {
                     if (typeof p.images === 'string') try { p.images = JSON.parse(p.images); } catch { p.images = []; }
