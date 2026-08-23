@@ -95,8 +95,9 @@ const growthRoutes   = require('./routes/growth.routes');
 const followupRoutes = require('./routes/followup.routes');
 const todayRoutes    = require('./routes/today.routes');
 const reviewRoutes   = require('./routes/review.routes');
-const referralRoutes = require('./routes/referral.routes');
-const blogRoutes     = require('./routes/blog.routes');
+const referralRoutes    = require('./routes/referral.routes');
+const blogRoutes        = require('./routes/blog.routes');
+const categoryRoutes    = require('./routes/product_category.routes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/quotes', quoteRoutes);
@@ -119,6 +120,7 @@ app.use('/api/growth/today', todayRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/referrals', referralRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/categories', categoryRoutes);
 
 // 404 handler
 app.use((req, res) => {

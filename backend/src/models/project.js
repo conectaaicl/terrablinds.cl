@@ -8,6 +8,8 @@ const Project = sequelize.define('Project', {
     location: { type: DataTypes.STRING(200), allowNull: false, defaultValue: '' },
     description: { type: DataTypes.TEXT, allowNull: true },
     image_url: { type: DataTypes.STRING(500), allowNull: true },
+    image_focal_x: { type: DataTypes.INTEGER, defaultValue: 50, allowNull: false },
+    image_focal_y: { type: DataTypes.INTEGER, defaultValue: 50, allowNull: false },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
     sort_order: { type: DataTypes.INTEGER, defaultValue: 0 },
 }, {

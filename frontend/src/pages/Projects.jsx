@@ -65,6 +65,7 @@ const Projects = () => {
                                         src={p.image_url}
                                         alt={p.title}
                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        style={{ objectPosition: `${p.image_focal_x ?? 50}% ${p.image_focal_y ?? 50}%` }}
                                     />
                                 ) : (
                                     <div className={`absolute inset-0 bg-gradient-to-br ${FALLBACK_COLORS[idx % FALLBACK_COLORS.length]} transition-transform duration-500 group-hover:scale-105`} />

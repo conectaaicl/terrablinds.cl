@@ -1,5 +1,6 @@
 const sequelize = require('../config/database');
 const Product = require('./product');
+const ProductCategory = require('./product_category');
 const Quote = require('./quote');
 const User = require('./user');
 const Config = require('./config');
@@ -51,6 +52,7 @@ FollowUp.belongsTo(Opportunity, { foreignKey: 'opportunity_id', as: 'opportunity
 
 const models = {
     Product,
+    ProductCategory,
     Quote,
     User,
     Config,

@@ -1,30 +1,20 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Plus, Edit, Trash2, Search, X, Image as ImageIcon, CheckCircle, Save, Upload, Loader } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, X, Image as ImageIcon, CheckCircle, Save, Upload, Loader, Tag } from 'lucide-react';
 import api from '../api';
 
-const CATEGORIES = [
-    'Roller Blackout',
-    'Roller Sunscreen',
-    'Roller Duo Blackout',
-    'Domótica / Hub',
-    'Domotica Motor Roller',
-    'Persianas Exterior',
-    'Persianas Interior',
-    'Toldos',
-    'Accesorios',
-    'Servicio Técnico',
-];
-
 const emptyForm = {
-    name: '', category: 'Roller Blackout', description: '', short_description: '',
+    name: '', category: '', description: '', short_description: '',
     base_price_m2: 0, price_unit: 0, is_unit_price: false, is_active: true,
     stock: 0, slug: '', features: [], images: [], colors: [],
-    sku: '', min_width: '', max_width: '', min_height: '', max_height: '', lead_time_days: ''
+    sku: '', min_width: '', max_width: '', min_height: '', max_height: '', lead_time_days: '',
+    meta_title: '', meta_description: '',
+    image_focal_points: []
 };
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
@@ -35,11 +25,21 @@ const AdminProducts = () => {
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [showCatManager, setShowCatManager] = useState(false);
+    const [newCatName, setNewCatName] = useState('');
+    const [savingCat, setSavingCat] = useState(false);
     const fileInputRef = useRef(null);
 
     const baseUrl = import.meta.env.VITE_API_URL;
 
-    useEffect(() => { fetchProducts(); }, []);
+    useEffect(() => { fetchProducts(); fetchCategories(); }, []);
+
+    const fetchCategories = async () => {
+        try {
+            const res = await api.get('/api/categories');
+            setCategories(res.data);
+        } catch { setCategories([]); }
+    };
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -67,11 +67,15 @@ const AdminProducts = () => {
                 ...product,
                 features: product.features || [],
                 images: product.images || [],
-                colors: product.colors || []
+                colors: product.colors || [],
+                meta_title: product.meta_title || '',
+                meta_description: product.meta_description || '',
+                image_focal_points: product.image_focal_points || []
             });
         } else {
             setEditingProduct(null);
-            setFormData(emptyForm);
+            const defaultCat = categories[0]?.name || '';
+            setFormData({ ...emptyForm, category: defaultCat });
         }
         setSuccessMessage('');
         setErrorMessage('');
@@ -123,7 +127,21 @@ const AdminProducts = () => {
     const handleRemoveImage = (index) => {
         const imgs = [...formData.images];
         imgs.splice(index, 1);
-        setFormData({ ...formData, images: imgs });
+        const fps = [...(formData.image_focal_points || [])];
+        fps.splice(index, 1);
+        setFormData({ ...formData, images: imgs, image_focal_points: fps });
+    };
+
+    const handleFocalChange = (index, axis, value) => {
+        const fps = [...(formData.image_focal_points || [])];
+        while (fps.length <= index) fps.push({ x: 50, y: 50 });
+        fps[index] = { ...fps[index], [axis]: Number(value) };
+        setFormData({ ...formData, image_focal_points: fps });
+    };
+
+    const getFocal = (index) => {
+        const fps = formData.image_focal_points || [];
+        return fps[index] || { x: 50, y: 50 };
     };
 
     const handleImageUpload = async (e) => {
@@ -137,7 +155,12 @@ const AdminProducts = () => {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             const newPaths = res.data.filePaths || [];
-            setFormData(prev => ({ ...prev, images: [...prev.images, ...newPaths] }));
+            const newFocals = newPaths.map(() => ({ x: 50, y: 50 }));
+            setFormData(prev => ({
+                ...prev,
+                images: [...prev.images, ...newPaths],
+                image_focal_points: [...(prev.image_focal_points || []), ...newFocals]
+            }));
         } catch (err) {
             setErrorMessage('Error al subir imagen. Intente con otro archivo.');
         } finally {
@@ -192,6 +215,28 @@ const AdminProducts = () => {
         }
     };
 
+    const handleAddCategory = async () => {
+        if (!newCatName.trim()) return;
+        setSavingCat(true);
+        try {
+            await api.post('/api/categories', { name: newCatName.trim() });
+            setNewCatName('');
+            await fetchCategories();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Error al crear categoría.');
+        } finally { setSavingCat(false); }
+    };
+
+    const handleDeleteCategory = async (id) => {
+        if (!confirm('¿Eliminar esta categoría?')) return;
+        try {
+            await api.delete(`/api/categories/${id}`);
+            await fetchCategories();
+        } catch (err) {
+            alert(err.response?.data?.error || 'Error al eliminar categoría.');
+        }
+    };
+
     const filteredProducts = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         p.category.toLowerCase().includes(searchTerm.toLowerCase())
@@ -204,12 +249,47 @@ const AdminProducts = () => {
                     <h1 className="text-2xl font-bold text-gray-900">Gestión de Productos</h1>
                     <p className="text-gray-500">Administra el catálogo completo de tu tienda</p>
                 </div>
-                <button onClick={() => handleOpenModal()}
-                    style={{ backgroundColor: '#2563eb' }}
-                    className="text-white px-5 py-2.5 rounded-xl flex items-center hover:opacity-90 transition-opacity shadow-md font-medium">
-                    <Plus className="w-5 h-5 mr-2" /> Nuevo Producto
-                </button>
+                <div className="flex gap-2">
+                    <button onClick={() => setShowCatManager(!showCatManager)}
+                        className="text-gray-700 bg-white border border-gray-200 px-4 py-2.5 rounded-xl flex items-center hover:bg-gray-50 transition-colors font-medium text-sm shadow-sm">
+                        <Tag className="w-4 h-4 mr-2" /> Categorías
+                    </button>
+                    <button onClick={() => handleOpenModal()}
+                        style={{ backgroundColor: '#2563eb' }}
+                        className="text-white px-5 py-2.5 rounded-xl flex items-center hover:opacity-90 transition-opacity shadow-md font-medium">
+                        <Plus className="w-5 h-5 mr-2" /> Nuevo Producto
+                    </button>
+                </div>
             </div>
+
+            {/* Category manager panel */}
+            {showCatManager && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
+                    <h3 className="font-semibold text-gray-800 mb-4">Categorías de Productos</h3>
+                    <div className="flex gap-2 mb-4">
+                        <input type="text" placeholder="Nueva categoría..."
+                            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            value={newCatName} onChange={e => setNewCatName(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleAddCategory()} />
+                        <button onClick={handleAddCategory} disabled={savingCat || !newCatName.trim()}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-40">
+                            {savingCat ? <Loader className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                        </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {categories.map(cat => (
+                            <span key={cat.id} className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-sm">
+                                <span className="w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0" />
+                                {cat.name}
+                                <button onClick={() => handleDeleteCategory(cat.id)} className="ml-1 text-gray-300 hover:text-red-500 transition-colors">
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </span>
+                        ))}
+                        {categories.length === 0 && <p className="text-sm text-gray-400">Sin categorías. Agrega una arriba.</p>}
+                    </div>
+                </div>
+            )}
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-4 border-b border-gray-100 flex items-center bg-gray-50">
@@ -312,7 +392,8 @@ const AdminProducts = () => {
                                                 <select name="category"
                                                     className="w-full px-4 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-primary-500"
                                                     value={formData.category} onChange={handleInputChange}>
-                                                    {CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                                    {categories.length === 0 && <option value="">Sin categorías</option>}
+                                                    {categories.map(cat => <option key={cat.id} value={cat.name}>{cat.name}</option>)}
                                                 </select>
                                             </div>
                                             <div>
@@ -394,6 +475,29 @@ const AdminProducts = () => {
                                             </div>
                                         </div>
                                     )}
+
+                                    {/* SEO */}
+                                    <div className="bg-blue-50 p-5 rounded-xl border border-blue-100 space-y-3">
+                                        <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider">SEO del Producto</h3>
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <label className="text-xs font-semibold text-gray-600">Título SEO (opcional)</label>
+                                                <span className="text-xs text-gray-400">{(formData.meta_title || '').length}/60</span>
+                                            </div>
+                                            <input type="text" name="meta_title" maxLength={60} placeholder="Ej: Roller Blackout Premium | TerraBlinds"
+                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                                                value={formData.meta_title} onChange={handleInputChange} />
+                                        </div>
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <label className="text-xs font-semibold text-gray-600">Meta Descripción (opcional)</label>
+                                                <span className="text-xs text-gray-400">{(formData.meta_description || '').length}/160</span>
+                                            </div>
+                                            <textarea name="meta_description" maxLength={160} rows={2} placeholder="Descripción para Google (máx. 160 caracteres)"
+                                                className="w-full px-3 py-2 border border-gray-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-400 text-sm resize-none"
+                                                value={formData.meta_description} onChange={handleInputChange} />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* RIGHT */}
@@ -453,32 +557,58 @@ const AdminProducts = () => {
                                         </div>
                                     </div>
 
-                                    {/* Images */}
+                                    {/* Images + focal points */}
                                     <div className="bg-gray-50 p-5 rounded-xl border border-gray-100">
                                         <h3 className="text-sm font-bold text-primary-600 uppercase tracking-wider mb-3">Imágenes del Producto</h3>
-                                        <div className="grid grid-cols-3 gap-3 mb-3">
-                                            {formData.images.map((img, idx) => (
-                                                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 group">
-                                                    <img src={getImageUrl(img)} alt="" className="w-full h-full object-cover" />
-                                                    <button type="button" onClick={() => handleRemoveImage(idx)}
-                                                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                    {idx === 0 && (
-                                                        <span className="absolute bottom-1 left-1 bg-primary-600 text-white text-xs px-1.5 py-0.5 rounded">Principal</span>
-                                                    )}
-                                                </div>
-                                            ))}
-                                            <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-primary-400 cursor-pointer flex flex-col items-center justify-center text-gray-400 hover:text-primary-500 transition-colors">
-                                                {uploadingImage
-                                                    ? <Loader className="w-6 h-6 animate-spin" />
-                                                    : <><Upload className="w-6 h-6 mb-1" /><span className="text-xs">Subir</span></>
-                                                }
-                                                <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
-                                                    onChange={handleImageUpload} disabled={uploadingImage} />
-                                            </label>
+                                        <div className="space-y-3 mb-3">
+                                            {formData.images.map((img, idx) => {
+                                                const focal = getFocal(idx);
+                                                return (
+                                                    <div key={idx} className="flex gap-3 items-start bg-white border border-gray-200 rounded-lg p-2">
+                                                        <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                                            <img src={getImageUrl(img)} alt=""
+                                                                className="w-full h-full object-cover"
+                                                                style={{ objectPosition: `${focal.x}% ${focal.y}%` }} />
+                                                            {idx === 0 && (
+                                                                <span className="absolute bottom-0 left-0 right-0 bg-primary-600/80 text-white text-[9px] text-center py-0.5">Principal</span>
+                                                            )}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-xs text-gray-400 truncate mb-2">{img.split('/').pop()}</p>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 font-medium">Focal X (0-100)</label>
+                                                                    <input type="number" min={0} max={100}
+                                                                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs outline-none focus:ring-1 focus:ring-primary-400"
+                                                                        value={focal.x}
+                                                                        onChange={e => handleFocalChange(idx, 'x', e.target.value)} />
+                                                                </div>
+                                                                <div>
+                                                                    <label className="text-[10px] text-gray-500 font-medium">Focal Y (0-100)</label>
+                                                                    <input type="number" min={0} max={100}
+                                                                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs outline-none focus:ring-1 focus:ring-primary-400"
+                                                                        value={focal.y}
+                                                                        onChange={e => handleFocalChange(idx, 'y', e.target.value)} />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <button type="button" onClick={() => handleRemoveImage(idx)}
+                                                            className="text-red-400 hover:text-red-600 p-1 flex-shrink-0">
+                                                            <X className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
-                                        <p className="text-xs text-gray-400">Formatos: JPG, PNG, WebP. Máx. 50MB por imagen.</p>
+                                        <label className="flex items-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 hover:border-primary-400 cursor-pointer rounded-lg text-gray-400 hover:text-primary-500 transition-colors">
+                                            {uploadingImage
+                                                ? <><Loader className="w-5 h-5 animate-spin" /><span className="text-sm">Subiendo...</span></>
+                                                : <><Upload className="w-5 h-5" /><span className="text-sm">Subir imagen(es)</span></>
+                                            }
+                                            <input ref={fileInputRef} type="file" accept="image/*" multiple className="hidden"
+                                                onChange={handleImageUpload} disabled={uploadingImage} />
+                                        </label>
+                                        <p className="text-xs text-gray-400 mt-2">Formatos: JPG, PNG, WebP. Máx. 8MB por imagen. Se comprimirán automáticamente.</p>
                                     </div>
                                 </div>
                             </div>

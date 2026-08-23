@@ -82,6 +82,18 @@ const Product = sequelize.define('Product', {
     is_active: {
         type: DataTypes.BOOLEAN,
         defaultValue: true
+    },
+    meta_title: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+    },
+    meta_description: {
+        type: DataTypes.STRING(200),
+        allowNull: true
+    },
+    image_focal_points: {
+        type: DataTypes.JSONB,
+        defaultValue: []
     }
 }, {
     tableName: 'products',

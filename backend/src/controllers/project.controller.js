@@ -27,9 +27,9 @@ exports.getAllAdmin = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { title, category, location, description, image_url, sort_order } = req.body;
+        const { title, category, location, description, image_url, sort_order, image_focal_x, image_focal_y } = req.body;
         if (!title) return res.status(400).json({ error: 'Title is required' });
-        const project = await Project.create({ title, category, location, description, image_url, sort_order: sort_order || 0 });
+        const project = await Project.create({ title, category, location, description, image_url, sort_order: sort_order || 0, image_focal_x: image_focal_x ?? 50, image_focal_y: image_focal_y ?? 50 });
         res.status(201).json(project);
     } catch (err) {
         console.error('Error creating project:', err.message);
@@ -41,8 +41,8 @@ exports.update = async (req, res) => {
     try {
         const project = await Project.findByPk(req.params.id);
         if (!project) return res.status(404).json({ error: 'Project not found' });
-        const { title, category, location, description, image_url, is_active, sort_order } = req.body;
-        await project.update({ title, category, location, description, image_url, is_active, sort_order });
+        const { title, category, location, description, image_url, is_active, sort_order, image_focal_x, image_focal_y } = req.body;
+        await project.update({ title, category, location, description, image_url, is_active, sort_order, image_focal_x: image_focal_x ?? project.image_focal_x, image_focal_y: image_focal_y ?? project.image_focal_y });
         res.json(project);
     } catch (err) {
         console.error('Error updating project:', err.message);

@@ -61,7 +61,7 @@ const SEO_PAGES = [
 // GET /api/seo/pages — return all per-page SEO meta (admin only)
 router.get('/seo/pages', protect, restrictTo('admin'), async (req, res) => {
     try {
-        const keys = SEO_PAGES.flatMap(p => [`seo_title_${p.key}`, `seo_desc_${p.key}`]);
+        const keys = SEO_PAGES.flatMap(p => [`seo_title_${p.key}`, `seo_desc_${p.key}`, `seo_og_image_${p.key}`]);
         const rows = await Config.findAll({ where: { key: keys } });
         const map = Object.fromEntries(rows.map(r => [r.key, r.value]));
         const result = SEO_PAGES.map(p => ({
@@ -70,6 +70,7 @@ router.get('/seo/pages', protect, restrictTo('admin'), async (req, res) => {
             label: p.label,
             title: map[`seo_title_${p.key}`] || STATIC_PAGES[p.path]?.title || '',
             description: map[`seo_desc_${p.key}`] || STATIC_PAGES[p.path]?.description || '',
+            og_image: map[`seo_og_image_${p.key}`] || '',
         }));
         res.json(result);
     } catch (err) {
@@ -90,6 +91,9 @@ router.put('/seo/pages', protect, restrictTo('admin'), async (req, res) => {
             }
             if (page.description != null) {
                 await Config.upsert({ key: `seo_desc_${page.key}`, value: String(page.description).substring(0, 500), type: 'string' });
+            }
+            if (page.og_image != null) {
+                await Config.upsert({ key: `seo_og_image_${page.key}`, value: String(page.og_image).substring(0, 500), type: 'string' });
             }
         }
         res.json({ success: true });

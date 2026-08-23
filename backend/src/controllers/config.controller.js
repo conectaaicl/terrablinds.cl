@@ -104,6 +104,12 @@ const PUBLIC_KEYS = [
     'auto_feat6_title', 'auto_feat6_desc',
     'auto_photo1', 'auto_photo2', 'auto_photo3', 'auto_photo4',
     'quote_payment_methods',
+    // OG image per SEO page
+    'seo_og_image_home', 'seo_og_image_catalog', 'seo_og_image_quote',
+    'seo_og_image_about', 'seo_og_image_contact', 'seo_og_image_software',
+    'seo_og_image_domotica', 'seo_og_image_cortinas', 'seo_og_image_automatizacion',
+    'seo_og_image_servicio_tecnico', 'seo_og_image_camaras', 'seo_og_image_paneles_solares',
+    'seo_og_image_control_acceso',
 ];
 
 // Keys allowed to be updated via admin panel

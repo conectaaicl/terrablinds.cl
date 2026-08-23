@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import api from '../api';
-import { Search, Save, ExternalLink, Check, AlertCircle } from 'lucide-react';
+import { Search, Save, ExternalLink, Check, Upload, Loader, X, Image as ImageIcon } from 'lucide-react';
 
 const CHAR_LIMITS = { title: 60, description: 160 };
 
@@ -33,6 +33,9 @@ export default function AdminSEO() {
     const [savedAt, setSavedAt] = useState(null);
     const [activeKey, setActiveKey] = useState(null);
     const [changes, setChanges] = useState({});
+    const [uploadingOg, setUploadingOg] = useState(false);
+    const ogInputRef = useRef(null);
+    const baseUrl = import.meta.env.VITE_API_URL || '';
 
     useEffect(() => {
         api.get('/api/seo/pages')
@@ -57,6 +60,22 @@ export default function AdminSEO() {
         }));
     };
 
+    const handleOgImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file || !activeKey) return;
+        setUploadingOg(true);
+        try {
+            const fd = new FormData();
+            fd.append('image', file);
+            const res = await api.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            setVal(activeKey, 'og_image', res.data.filePath);
+        } catch { alert('Error al subir imagen OG.'); }
+        finally {
+            setUploadingOg(false);
+            if (ogInputRef.current) ogInputRef.current.value = '';
+        }
+    };
+
     async function save() {
         if (Object.keys(changes).length === 0) return;
         setSaving(true);
@@ -65,14 +84,15 @@ export default function AdminSEO() {
                 key,
                 title: getVal(key, 'title'),
                 description: getVal(key, 'description'),
+                og_image: getVal(key, 'og_image'),
             }));
             await api.put('/api/seo/pages', { pages: payload });
-            // merge changes into pages
             setPages(prev => prev.map(p => ({
                 ...p,
                 ...(changes[p.key] ? {
                     title: getVal(p.key, 'title'),
                     description: getVal(p.key, 'description'),
+                    og_image: getVal(p.key, 'og_image'),
                 } : {}),
             })));
             setChanges({});
@@ -174,6 +194,31 @@ export default function AdminSEO() {
                                             className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                             placeholder="Descripción para Google (máx. 160 caracteres)"
                                         />
+                                    </div>
+
+                                    {/* OG Image */}
+                                    <div>
+                                        <label className="text-xs font-semibold text-gray-600 block mb-1.5">Imagen OG (og:image para redes sociales)</label>
+                                        {getVal(activeKey, 'og_image') ? (
+                                            <div className="relative inline-block">
+                                                <img
+                                                    src={getVal(activeKey, 'og_image').startsWith('http') ? getVal(activeKey, 'og_image') : `${baseUrl}${getVal(activeKey, 'og_image')}`}
+                                                    alt="OG preview"
+                                                    className="w-full max-w-xs h-28 object-cover rounded-lg border border-gray-200"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setVal(activeKey, 'og_image', '')}
+                                                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                                                ><X className="w-3 h-3" /></button>
+                                            </div>
+                                        ) : (
+                                            <label className="flex items-center gap-2 px-4 py-3 border border-dashed border-gray-300 hover:border-blue-400 cursor-pointer rounded-lg text-gray-400 hover:text-blue-500 transition-colors text-sm w-fit">
+                                                {uploadingOg ? <><Loader className="w-4 h-4 animate-spin" /> Subiendo...</> : <><Upload className="w-4 h-4" /> Subir imagen OG</>}
+                                                <input ref={ogInputRef} type="file" accept="image/*" className="hidden" onChange={handleOgImageUpload} disabled={uploadingOg} />
+                                            </label>
+                                        )}
+                                        <p className="text-xs text-gray-400 mt-1">Recomendado: 1200×630 px. Se muestra al compartir en redes sociales.</p>
                                     </div>
                                 </div>
 

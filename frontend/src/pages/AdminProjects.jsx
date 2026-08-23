@@ -3,7 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import { Plus, Edit2, Trash2, X, Save, Loader, ImageIcon, Eye, EyeOff } from 'lucide-react';
 import api from '../api';
 
-const EMPTY = { title: '', category: '', location: '', description: '', image_url: '', sort_order: 0, is_active: true };
+const EMPTY = { title: '', category: '', location: '', description: '', image_url: '', sort_order: 0, is_active: true, image_focal_x: 50, image_focal_y: 50 };
 
 const Field = ({ label, children, hint }) => (
     <div>
@@ -118,7 +118,8 @@ const AdminProjects = () => {
                         <div key={p.id} className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${!p.is_active ? 'opacity-50' : ''}`}>
                             <div className="relative h-40 bg-gray-100">
                                 {p.image_url ? (
-                                    <img src={p.image_url} alt={p.title} className="w-full h-full object-cover" />
+                                    <img src={p.image_url} alt={p.title} className="w-full h-full object-cover"
+                                        style={{ objectPosition: `${p.image_focal_x ?? 50}% ${p.image_focal_y ?? 50}%` }} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
                                         <ImageIcon className="w-8 h-8 text-gray-400" />
@@ -191,13 +192,31 @@ const AdminProjects = () => {
                                         {uploadingImg ? 'Subiendo...' : 'Seleccionar imagen'}
                                         <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImg} />
                                     </label>
-                                    {form.image_url && (
+                                            {form.image_url && (
                                         <div className="relative">
-                                            <img src={form.image_url} alt="preview" className="w-full h-32 object-cover rounded-lg" />
+                                            <img src={form.image_url} alt="preview"
+                                                className="w-full h-32 object-cover rounded-lg"
+                                                style={{ objectPosition: `${form.image_focal_x ?? 50}% ${form.image_focal_y ?? 50}%` }} />
                                             <button type="button" onClick={() => setForm(f => ({ ...f, image_url: '' }))}
                                                 className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600">
                                                 <X className="w-3 h-3" />
                                             </button>
+                                        </div>
+                                    )}
+                                    {form.image_url && (
+                                        <div className="grid grid-cols-2 gap-3 mt-2">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Focal X (0-100)</label>
+                                                <input type="number" min={0} max={100} name="image_focal_x" value={form.image_focal_x ?? 50}
+                                                    onChange={handleChange}
+                                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Focal Y (0-100)</label>
+                                                <input type="number" min={0} max={100} name="image_focal_y" value={form.image_focal_y ?? 50}
+                                                    onChange={handleChange}
+                                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 outline-none" />
+                                            </div>
                                         </div>
                                     )}
                                 </div>

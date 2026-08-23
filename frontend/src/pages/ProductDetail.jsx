@@ -90,8 +90,8 @@ const ProductDetail = () => {
     return (
         <Layout>
             <SEO
-                title={product.name}
-                description={product.description || product.short_description || `${product.name} - Cortinas y persianas a medida en TerraBlinds.`}
+                title={product.meta_title || product.name}
+                description={product.meta_description || product.short_description || product.description || `${product.name} - Cortinas y persianas a medida en TerraBlinds.`}
                 path={`/product/${id}`}
                 image={product.images?.[0]}
                 jsonLd={[productJsonLd, breadcrumbJsonLd]}
@@ -102,22 +102,34 @@ const ProductDetail = () => {
                         {/* Left: Gallery */}
                         <div className="space-y-4">
                             <div className="aspect-square bg-gray-200 rounded-2xl overflow-hidden shadow-sm">
-                                {product.images && product.images.length > 0 ? (
-                                    <img src={product.images[activeImage]} alt={product.name} className="w-full h-full object-cover" />
-                                ) : (
+                                {product.images && product.images.length > 0 ? (() => {
+                                    const fps = Array.isArray(product.image_focal_points) ? product.image_focal_points : [];
+                                    const fp = fps[activeImage] || { x: 50, y: 50 };
+                                    return (
+                                        <img src={product.images[activeImage]} alt={product.name}
+                                            className="w-full h-full object-cover"
+                                            style={{ objectPosition: `${fp.x}% ${fp.y}%` }} />
+                                    );
+                                })() : (
                                     <div className="w-full h-full flex items-center justify-center text-gray-400">Sin imagen</div>
                                 )}
                             </div>
                             <div className="flex space-x-4 overflow-x-auto pb-2">
-                                {Array.isArray(product.images) && product.images.map((img, idx) => (
-                                    <button
-                                        key={idx}
-                                        onClick={() => setActiveImage(idx)}
-                                        className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary-600 ring-2 ring-primary-100' : 'border-transparent hover:border-gray-300'}`}
-                                    >
-                                        <img src={img} alt={`${product.name} - vista ${idx + 1}`} className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
+                                {Array.isArray(product.images) && product.images.map((img, idx) => {
+                                    const fps = Array.isArray(product.image_focal_points) ? product.image_focal_points : [];
+                                    const fp = fps[idx] || { x: 50, y: 50 };
+                                    return (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setActiveImage(idx)}
+                                            className={`flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border-2 transition-all ${activeImage === idx ? 'border-primary-600 ring-2 ring-primary-100' : 'border-transparent hover:border-gray-300'}`}
+                                        >
+                                            <img src={img} alt={`${product.name} - vista ${idx + 1}`}
+                                                className="w-full h-full object-cover"
+                                                style={{ objectPosition: `${fp.x}% ${fp.y}%` }} />
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
