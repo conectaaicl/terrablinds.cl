@@ -62,6 +62,11 @@ const AdminGrowthContact     = React.lazy(() => import('./pages/AdminGrowthConta
 const AdminGrowthActivity    = React.lazy(() => import('./pages/AdminGrowthActivity'));
 const AdminGrowthToday       = React.lazy(() => import('./pages/AdminGrowthToday'));
 
+// Suspense must wrap the element prop, NOT be a child of <Routes>/<Route>
+// React Router v7 invariant: only <Route> or <Fragment> allowed as route children
+const GE_FALLBACK = <div className="p-8 text-center text-gray-500">Cargando...</div>;
+const GE = ({ Page }) => <React.Suspense fallback={GE_FALLBACK}><Page /></React.Suspense>;
+
 function App() {
   return (
     <CartProvider>
@@ -121,16 +126,14 @@ function App() {
             <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/referidos" element={<AdminReferidos />} />
             <Route path="/admin/seo" element={<AdminSEO />} />
-            <React.Suspense fallback={<div className="p-8 text-center text-gray-500">Cargando...</div>}>
-              <Route path="/admin/growth" element={<AdminGrowthDashboard />} />
-              <Route path="/admin/growth/today" element={<AdminGrowthToday />} />
-              <Route path="/admin/growth/pipeline" element={<AdminGrowthPipeline />} />
-              <Route path="/admin/growth/opportunities" element={<AdminGrowthOpportunities />} />
-              <Route path="/admin/growth/opportunities/:id" element={<AdminGrowthOpportunity />} />
-              <Route path="/admin/growth/contacts" element={<AdminGrowthContacts />} />
-              <Route path="/admin/growth/contacts/:id" element={<AdminGrowthContact />} />
-              <Route path="/admin/growth/activity" element={<AdminGrowthActivity />} />
-            </React.Suspense>
+            <Route path="/admin/growth" element={<GE Page={AdminGrowthDashboard} />} />
+            <Route path="/admin/growth/today" element={<GE Page={AdminGrowthToday} />} />
+            <Route path="/admin/growth/pipeline" element={<GE Page={AdminGrowthPipeline} />} />
+            <Route path="/admin/growth/opportunities" element={<GE Page={AdminGrowthOpportunities} />} />
+            <Route path="/admin/growth/opportunities/:id" element={<GE Page={AdminGrowthOpportunity} />} />
+            <Route path="/admin/growth/contacts" element={<GE Page={AdminGrowthContacts} />} />
+            <Route path="/admin/growth/contacts/:id" element={<GE Page={AdminGrowthContact} />} />
+            <Route path="/admin/growth/activity" element={<GE Page={AdminGrowthActivity} />} />
           </Route>
 
           {/* 404 */}
