@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
@@ -18,6 +18,14 @@ const AdminLayout = ({ children }) => {
     const [geAlerts, setGeAlerts] = useState(0);
     const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'marketing', 'sistema', 'comercial']);
     const [logoUrl, setLogoUrl] = useState('');
+    const sidebarNavRef = useRef(null);
+    const savedScrollTop = useRef(0);
+
+    useLayoutEffect(() => {
+        if (sidebarNavRef.current) {
+            sidebarNavRef.current.scrollTop = savedScrollTop.current;
+        }
+    });
 
     useEffect(() => {
         api.get('/api/config/public').then(res => {
@@ -113,7 +121,11 @@ const AdminLayout = ({ children }) => {
                 </button>
             </div>
 
-            <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+            <nav
+                    ref={sidebarNavRef}
+                    onScroll={(e) => { savedScrollTop.current = e.currentTarget.scrollTop; }}
+                    className="flex-1 overflow-y-auto p-3 space-y-0.5"
+                >
                 <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
 
                 <NavGroup label="Reservas" groupKey="reservas">
