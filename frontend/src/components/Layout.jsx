@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Menu, X, ShoppingCart, ChevronDown } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useSiteConfig } from '../context/SiteConfigContext';
 import VisitCounter from './VisitCounter';
@@ -29,6 +29,18 @@ const YouTubeIcon = () => (
 
 const Layout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [servicesOpen, setServicesOpen] = React.useState(false);
+
+    const serviceLinks = [
+        { to: '/software', label: 'Software', color: 'text-blue-400' },
+        { to: '/domotica', label: 'Domótica', color: 'text-indigo-400' },
+        { to: '/cortinas-metalicas', label: 'Cortinas Metálicas', color: 'text-slate-300' },
+        { to: '/automatizacion', label: 'Automatización', color: 'text-amber-400' },
+        { to: '/camaras', label: 'Cámaras', color: 'text-gray-300' },
+        { to: '/paneles-solares', label: 'Paneles Solares', color: 'text-yellow-300' },
+        { to: '/control-acceso', label: 'Control de Acceso', color: 'text-blue-400' },
+        { to: '/servicio-tecnico', label: 'Servicio Técnico', color: 'text-slate-300' },
+    ];
     const siteConfig = useSiteConfig();
     const { cartCount } = useCart();
     const location = useLocation();
@@ -70,28 +82,50 @@ const Layout = ({ children }) => {
                     </Link>
 
                     {/* Desktop nav */}
-                    <nav className="hidden lg:flex items-center space-x-0.5 text-sm font-semibold">
+                    <nav className="hidden lg:flex items-center gap-0.5 text-sm font-semibold">
                         {[
                             { to: '/', label: 'Inicio' },
                             { to: '/catalog', label: 'Catálogo' },
-                            { to: '/quote', label: 'Cotizar' },
                             { to: '/projects', label: 'Proyectos' },
                             { to: '/about', label: 'Nosotros' },
-                            { to: '/software', label: 'Software', color: 'text-blue-400' },
-                            { to: '/domotica', label: 'Domótica', color: 'text-indigo-400' },
-                            { to: '/cortinas-metalicas', label: 'C. Metálicas', color: 'text-slate-300' },
-                            { to: '/automatizacion', label: 'Automatización', color: 'text-amber-400' },
-                            { to: '/camaras', label: 'Cámaras', color: 'text-gray-300' },
-                            { to: '/paneles-solares', label: 'Solar', color: 'text-yellow-300' },
-                            { to: '/control-acceso', label: 'Acceso', color: 'text-blue-400' },
-                            { to: '/servicio-tecnico', label: 'Serv. Técnico', color: 'text-slate-300' },
+                        ].map(({ to, label }) => (
+                            <Link key={to} to={to}
+                                className="relative px-3 py-2 rounded-lg text-white/75 hover:bg-white/10 hover:text-white transition-all duration-200 group">
+                                {label}
+                                <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-[#C8973A] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                            </Link>
+                        ))}
+
+                        {/* Servicios dropdown */}
+                        <div className="relative"
+                            onMouseEnter={() => setServicesOpen(true)}
+                            onMouseLeave={() => setServicesOpen(false)}
+                        >
+                            <button className="relative flex items-center gap-1 px-3 py-2 rounded-lg text-white/75 hover:bg-white/10 hover:text-white transition-all duration-200 group">
+                                Servicios <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${servicesOpen ? 'rotate-180' : ''}`} />
+                                <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-[#C8973A] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                            </button>
+                            {servicesOpen && (
+                                <div className="absolute top-full left-0 mt-1 w-52 bg-gray-950/95 backdrop-blur-md border border-white/10 rounded-xl shadow-2xl py-1.5 z-50">
+                                    {serviceLinks.map(({ to, label, color }) => (
+                                        <Link key={to} to={to}
+                                            onClick={() => setServicesOpen(false)}
+                                            className={`flex items-center px-4 py-2.5 text-sm ${color || 'text-white/70'} hover:bg-white/10 hover:text-white transition-colors`}>
+                                            {label}
+                                        </Link>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {[
                             { to: '/agendar', label: 'Agendar', color: 'text-emerald-400' },
                             { to: '/contact', label: 'Contacto' },
                         ].map(({ to, label, color }) => (
                             <Link key={to} to={to}
-                                className={`relative px-2.5 py-2 rounded-lg transition-all duration-200 ${color || 'text-white/75'} hover:bg-white/10 hover:text-white group`}>
+                                className={`relative px-3 py-2 rounded-lg ${color || 'text-white/75'} hover:bg-white/10 hover:text-white transition-all duration-200 group`}>
                                 {label}
-                                <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-[#C8973A] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                                <span className="absolute bottom-0.5 left-3 right-3 h-0.5 bg-[#C8973A] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
                             </Link>
                         ))}
                     </nav>
