@@ -9,6 +9,8 @@ const Lead = require('./lead');
 const Booking = require('./booking');
 const BlockedDay = require('./blockedDay');
 const Blog = require('./blog');
+const Review = require('./review');
+const Referral = require('./referral');
 
 // Growth Engine models
 const Contact = require('./contact');
@@ -58,6 +60,8 @@ const models = {
     Booking,
     BlockedDay,
     Blog,
+    Review,
+    Referral,
     // Growth Engine
     Contact,
     Opportunity,

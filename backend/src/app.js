@@ -94,6 +94,8 @@ const bookingRoutes  = require('./routes/booking.routes');
 const growthRoutes   = require('./routes/growth.routes');
 const followupRoutes = require('./routes/followup.routes');
 const todayRoutes    = require('./routes/today.routes');
+const reviewRoutes   = require('./routes/review.routes');
+const referralRoutes = require('./routes/referral.routes');
 
 app.use('/api/products', productRoutes);
 app.use('/api/quotes', quoteRoutes);
@@ -113,6 +115,8 @@ app.use('/api/bookings', bookingRoutes);
 app.use('/api/growth',   growthRoutes);
 app.use('/api/growth',   followupRoutes);
 app.use('/api/growth/today', todayRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/referrals', referralRoutes);
 
 // 404 handler
 app.use((req, res) => {

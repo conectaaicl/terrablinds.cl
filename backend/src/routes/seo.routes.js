@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
+const { Config } = require('../models');
+const { protect, restrictTo } = require('../middleware/auth.middleware');
 
 const SITE_NAME = 'TerraBlinds';
 const BASE_URL = process.env.SITE_URL || 'https://terrablinds.cl';
@@ -38,6 +40,63 @@ const STATIC_PAGES = {
         changefreq: 'monthly'
     }
 };
+
+// Pages for which admin can customize SEO meta
+const SEO_PAGES = [
+    { key: 'home',             path: '/',                    label: 'Inicio' },
+    { key: 'catalog',          path: '/catalog',             label: 'Catálogo' },
+    { key: 'quote',            path: '/quote',               label: 'Cotizar Online' },
+    { key: 'about',            path: '/about',               label: 'Nosotros' },
+    { key: 'contact',          path: '/contact',             label: 'Contacto' },
+    { key: 'software',         path: '/software',            label: 'Software' },
+    { key: 'domotica',         path: '/domotica',            label: 'Domótica' },
+    { key: 'cortinas',         path: '/cortinas-metalicas',  label: 'Cortinas Metálicas' },
+    { key: 'automatizacion',   path: '/automatizacion',      label: 'Automatización' },
+    { key: 'servicio_tecnico', path: '/servicio-tecnico',    label: 'Servicio Técnico' },
+    { key: 'camaras',          path: '/camaras',             label: 'Cámaras' },
+    { key: 'paneles_solares',  path: '/paneles-solares',     label: 'Paneles Solares' },
+    { key: 'control_acceso',   path: '/control-acceso',      label: 'Control de Acceso' },
+];
+
+// GET /api/seo/pages — return all per-page SEO meta (admin only)
+router.get('/seo/pages', protect, restrictTo('admin'), async (req, res) => {
+    try {
+        const keys = SEO_PAGES.flatMap(p => [`seo_title_${p.key}`, `seo_desc_${p.key}`]);
+        const rows = await Config.findAll({ where: { key: keys } });
+        const map = Object.fromEntries(rows.map(r => [r.key, r.value]));
+        const result = SEO_PAGES.map(p => ({
+            key: p.key,
+            path: p.path,
+            label: p.label,
+            title: map[`seo_title_${p.key}`] || STATIC_PAGES[p.path]?.title || '',
+            description: map[`seo_desc_${p.key}`] || STATIC_PAGES[p.path]?.description || '',
+        }));
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: 'Error fetching SEO pages' });
+    }
+});
+
+// PUT /api/seo/pages — bulk update SEO meta (admin only)
+router.put('/seo/pages', protect, restrictTo('admin'), async (req, res) => {
+    try {
+        const { pages } = req.body;
+        if (!Array.isArray(pages)) return res.status(400).json({ error: 'pages must be an array' });
+        for (const page of pages) {
+            const pageConf = SEO_PAGES.find(p => p.key === page.key);
+            if (!pageConf) continue;
+            if (page.title != null) {
+                await Config.upsert({ key: `seo_title_${page.key}`, value: String(page.title).substring(0, 200), type: 'string' });
+            }
+            if (page.description != null) {
+                await Config.upsert({ key: `seo_desc_${page.key}`, value: String(page.description).substring(0, 500), type: 'string' });
+            }
+        }
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Error saving SEO pages' });
+    }
+});
 
 // GET /api/sitemap.xml — Dynamic sitemap with products
 router.get('/sitemap.xml', async (req, res) => {
@@ -133,10 +192,25 @@ router.get('/prerender', async (req, res) => {
             description = STATIC_PAGES['/'].description;
         }
     } else {
-        // Static page
-        const pageMeta = STATIC_PAGES[requestedPath] || STATIC_PAGES['/'];
-        title = pageMeta.title;
-        description = pageMeta.description;
+        // Check Config overrides first, then fall back to hardcoded STATIC_PAGES
+        const pageConf = SEO_PAGES.find(p => p.path === requestedPath);
+        const fallback = STATIC_PAGES[requestedPath] || STATIC_PAGES['/'];
+        if (pageConf) {
+            try {
+                const [titleRow, descRow] = await Promise.all([
+                    Config.findOne({ where: { key: `seo_title_${pageConf.key}` } }),
+                    Config.findOne({ where: { key: `seo_desc_${pageConf.key}` } }),
+                ]);
+                title = titleRow?.value || fallback.title;
+                description = descRow?.value || fallback.description;
+            } catch (_) {
+                title = fallback.title;
+                description = fallback.description;
+            }
+        } else {
+            title = fallback.title;
+            description = fallback.description;
+        }
     }
 
     const canonicalUrl = `${BASE_URL}${requestedPath}`;

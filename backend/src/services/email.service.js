@@ -1,9 +1,9 @@
 const axios = require('axios');
 const { Config } = require('../models');
 
-const MAILSAAS_API_KEY = process.env.MAILSAAS_API_KEY || 'sk_live_6pplo4eac1j6m26z2j9np';
+const MAILSAAS_API_KEY = process.env.MAILSAAS_API_KEY || process.env.RESEND_API_KEY;
 const MAILSAAS_URL     = 'https://mail.conectaai.cl/api/send';
-const MAIL_FROM        = 'TerraBlinds <terrablinds@gmail.com>';
+const MAIL_FROM        = process.env.RESEND_FROM_EMAIL || 'TerraBlinds <terrablinds@gmail.com>';
 
 async function getConfig() {
     const companyEmailConfig = await Config.findOne({ where: { key: 'company_email' } });
@@ -14,6 +14,7 @@ async function getConfig() {
 }
 
 async function sendEmail({ to, subject, html, template_name, variables }) {
+    if (!MAILSAAS_API_KEY) throw new Error('Email service not configured: MAILSAAS_API_KEY not set');
     // mail.conectaai.cl expects `to` as a single string (first recipient)
     const toStr = Array.isArray(to) ? to[0] : to;
     const body = { from: MAIL_FROM, to: toStr, subject, html };
