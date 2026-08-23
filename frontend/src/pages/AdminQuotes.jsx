@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw, Trash2 } from 'lucide-react';
 
-const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
+const LOGO_URL = '/logoterrablinds.png';
 
 function printQuote(quote, items) {
     const rows = items.map(item => `
@@ -74,11 +74,12 @@ function printQuote(quote, items) {
 import api from '../api';
 
 const STATUS_MAP = {
-    pending:   { label: 'Pendiente',   cls: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-    contacted: { label: 'Contactado',  cls: 'bg-blue-100 text-blue-800 border-blue-200' },
-    accepted:  { label: 'Aceptada',    cls: 'bg-green-100 text-green-800 border-green-200' },
-    rejected:  { label: 'Rechazada',   cls: 'bg-red-100 text-red-800 border-red-200' },
-    completed: { label: 'Completada',  cls: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+    pending:   { label: 'Pendiente',          cls: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
+    contacted: { label: 'Contactado',         cls: 'bg-blue-100 text-blue-800 border-blue-200' },
+    sent:      { label: 'Presupuesto Enviado', cls: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+    accepted:  { label: 'Aceptada',           cls: 'bg-green-100 text-green-800 border-green-200' },
+    rejected:  { label: 'Rechazada',          cls: 'bg-red-100 text-red-800 border-red-200' },
+    completed: { label: 'Completada',         cls: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
 };
 
 const AdminQuotes = () => {

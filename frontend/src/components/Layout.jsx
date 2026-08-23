@@ -57,17 +57,22 @@ const Layout = ({ children }) => {
     const brandName = siteConfig.brand_name || 'TerraBlinds';
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-            <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="min-h-screen bg-white flex flex-col font-sans">
+
+            {/* ── Navbar ── */}
+            <header className="sticky top-0 z-50 bg-[#0d0b08]/90 backdrop-blur-md border-b border-white/10">
                 <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <Link to="/" className="text-2xl font-bold text-gray-800 tracking-tight flex items-center flex-shrink-0">
+
+                    {/* Logo */}
+                    <Link to="/" className="flex items-center flex-shrink-0">
                         {logoUrl ? (
-                            <img src={logoUrl} alt={brandName} className="h-12 md:h-16 w-auto object-contain rounded-lg" />
+                            <img src={logoUrl} alt={brandName} className="h-12 md:h-14 w-auto object-contain rounded-lg" />
                         ) : (
-                            <span className="text-lg md:text-2xl">{brandName}</span>
+                            <span className="text-lg md:text-xl font-bold text-white tracking-tight">{brandName}</span>
                         )}
                     </Link>
 
+                    {/* Desktop nav */}
                     <nav className="hidden lg:flex items-center space-x-0.5 text-sm font-semibold">
                         {[
                             { to: '/', label: 'Inicio' },
@@ -75,57 +80,59 @@ const Layout = ({ children }) => {
                             { to: '/quote', label: 'Cotizar' },
                             { to: '/projects', label: 'Proyectos' },
                             { to: '/about', label: 'Nosotros' },
-                            { to: '/software', label: 'Software', color: 'text-blue-600' },
-                            { to: '/domotica', label: 'Domótica', color: 'text-indigo-600' },
-                            { to: '/cortinas-metalicas', label: 'C. Metálicas', color: 'text-slate-700' },
-                            { to: '/automatizacion', label: 'Automatización', color: 'text-amber-600' },
-                            { to: '/camaras', label: 'Cámaras', color: 'text-gray-700' },
-                            { to: '/paneles-solares', label: 'Solar', color: 'text-yellow-600' },
-                            { to: '/control-acceso', label: 'Acceso', color: 'text-blue-700' },
-                            { to: '/agendar', label: 'Agendar', color: 'text-emerald-700' },
+                            { to: '/software', label: 'Software', color: 'text-blue-400' },
+                            { to: '/domotica', label: 'Domótica', color: 'text-indigo-400' },
+                            { to: '/cortinas-metalicas', label: 'C. Metálicas', color: 'text-slate-300' },
+                            { to: '/automatizacion', label: 'Automatización', color: 'text-amber-400' },
+                            { to: '/camaras', label: 'Cámaras', color: 'text-gray-300' },
+                            { to: '/paneles-solares', label: 'Solar', color: 'text-yellow-300' },
+                            { to: '/control-acceso', label: 'Acceso', color: 'text-blue-400' },
+                            { to: '/servicio-tecnico', label: 'Serv. Técnico', color: 'text-slate-300' },
+                            { to: '/agendar', label: 'Agendar', color: 'text-emerald-400' },
                             { to: '/contact', label: 'Contacto' },
                         ].map(({ to, label, color }) => (
                             <Link key={to} to={to}
-                                className={`relative px-2.5 py-2 rounded-lg transition-all duration-200 ${color || 'text-gray-700'} hover:bg-blue-50 hover:text-blue-700 group`}>
+                                className={`relative px-2.5 py-2 rounded-lg transition-all duration-200 ${color || 'text-white/75'} hover:bg-white/10 hover:text-white group`}>
                                 {label}
-                                <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-blue-600 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
+                                <span className="absolute bottom-0.5 left-2.5 right-2.5 h-0.5 bg-[#C8973A] scale-x-0 group-hover:scale-x-100 transition-transform duration-200 rounded-full" />
                             </Link>
                         ))}
                     </nav>
 
+                    {/* Desktop right actions */}
                     <div className="hidden lg:flex items-center space-x-3">
                         {waNumber && (
                             <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
-                                className="flex items-center text-gray-600 hover:text-green-600 transition-colors">
+                                className="flex items-center text-white/70 hover:text-green-400 transition-colors">
                                 <WhatsAppIcon className="w-5 h-5 mr-1.5" />
                                 {phoneDisplay && <span className="text-sm">{phoneDisplay}</span>}
                             </a>
                         )}
-                        <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
+                        <Link to="/cart" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                                <span className="absolute -top-1 -right-1 bg-[#C8973A] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
                         <Link to="/quote"
-                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-colors">
+                            className="px-4 py-2 bg-[#C8973A] hover:bg-[#A87A2A] text-white text-sm font-semibold rounded-lg transition-colors shadow-lg shadow-[#C8973A]/25">
                             Cotizar
                         </Link>
                     </div>
 
-                    {/* Mobile right: cart + hamburger */}
+                    {/* Mobile: cart + hamburger */}
                     <div className="flex lg:hidden items-center gap-2">
-                        <Link to="/cart" className="relative p-2 text-gray-600 hover:text-primary-600 transition-colors">
+                        <Link to="/cart" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-primary-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
+                                <span className="absolute -top-1 -right-1 bg-[#C8973A] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
                                     {cartCount}
                                 </span>
                             )}
                         </Link>
-                        <button className="p-2 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <button className="p-2 text-white/80 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
@@ -133,18 +140,18 @@ const Layout = ({ children }) => {
 
                 {/* Mobile menu */}
                 {isMenuOpen && (
-                    <div className="lg:hidden bg-white border-t border-gray-100 shadow-lg">
+                    <div className="lg:hidden bg-[#0d0b08] border-t border-white/10">
                         <div className="container mx-auto px-4 py-3">
                             {/* Quick action buttons */}
-                            <div className="flex gap-2 mb-3 pb-3 border-b border-gray-100">
+                            <div className="flex gap-2 mb-3 pb-3 border-b border-white/10">
                                 <Link to="/quote" onClick={() => setIsMenuOpen(false)}
-                                    className="flex-1 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl text-center">
+                                    className="flex-1 py-2.5 bg-[#C8973A] hover:bg-[#A87A2A] text-white text-sm font-semibold rounded-xl text-center transition-colors">
                                     Cotizar ahora
                                 </Link>
                                 {waNumber && (
                                     <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="flex-1 py-2.5 bg-green-500 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5">
+                                        className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors">
                                         <WhatsAppIcon className="w-4 h-4" /> WhatsApp
                                     </a>
                                 )}
@@ -169,7 +176,7 @@ const Layout = ({ children }) => {
                                     { to: '/register', label: 'Registrarse' },
                                 ].map(({ to, label }) => (
                                     <Link key={to} to={to}
-                                        className="py-2.5 text-sm text-gray-700 hover:text-blue-600 font-medium border-b border-gray-50 flex items-center gap-1.5"
+                                        className="py-2.5 text-sm text-white/70 hover:text-white font-medium border-b border-white/5 flex items-center gap-1.5 transition-colors"
                                         onClick={() => setIsMenuOpen(false)}>
                                         {label}
                                     </Link>
@@ -184,8 +191,11 @@ const Layout = ({ children }) => {
                 {children}
             </main>
 
-            <footer className="bg-gray-900 text-white py-12">
-                <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* ── Footer ── */}
+            <footer className="bg-[#0d0b08] text-white py-14 border-t border-white/10">
+                <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+                    {/* Brand column */}
                     <div>
                         <div className="mb-4">
                             {logoUrl ? (
@@ -193,82 +203,88 @@ const Layout = ({ children }) => {
                                     <img src={logoUrl} alt={brandName} className="h-14 w-auto object-contain rounded-lg" />
                                 </Link>
                             ) : (
-                                <h3 className="text-xl font-bold">{brandName}</h3>
+                                <h3 className="text-xl font-bold text-white">{brandName}</h3>
                             )}
                         </div>
-                        <p className="text-gray-400 text-sm mb-4">
+                        <p className="text-white/40 text-sm mb-5 leading-relaxed">
                             Cortinas y persianas a medida de alta calidad. Diseñadas para tu hogar, fabricadas para durar.
                         </p>
                         {/* Social Networks */}
-                        <div className="flex flex-wrap gap-3 mt-2">
+                        <div className="flex flex-wrap gap-2 mt-2">
                             {siteConfig.social_facebook && (
                                 <a href={siteConfig.social_facebook} target="_blank" rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 bg-[#1877F2] hover:bg-[#0d65d9] text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg shadow-[#1877F2]/20">
+                                    className="group flex items-center gap-2 bg-[#1877F2] hover:bg-[#0d65d9] text-white px-3 py-1.5 rounded-xl transition-all hover:scale-105 shadow-lg shadow-[#1877F2]/20">
                                     <FacebookIcon />
-                                    <span className="text-sm font-semibold">Facebook</span>
+                                    <span className="text-xs font-semibold">Facebook</span>
                                 </a>
                             )}
                             {siteConfig.social_instagram && (
                                 <a href={siteConfig.social_instagram} target="_blank" rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg"
+                                    className="group flex items-center gap-2 text-white px-3 py-1.5 rounded-xl transition-all hover:scale-105 shadow-lg"
                                     style={{ background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' }}>
                                     <InstagramIcon />
-                                    <span className="text-sm font-semibold">Instagram</span>
+                                    <span className="text-xs font-semibold">Instagram</span>
                                 </a>
                             )}
                             {siteConfig.social_tiktok && (
                                 <a href={siteConfig.social_tiktok} target="_blank" rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg border border-gray-700">
+                                    className="group flex items-center gap-2 bg-black hover:bg-gray-900 text-white px-3 py-1.5 rounded-xl transition-all hover:scale-105 shadow-lg border border-white/15">
                                     <TikTokIcon />
-                                    <span className="text-sm font-semibold">TikTok</span>
+                                    <span className="text-xs font-semibold">TikTok</span>
                                 </a>
                             )}
                             {siteConfig.social_youtube && (
                                 <a href={siteConfig.social_youtube} target="_blank" rel="noopener noreferrer"
-                                    className="group flex items-center gap-2 bg-[#FF0000] hover:bg-[#cc0000] text-white px-4 py-2 rounded-xl transition-all hover:scale-105 shadow-lg shadow-red-500/20">
+                                    className="group flex items-center gap-2 bg-[#FF0000] hover:bg-[#cc0000] text-white px-3 py-1.5 rounded-xl transition-all hover:scale-105 shadow-lg shadow-red-500/20">
                                     <YouTubeIcon />
-                                    <span className="text-sm font-semibold">YouTube</span>
+                                    <span className="text-xs font-semibold">YouTube</span>
                                 </a>
                             )}
                         </div>
                     </div>
+
+                    {/* Productos */}
                     <div>
-                        <h4 className="font-semibold mb-4">Productos</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><Link to="/catalog?category=Roller Blackout" className="hover:text-white">Roller Blackout</Link></li>
-                            <li><Link to="/catalog?category=Roller Sunscreen" className="hover:text-white">Sunscreen</Link></li>
-                            <li><Link to="/catalog?category=Roller Duo Blackout" className="hover:text-white">Roller Duo</Link></li>
-                            <li><Link to="/catalog?category=Domotica Motor Roller" className="hover:text-white">Motorización</Link></li>
-                            <li><Link to="/catalog?category=Persianas Exterior" className="hover:text-white">Persianas Exterior</Link></li>
-                            <li><Link to="/catalog?category=Toldos" className="hover:text-white">Toldos</Link></li>
-                            <li><Link to="/cortinas-metalicas" className="hover:text-white">Cortinas Metálicas</Link></li>
-                            <li><Link to="/automatizacion" className="hover:text-white">Automatización</Link></li>
-                            <li><Link to="/camaras" className="hover:text-white">Cámaras de Seguridad</Link></li>
-                            <li><Link to="/paneles-solares" className="hover:text-white">Paneles Solares</Link></li>
-                            <li><Link to="/control-acceso" className="hover:text-white">Control de Acceso</Link></li>
+                        <h4 className="text-[#C8973A] font-bold mb-5 text-xs uppercase tracking-widest">Productos</h4>
+                        <ul className="space-y-2.5 text-white/40 text-sm">
+                            <li><Link to="/catalog?category=Roller Blackout" className="hover:text-white transition-colors">Roller Blackout</Link></li>
+                            <li><Link to="/catalog?category=Roller Sunscreen" className="hover:text-white transition-colors">Sunscreen</Link></li>
+                            <li><Link to="/catalog?category=Roller Duo Blackout" className="hover:text-white transition-colors">Roller Duo</Link></li>
+                            <li><Link to="/catalog?category=Domotica Motor Roller" className="hover:text-white transition-colors">Motorización</Link></li>
+                            <li><Link to="/catalog?category=Persianas Exterior" className="hover:text-white transition-colors">Persianas Exterior</Link></li>
+                            <li><Link to="/catalog?category=Toldos" className="hover:text-white transition-colors">Toldos</Link></li>
+                            <li><Link to="/cortinas-metalicas" className="hover:text-white transition-colors">Cortinas Metálicas</Link></li>
+                            <li><Link to="/automatizacion" className="hover:text-white transition-colors">Automatización</Link></li>
+                            <li><Link to="/camaras" className="hover:text-white transition-colors">Cámaras de Seguridad</Link></li>
+                            <li><Link to="/paneles-solares" className="hover:text-white transition-colors">Paneles Solares</Link></li>
+                            <li><Link to="/control-acceso" className="hover:text-white transition-colors">Control de Acceso</Link></li>
                         </ul>
                     </div>
+
+                    {/* Empresa */}
                     <div>
-                        <h4 className="font-semibold mb-4">Empresa</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            <li><Link to="/about" className="hover:text-white">Quiénes Somos</Link></li>
-                            <li><Link to="/projects" className="hover:text-white">Proyectos</Link></li>
-                            <li><Link to="/servicio-tecnico" className="hover:text-white">Servicio Técnico</Link></li>
-                            <li><Link to="/faq" className="hover:text-white">Preguntas Frecuentes</Link></li>
-                            <li><Link to="/contact" className="hover:text-white">Contacto</Link></li>
-                            <li><Link to="/register" className="hover:text-white">Crear Cuenta</Link></li>
+                        <h4 className="text-[#C8973A] font-bold mb-5 text-xs uppercase tracking-widest">Empresa</h4>
+                        <ul className="space-y-2.5 text-white/40 text-sm">
+                            <li><Link to="/about" className="hover:text-white transition-colors">Quiénes Somos</Link></li>
+                            <li><Link to="/projects" className="hover:text-white transition-colors">Proyectos</Link></li>
+                            <li><Link to="/servicio-tecnico" className="hover:text-white transition-colors">Servicio Técnico</Link></li>
+                            <li><Link to="/faq" className="hover:text-white transition-colors">Preguntas Frecuentes</Link></li>
+                            <li><Link to="/contact" className="hover:text-white transition-colors">Contacto</Link></li>
+                            <li><Link to="/register" className="hover:text-white transition-colors">Crear Cuenta</Link></li>
                         </ul>
                     </div>
+
+                    {/* Contacto */}
                     <div>
-                        <h4 className="font-semibold mb-4">Contacto</h4>
-                        <ul className="space-y-2 text-gray-400 text-sm">
-                            {siteConfig.company_email && <li>{siteConfig.company_email}</li>}
-                            {phoneDisplay && <li>{phoneDisplay}</li>}
-                            {siteConfig.company_address && <li>{siteConfig.company_address}</li>}
+                        <h4 className="text-[#C8973A] font-bold mb-5 text-xs uppercase tracking-widest">Contacto</h4>
+                        <ul className="space-y-3 text-white/40 text-sm">
+                            {siteConfig.company_email && <li className="hover:text-white/70 transition-colors">{siteConfig.company_email}</li>}
+                            {phoneDisplay && <li className="hover:text-white/70 transition-colors">{phoneDisplay}</li>}
+                            {siteConfig.company_address && <li className="hover:text-white/70 transition-colors leading-snug">{siteConfig.company_address}</li>}
                             {waNumber && (
                                 <li>
                                     <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
-                                        className="hover:text-white flex items-center gap-2">
+                                        className="hover:text-white transition-colors flex items-center gap-2">
                                         <WhatsAppIcon className="w-4 h-4 text-green-400" />
                                         WhatsApp
                                     </a>
@@ -277,7 +293,8 @@ const Layout = ({ children }) => {
                         </ul>
                     </div>
                 </div>
-                <div className="container mx-auto px-4 mt-8 pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+
+                <div className="container mx-auto px-4 mt-10 pt-8 border-t border-white/10 text-center text-white/25 text-sm">
                     &copy; {new Date().getFullYear()} {brandName}.cl. Todos los derechos reservados.
                     <VisitCounter />
                 </div>
