@@ -45,6 +45,7 @@ services:
       FLOW_API_KEY: ${FLOW_API_KEY:-}
       FLOW_SECRET_KEY: ${FLOW_SECRET_KEY:-}
       FLOW_API_URL: ${FLOW_API_URL:-https://www.flow.cl/api}
+      GE_WORKER_ENABLED: ${GE_WORKER_ENABLED:-false}
     depends_on:
       postgres:
         condition: service_healthy
@@ -69,7 +70,7 @@ services:
     container_name: terrablinds_frontend
     restart: unless-stopped
     ports:
-      - "${FRONTEND_PORT:-80}:80"
+      - "127.0.0.1:${FRONTEND_PORT:-80}:80"
     depends_on:
       backend:
         condition: service_healthy
