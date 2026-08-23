@@ -2,37 +2,35 @@ import React, { useState, useEffect, useRef, useLayoutEffect, createContext, use
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
-    Image, HelpCircle, ChevronDown, ChevronRight, Home, Users, Phone,
-    MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen, Camera, Sun, KeyRound,
+    Image, HelpCircle, ChevronDown, ChevronRight, ChevronLeft, Home, Users, Phone,
+    MonitorSmartphone, Palette, Bell, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen, Camera, Sun, KeyRound,
     Star, Gift, BarChart2, TrendingUp, Kanban, Contact, Activity, ListFilter,
 } from 'lucide-react';
 import { Clock } from 'lucide-react';
 import api from '../api';
 
-// Context shared with NavItem / NavGroup — defined once at module level
 const SidebarCtx = createContext(null);
 
-// Stable module-level components — React reconciles (updates) these instead of
-// unmounting/remounting on every AdminLayout render, preserving nav scroll position.
 const NavItem = ({ to, icon: Icon, label, badge }) => {
-    const { activePath, onClose } = useContext(SidebarCtx);
+    const { activePath, onClose, collapsed } = useContext(SidebarCtx);
     const active = activePath === to;
     return (
         <Link
             to={to}
             onClick={onClose}
-            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+            title={collapsed ? label : undefined}
+            className={`flex items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'justify-between px-3 py-2'} rounded-lg text-sm transition-all ${
                 active
                     ? 'bg-blue-600 text-white shadow-sm'
                     : 'text-gray-400 hover:bg-white/10 hover:text-white'
             }`}
         >
-            <div className="flex items-center gap-2.5">
+            <div className={`flex items-center ${collapsed ? '' : 'gap-2.5 min-w-0'}`}>
                 <Icon className="w-4 h-4 flex-shrink-0" />
-                <span className="font-medium">{label}</span>
+                {!collapsed && <span className="font-medium truncate">{label}</span>}
             </div>
-            {badge > 0 && (
-                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+            {!collapsed && badge > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center flex-shrink-0 ml-1">
                     {badge}
                 </span>
             )}
@@ -41,8 +39,11 @@ const NavItem = ({ to, icon: Icon, label, badge }) => {
 };
 
 const NavGroup = ({ label, groupKey, children }) => {
-    const { openGroups, toggleGroup } = useContext(SidebarCtx);
+    const { openGroups, toggleGroup, collapsed } = useContext(SidebarCtx);
     const open = openGroups.includes(groupKey);
+    if (collapsed) {
+        return <div className="mt-1 space-y-0.5">{children}</div>;
+    }
     return (
         <div className="mt-4">
             <button
@@ -61,6 +62,7 @@ const AdminLayout = ({ children }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [collapsed, setCollapsed] = useState(() => localStorage.getItem('tb_sidebar_collapsed') === '1');
     const [pendingCount, setPendingCount] = useState(0);
     const [pendingBookings, setPendingBookings] = useState(0);
     const [geAlerts, setGeAlerts] = useState(0);
@@ -68,6 +70,14 @@ const AdminLayout = ({ children }) => {
     const [logoUrl, setLogoUrl] = useState('');
     const sidebarNavRef = useRef(null);
     const savedScrollTop = useRef(0);
+
+    const toggleCollapsed = useCallback(() => {
+        setCollapsed(prev => {
+            const next = !prev;
+            localStorage.setItem('tb_sidebar_collapsed', next ? '1' : '0');
+            return next;
+        });
+    }, []);
 
     useLayoutEffect(() => {
         if (sidebarNavRef.current) {
@@ -115,30 +125,41 @@ const AdminLayout = ({ children }) => {
         onClose: () => setSidebarOpen(false),
         openGroups,
         toggleGroup,
-    }), [location.pathname, openGroups, toggleGroup]);
+        collapsed,
+    }), [location.pathname, openGroups, toggleGroup, collapsed]);
 
     const SidebarContent = () => (
         <>
-            <div className="p-5 border-b border-white/30 flex items-center justify-between flex-shrink-0">
-                <Link to="/admin" className="flex items-center gap-2.5">
-                    {logoUrl ? (
-                        <img src={logoUrl} alt="TerraBlinds" className="h-9 w-auto object-contain rounded-md" />
-                    ) : (
-                        <>
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">T</div>
-                            <span className="text-[15px] font-bold text-white">Terra<span className="text-blue-400">Admin</span></span>
-                        </>
-                    )}
-                </Link>
-                <button className="lg:hidden text-gray-500 hover:text-white" onClick={() => setSidebarOpen(false)}>
+            {/* Header */}
+            <div className={`border-b border-white/20 flex items-center flex-shrink-0 min-h-[56px] ${collapsed ? 'justify-center px-2 py-2' : 'justify-between px-4 py-3'}`}>
+                {collapsed ? (
+                    <Link to="/admin" title="TerraBlinds Admin">
+                        {logoUrl
+                            ? <img src={logoUrl} alt="TB" className="h-8 w-8 object-cover rounded-md" />
+                            : <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">T</div>
+                        }
+                    </Link>
+                ) : (
+                    <Link to="/admin" className="flex items-center gap-2.5 min-w-0">
+                        {logoUrl
+                            ? <img src={logoUrl} alt="TerraBlinds" className="h-8 w-auto object-contain rounded-md flex-shrink-0 max-w-[110px]" />
+                            : <>
+                                <div className="w-7 h-7 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">T</div>
+                                <span className="text-[14px] font-bold text-white truncate">Terra<span className="text-blue-400">Admin</span></span>
+                              </>
+                        }
+                    </Link>
+                )}
+                <button className="lg:hidden text-gray-500 hover:text-white flex-shrink-0 ml-2" onClick={() => setSidebarOpen(false)}>
                     <X className="w-5 h-5" />
                 </button>
             </div>
 
+            {/* Nav */}
             <nav
                 ref={sidebarNavRef}
                 onScroll={(e) => { savedScrollTop.current = e.currentTarget.scrollTop; }}
-                className="flex-1 overflow-y-auto p-3 space-y-0.5"
+                className={`flex-1 overflow-y-auto space-y-0.5 ${collapsed ? 'px-1.5 py-2' : 'p-3'}`}
             >
                 <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
 
@@ -158,7 +179,7 @@ const AdminLayout = ({ children }) => {
                     <NavItem to="/admin/blog" icon={BookOpen} label="Blog" />
                 </NavGroup>
 
-                <NavGroup label="Páginas del Sitio" groupKey="paginas">
+                <NavGroup label="Páginas" groupKey="paginas">
                     <NavItem to="/admin/paginas/inicio" icon={Home} label="Inicio" />
                     <NavItem to="/admin/paginas/nosotros" icon={Users} label="Nosotros" />
                     <NavItem to="/admin/paginas/contacto" icon={Phone} label="Contacto" />
@@ -197,22 +218,36 @@ const AdminLayout = ({ children }) => {
                 </NavGroup>
             </nav>
 
-            <div className="p-3 border-t border-white/30 space-y-0.5 flex-shrink-0">
+            {/* Footer */}
+            <div className={`border-t border-white/20 space-y-0.5 flex-shrink-0 ${collapsed ? 'px-1.5 py-2' : 'p-3'}`}>
+                {/* Collapse toggle — desktop only */}
+                <button
+                    onClick={toggleCollapsed}
+                    title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+                    className={`hidden lg:flex w-full items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'gap-2 px-3 py-2'} text-gray-500 hover:bg-white/10 hover:text-white rounded-lg transition-all text-sm mb-0.5`}
+                >
+                    {collapsed
+                        ? <ChevronRight className="w-4 h-4" />
+                        : <><ChevronLeft className="w-4 h-4" /><span className="font-medium">Colapsar</span></>
+                    }
+                </button>
                 <Link
                     to="/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 px-3 py-2 text-gray-400 hover:bg-white/10 hover:text-white rounded-lg transition-all text-sm"
+                    title={collapsed ? 'Ver Sitio Web' : undefined}
+                    className={`flex items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'gap-2.5 px-3 py-2'} text-gray-400 hover:bg-white/10 hover:text-white rounded-lg transition-all text-sm`}
                 >
-                    <Globe className="w-4 h-4" />
-                    <span className="font-medium">Ver Sitio Web</span>
+                    <Globe className="w-4 h-4 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium">Ver Sitio Web</span>}
                 </Link>
                 <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-all text-sm"
+                    title={collapsed ? 'Cerrar Sesión' : undefined}
+                    className={`w-full flex items-center ${collapsed ? 'justify-center px-2 py-2.5' : 'gap-2.5 px-3 py-2'} text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-all text-sm`}
                 >
-                    <LogOut className="w-4 h-4" />
-                    <span className="font-medium">Cerrar Sesión</span>
+                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                    {!collapsed && <span className="font-medium">Cerrar Sesión</span>}
                 </button>
             </div>
         </>
@@ -222,22 +257,22 @@ const AdminLayout = ({ children }) => {
         <SidebarCtx.Provider value={ctxValue}>
             <div className="min-h-screen bg-gray-50 flex font-sans">
                 {/* Desktop Sidebar */}
-                <aside className="w-56 bg-gray-900 flex-shrink-0 hidden lg:flex flex-col fixed h-full z-20">
+                <aside className={`${collapsed ? 'w-14' : 'w-52'} bg-gray-900 flex-shrink-0 hidden lg:flex flex-col fixed h-full z-20 transition-all duration-200`}>
                     {SidebarContent()}
                 </aside>
 
-                {/* Mobile Sidebar */}
+                {/* Mobile Sidebar overlay */}
                 {sidebarOpen && (
                     <div className="fixed inset-0 z-50 lg:hidden">
                         <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-                        <aside className="absolute left-0 top-0 h-full w-56 bg-gray-900 flex flex-col">
+                        <aside className="absolute left-0 top-0 h-full w-52 bg-gray-900 flex flex-col">
                             {SidebarContent()}
                         </aside>
                     </div>
                 )}
 
                 {/* Main Content */}
-                <main className="flex-1 lg:ml-56 flex flex-col min-h-screen">
+                <main className={`flex-1 ${collapsed ? 'lg:ml-14' : 'lg:ml-52'} flex flex-col min-h-screen transition-all duration-200`}>
                     <header className="bg-white border-b border-gray-200 px-5 py-3.5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
                         <div className="flex items-center gap-3">
                             <button className="lg:hidden text-gray-600" onClick={() => setSidebarOpen(true)}>
