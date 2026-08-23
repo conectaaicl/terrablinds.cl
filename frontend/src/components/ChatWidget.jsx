@@ -31,7 +31,7 @@ function renderContent(text) {
     });
 }
 
-export default function ChatWidget() {
+export default function ChatWidget({ logoUrl }) {
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([WELCOME_MSG]);
     const [input, setInput] = useState('');
@@ -40,6 +40,12 @@ export default function ChatWidget() {
     const [greetingDismissed, setGreetingDismissed] = useState(false);
     const [available, setAvailable] = useState(false);
     const [leadSaved, setLeadSaved] = useState(false);
+    const [detectedContact, setDetectedContact] = useState(null);
+    const sessionIdRef = useRef(
+        typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `chat-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    );
     const bottomRef = useRef(null);
     const inputRef = useRef(null);
 
@@ -91,7 +97,9 @@ export default function ChatWidget() {
 
         try {
             const res = await api.post('/api/chat', {
-                messages: newMessages.filter(m => m.role !== 'system'),
+                messages:  newMessages.filter(m => m.role !== 'system'),
+                sessionId: sessionIdRef.current,
+                contact:   detectedContact || undefined,
             });
             const reply = res.data.reply;
             setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
@@ -104,12 +112,16 @@ export default function ChatWidget() {
                 const phoneMatch = allText.match(/(\+?56\s?)?(\+?9\d[\s-]?\d{4}[\s-]?\d{4}|\d{8,})/);
                 const nameMatch = allText.match(/(?:me llamo|soy|mi nombre es)\s+([A-ZÁÉÍÓÚ][a-záéíóú]+(?:\s+[A-ZÁÉÍÓÚ]?[a-záéíóú]+)?)/i);
                 if (emailMatch || phoneMatch) {
-                    api.post('/api/leads', {
-                        name: nameMatch?.[1] || null,
+                    const contact = {
+                        name:  nameMatch?.[1]  || null,
                         email: emailMatch?.[0] || null,
                         phone: phoneMatch?.[0] || null,
+                    };
+                    setDetectedContact(contact);
+                    api.post('/api/leads', {
+                        ...contact,
                         source: 'chat',
-                        notes: allText.substring(0, 500),
+                        notes:  allText.substring(0, 500),
                     }).then(() => setLeadSaved(true)).catch(() => {});
                 }
             }
@@ -160,7 +172,7 @@ export default function ChatWidget() {
 
                     {/* Header */}
                     <div className="flex items-center gap-3 px-4 py-3 bg-[#0d3a8a] flex-shrink-0">
-                        <img src="/uploads/image-1773550576065-529383678.jpeg" alt="TerraBlinds"
+                        <img src={logoUrl || '/uploads/image-1773550576065-529383678.jpeg'} alt="TerraBlinds"
                             className="h-9 w-auto object-contain rounded-lg flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-white">Asistente TerraBlinds</p>

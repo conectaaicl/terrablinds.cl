@@ -13,9 +13,8 @@ const storage = multer.diskStorage({
         cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        // Sanitize: only keep alphanumeric extension
         const ext = path.extname(file.originalname).toLowerCase().replace(/[^a-z0-9.]/g, '');
-        const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg'];
+        const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
         if (!allowedExts.includes(ext)) {
             return cb(new Error('File extension not allowed'));
         }
@@ -24,11 +23,13 @@ const storage = multer.diskStorage({
     }
 });
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (ALLOWED_MIME_TYPES.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Only image files are allowed.'), false);
+        cb(new Error('Only image files are allowed (jpg, png, gif, webp).'), false);
     }
 };
 
@@ -36,7 +37,7 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 1024 * 1024 * 50 // 50 MB limit
+        fileSize: 1024 * 1024 * 8 // 8 MB limit
     }
 });
 

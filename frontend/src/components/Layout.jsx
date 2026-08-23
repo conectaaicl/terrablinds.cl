@@ -207,7 +207,7 @@ const Layout = ({ children }) => {
                             )}
                         </div>
                         <p className="text-white/40 text-sm mb-5 leading-relaxed">
-                            Cortinas y persianas a medida de alta calidad. Diseñadas para tu hogar, fabricadas para durar.
+                            {siteConfig.footer_description || 'Cortinas y persianas a medida de alta calidad. Diseñadas para tu hogar, fabricadas para durar.'}
                         </p>
                         {/* Social Networks */}
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -303,7 +303,7 @@ const Layout = ({ children }) => {
             {/* WhatsApp FAB — above chat widget */}
             {waNumber && (
                 <a
-                    href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola TerraBlinds, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`}
+                    href={`https://wa.me/${waNumber}?text=${encodeURIComponent(siteConfig.whatsapp_default_msg || 'Hola TerraBlinds, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="fixed bottom-24 right-5 z-40 bg-green-500 hover:bg-green-600 text-white p-3.5 rounded-full shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
@@ -314,7 +314,7 @@ const Layout = ({ children }) => {
             )}
 
             {/* AI Chat Widget */}
-            <ChatWidget />
+            <ChatWidget logoUrl={logoUrl} />
         </div>
     );
 };

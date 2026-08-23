@@ -39,8 +39,8 @@ const CATEGORY_GRADIENTS = [
     'from-zinc-700 to-zinc-950',
 ];
 
-// ── Stats data ────────────────────────────────────────────────────────────────
-const STATS = [
+// ── Stats defaults (overridden by config) ─────────────────────────────────────
+const DEFAULT_STATS = [
     { value: '+500', label: 'Instalaciones', sub: 'proyectos completados' },
     { value: '10',   label: 'Años',          sub: 'de experiencia' },
     { value: 'Stgo', label: 'y Regiones',    sub: 'cobertura nacional' },
@@ -59,6 +59,12 @@ const Home = () => {
         api.get('/api/projects').then(r => setProjects((r.data || []).slice(0, 6))).catch(() => {});
         api.get('/api/reviews/public').then(r => setReviews(Array.isArray(r.data) ? r.data.slice(0, 6) : [])).catch(() => {});
     }, []);
+
+    const stats = [1, 2, 3, 4].map((n, i) => ({
+        value: cfg[`stat${n}_num`]   || DEFAULT_STATS[i]?.value || '',
+        label: cfg[`stat${n}_label`] || DEFAULT_STATS[i]?.label || '',
+        sub:   DEFAULT_STATS[i]?.sub || '',
+    })).filter(s => s.value);
 
     const cats = [1, 2, 3].map(n => ({
         image:    cfg[`cat${n}_image`] || '',
@@ -87,10 +93,10 @@ const Home = () => {
                         </h2>
                     </motion.div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <FeatureCard delay={0.00} icon={PenTool} title="A Medida"        description="Fabricamos cada cortina según las dimensiones exactas de tus ventanas para un ajuste perfecto." />
-                        <FeatureCard delay={0.08} icon={Award}   title="Calidad Premium" description="Utilizamos telas y mecanismos de alta durabilidad, garantizando una larga vida útil." />
-                        <FeatureCard delay={0.16} icon={Clock}   title="Rapidez"         description="Tiempos de entrega optimizados sin sacrificar la calidad de la confección." />
-                        <FeatureCard delay={0.24} icon={Shield}  title="Garantía"        description="Todos nuestros productos cuentan con garantía para tu total tranquilidad." />
+                        <FeatureCard delay={0.00} icon={PenTool} title={cfg.feature1_title || 'A Medida'}        description={cfg.feature1_text || 'Fabricamos cada cortina según las dimensiones exactas de tus ventanas para un ajuste perfecto.'} />
+                        <FeatureCard delay={0.08} icon={Award}   title={cfg.feature2_title || 'Calidad Premium'} description={cfg.feature2_text || 'Utilizamos telas y mecanismos de alta durabilidad, garantizando una larga vida útil.'} />
+                        <FeatureCard delay={0.16} icon={Clock}   title={cfg.feature3_title || 'Rapidez'}         description={cfg.feature3_text || 'Tiempos de entrega optimizados sin sacrificar la calidad de la confección.'} />
+                        <FeatureCard delay={0.24} icon={Shield}  title={cfg.feature4_title || 'Garantía'}        description={cfg.feature4_text || 'Todos nuestros productos cuentan con garantía para tu total tranquilidad.'} />
                     </div>
                 </div>
             </section>
@@ -107,7 +113,7 @@ const Home = () => {
                         </p>
                     </motion.div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                        {STATS.map((s, i) => (
+                        {stats.map((s, i) => (
                             <motion.div
                                 key={i}
                                 initial={fadeUp.initial}

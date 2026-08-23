@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock } from 'lucide-react';
 import api from '../api';
 
 const Contact = () => {
+    const [siteConfig, setSiteConfig] = useState({});
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -15,6 +16,10 @@ const Contact = () => {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        api.get('/api/config/public').then(r => setSiteConfig(r.data)).catch(() => {});
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -74,21 +79,23 @@ const Contact = () => {
                                     <Mail className="w-6 h-6 mr-4 mt-1 text-primary-200" />
                                     <div>
                                         <p className="font-semibold">Email</p>
-                                        <p className="text-primary-100">contacto@terrablinds.cl</p>
+                                        <p className="text-primary-100">{siteConfig.company_email || 'contacto@terrablinds.cl'}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start">
                                     <MapPin className="w-6 h-6 mr-4 mt-1 text-primary-200" />
                                     <div>
                                         <p className="font-semibold">Ubicación</p>
-                                        <p className="text-primary-100">Santiago, Chile</p>
+                                        <p className="text-primary-100">
+                                            {siteConfig.company_address || (siteConfig.company_city ? `${siteConfig.company_city}, ${siteConfig.company_region || 'Chile'}` : 'Santiago, Chile')}
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="flex items-start">
                                     <Clock className="w-6 h-6 mr-4 mt-1 text-primary-200" />
                                     <div>
                                         <p className="font-semibold">Horario</p>
-                                        <p className="text-primary-100">Lun - Vie: 9:00 - 18:00 hrs</p>
+                                        <p className="text-primary-100">{siteConfig.contact_hours || 'Lun - Vie: 9:00 - 18:00 hrs'}</p>
                                     </div>
                                 </div>
                             </div>

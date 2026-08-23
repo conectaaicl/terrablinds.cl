@@ -81,6 +81,19 @@ const PUBLIC_KEYS = [
     'metalicas_feat5_title', 'metalicas_feat5_desc',
     'metalicas_feat6_title', 'metalicas_feat6_desc',
     'metalicas_photo1', 'metalicas_photo2', 'metalicas_photo3', 'metalicas_photo4',
+    // Cortinas Metálicas (alias cortinas_* que el admin podría haber usado)
+    'cortinas_title', 'cortinas_subtitle',
+    'cortinas_feat1_title', 'cortinas_feat1_desc',
+    'cortinas_feat2_title', 'cortinas_feat2_desc',
+    'cortinas_feat3_title', 'cortinas_feat3_desc',
+    'cortinas_feat4_title', 'cortinas_feat4_desc',
+    'cortinas_feat5_title', 'cortinas_feat5_desc',
+    'cortinas_feat6_title', 'cortinas_feat6_desc',
+    'cortinas_photo1', 'cortinas_photo2', 'cortinas_photo3', 'cortinas_photo4',
+    // Stat 4 (4th company stat)
+    'stat4_num', 'stat4_label',
+    // Footer and WhatsApp configurable text
+    'footer_description', 'whatsapp_default_msg',
     // Automatización
     'auto_title', 'auto_subtitle',
     'auto_feat1_title', 'auto_feat1_desc',
@@ -168,7 +181,7 @@ const ALLOWED_CONFIG_KEYS = [
     'acceso_feat5_title', 'acceso_feat5_desc',
     'acceso_feat6_title', 'acceso_feat6_desc',
     'acceso_photo1', 'acceso_photo2', 'acceso_photo3', 'acceso_photo4',
-    // Cortinas Metálicas
+    // Cortinas Metálicas — both prefixes accepted for backward compat
     'cortinas_title', 'cortinas_subtitle',
     'cortinas_feat1_title', 'cortinas_feat1_desc',
     'cortinas_feat2_title', 'cortinas_feat2_desc',
@@ -177,6 +190,14 @@ const ALLOWED_CONFIG_KEYS = [
     'cortinas_feat5_title', 'cortinas_feat5_desc',
     'cortinas_feat6_title', 'cortinas_feat6_desc',
     'cortinas_photo1', 'cortinas_photo2', 'cortinas_photo3', 'cortinas_photo4',
+    'metalicas_title', 'metalicas_subtitle', 'metalicas_cta_title', 'metalicas_cta_desc',
+    'metalicas_feat1_title', 'metalicas_feat1_desc',
+    'metalicas_feat2_title', 'metalicas_feat2_desc',
+    'metalicas_feat3_title', 'metalicas_feat3_desc',
+    'metalicas_feat4_title', 'metalicas_feat4_desc',
+    'metalicas_feat5_title', 'metalicas_feat5_desc',
+    'metalicas_feat6_title', 'metalicas_feat6_desc',
+    'metalicas_photo1', 'metalicas_photo2', 'metalicas_photo3', 'metalicas_photo4',
     // Automatización
     'auto_title', 'auto_subtitle',
     'auto_feat1_title', 'auto_feat1_desc',
@@ -186,15 +207,10 @@ const ALLOWED_CONFIG_KEYS = [
     'auto_feat5_title', 'auto_feat5_desc',
     'auto_feat6_title', 'auto_feat6_desc',
     'auto_photo1', 'auto_photo2', 'auto_photo3', 'auto_photo4',
-    // Cortinas Metálicas
-    'metalicas_title', 'metalicas_subtitle', 'metalicas_cta_title', 'metalicas_cta_desc',
-    'metalicas_feat1_title', 'metalicas_feat1_desc',
-    'metalicas_feat2_title', 'metalicas_feat2_desc',
-    'metalicas_feat3_title', 'metalicas_feat3_desc',
-    'metalicas_feat4_title', 'metalicas_feat4_desc',
-    'metalicas_feat5_title', 'metalicas_feat5_desc',
-    'metalicas_feat6_title', 'metalicas_feat6_desc',
-    'metalicas_photo1', 'metalicas_photo2', 'metalicas_photo3', 'metalicas_photo4',
+    // Stat 4
+    'stat4_num', 'stat4_label',
+    // Footer and WhatsApp configurable text
+    'footer_description', 'whatsapp_default_msg',
 ];
 
 // Get all config (admin only - masks sensitive values)

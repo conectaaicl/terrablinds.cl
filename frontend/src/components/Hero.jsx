@@ -29,9 +29,9 @@ export default function Hero() {
                 hero_cta_secondary: d.hero_cta_secondary || p.hero_cta_secondary,
                 hero_badge: d.hero_badge || p.hero_badge,
             }));
-            // Load slides from DB keys: slide1_url / slide1_label … slide6_url / slide6_label
+            // Load slides from DB keys: slide1_url / slide1_label … slide8_url / slide8_label
             const dbSlides = [];
-            for (let i = 1; i <= 6; i++) {
+            for (let i = 1; i <= 8; i++) {
                 const url = d[`slide${i}_url`];
                 if (url) dbSlides.push({ url, label: d[`slide${i}_label`] || '' });
             }
@@ -74,7 +74,7 @@ export default function Hero() {
                 style={{ height: heroHeight }}
             >
                 <div className="relative z-10 text-center pb-20 sm:pb-24">
-                    <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-blue-300/90 mb-4 border border-blue-400/30 px-4 py-1.5 rounded-full bg-white/5">
+                    <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-amber-200/90 mb-4 border border-amber-400/40 px-4 py-1.5 rounded-full bg-amber-900/20">
                         {config.hero_badge}
                     </span>
                     <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
@@ -84,7 +84,8 @@ export default function Hero() {
                         {config.hero_subtitle}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link to="/catalog" className="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <Link to="/catalog" className="px-7 py-3.5 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:opacity-90"
+                            style={{ background: config.theme_primary || '#C8973A' }}>
                             {config.hero_cta_primary} <ChevronRight className="w-5 h-5" />
                         </Link>
                         <Link to="/quote" className="px-7 py-3.5 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-xl transition-all flex items-center justify-center">
@@ -104,7 +105,7 @@ export default function Hero() {
                 style={{ height: heroHeight, background: 'linear-gradient(135deg, #0d2a5e 0%, #1e3a8a 60%, #1d4ed8 100%)' }}
             >
                 <div className="relative z-10 text-center pb-20 sm:pb-24">
-                    <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-blue-300/90 mb-4 border border-blue-400/30 px-4 py-1.5 rounded-full bg-white/5">
+                    <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-amber-200/90 mb-4 border border-amber-400/40 px-4 py-1.5 rounded-full bg-amber-900/20">
                         {config.hero_badge}
                     </span>
                     <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
@@ -114,7 +115,8 @@ export default function Hero() {
                         {config.hero_subtitle}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                        <Link to="/catalog" className="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg">
+                        <Link to="/catalog" className="px-7 py-3.5 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:opacity-90"
+                            style={{ background: config.theme_primary || '#C8973A' }}>
                             {config.hero_cta_primary} <ChevronRight className="w-5 h-5" />
                         </Link>
                         <Link to="/quote" className="px-7 py-3.5 bg-white/10 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-xl transition-all flex items-center justify-center">
@@ -156,7 +158,7 @@ export default function Hero() {
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-950/85 via-gray-900/50 to-gray-900/35" />
                         {slide.label && (
                             <div className="absolute top-4 right-4 sm:top-6 sm:right-8 z-10">
-                                <span className="text-xs font-semibold tracking-widest uppercase text-white/50 border border-white/20 px-3 py-1 rounded-full backdrop-blur-sm">
+                                <span className="text-xs font-semibold tracking-widest uppercase text-white/60 border border-white/20 px-3 py-1 rounded-full backdrop-blur-sm bg-black/20">
                                     {slide.label}
                                 </span>
                             </div>
@@ -178,7 +180,16 @@ export default function Hero() {
 
             {/* Content */}
             <div className="relative z-10 h-full flex flex-col items-center justify-end text-center px-4 pb-16 sm:pb-24">
-                <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-blue-300/90 mb-3 sm:mb-4 border border-blue-400/30 px-4 py-1.5 rounded-full backdrop-blur-sm bg-white/5">
+                {activeSlides[current]?.label && activeSlides[current].label.length > 35 && (
+                    <div className="mb-4 w-full max-w-xl">
+                        <div className="bg-black/55 backdrop-blur-md border border-amber-400/40 rounded-2xl px-6 py-3.5">
+                            <p className="text-amber-100 text-sm sm:text-base font-semibold leading-snug">
+                                {activeSlides[current].label}
+                            </p>
+                        </div>
+                    </div>
+                )}
+                <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-amber-200/90 mb-3 sm:mb-4 border border-amber-400/40 px-4 py-1.5 rounded-full backdrop-blur-sm bg-amber-900/20">
                     {config.hero_badge}
                 </span>
 
@@ -193,7 +204,8 @@ export default function Hero() {
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto px-4 sm:px-0">
                     <Link
                         to="/catalog"
-                        className="px-7 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-blue-500/30 hover:scale-105"
+                        className="px-7 py-3.5 text-white font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg hover:opacity-90 hover:scale-105"
+                        style={{ background: config.theme_primary || '#C8973A' }}
                     >
                         {config.hero_cta_primary}
                         <ChevronRight className="w-5 h-5" />
@@ -240,7 +252,7 @@ export default function Hero() {
                     {!paused && (
                         <div
                             key={`${current}-${animKey}`}
-                            className="h-full bg-blue-400/70"
+                            className="h-full bg-[#C8973A]/70"
                             style={{ animation: `progress ${INTERVAL}ms linear forwards` }}
                         />
                     )}
