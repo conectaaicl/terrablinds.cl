@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import SEO from '../components/SEO';
@@ -6,12 +7,13 @@ import { Filter } from 'lucide-react';
 import api from '../api';
 
 const Catalog = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cfg, setCfg] = useState({});
     const [filters, setFilters] = useState({
-        category: 'all',
+        category: searchParams.get('category') || 'all',
     });
 
     useEffect(() => {
@@ -48,6 +50,9 @@ const Catalog = () => {
 
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({ ...prev, [key]: value }));
+        if (key === 'category') {
+            value === 'all' ? setSearchParams({}) : setSearchParams({ category: value });
+        }
     };
 
     const categories = [...new Set(products.map(p => p.category))].sort();

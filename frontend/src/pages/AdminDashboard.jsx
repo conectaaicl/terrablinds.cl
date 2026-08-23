@@ -7,11 +7,12 @@ import api from '../api';
 const DEFAULT_LOGO = '/uploads/image-1773550576065-529383678.jpeg';
 
 const STATUS_LABELS = {
-    pending:   { label: 'Pendiente',   cls: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
-    contacted: { label: 'Contactado',  cls: 'bg-blue-100 text-blue-700 border-blue-200' },
-    accepted:  { label: 'Aceptada',    cls: 'bg-green-100 text-green-700 border-green-200' },
-    rejected:  { label: 'Rechazada',   cls: 'bg-red-100 text-red-700 border-red-200' },
-    completed: { label: 'Completada',  cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+    pending:   { label: 'Pendiente',           cls: 'bg-yellow-100 text-yellow-700 border-yellow-200' },
+    contacted: { label: 'Contactado',          cls: 'bg-blue-100 text-blue-700 border-blue-200' },
+    sent:      { label: 'Presupuesto Enviado', cls: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+    accepted:  { label: 'Aceptada',            cls: 'bg-green-100 text-green-700 border-green-200' },
+    rejected:  { label: 'Rechazada',           cls: 'bg-red-100 text-red-700 border-red-200' },
+    completed: { label: 'Completada',          cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
 };
 
 // ── Growth Engine Widget helpers ─────────────────────────────────────────────

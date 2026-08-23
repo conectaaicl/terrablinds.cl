@@ -25,15 +25,19 @@ export default function AdminLeads() {
     useEffect(() => { fetchLeads(); }, []);
 
     const updateStatus = async (id, status) => {
-        await api.patch(`/api/leads/${id}`, { status });
-        setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+        try {
+            await api.patch(`/api/leads/${id}`, { status });
+            setLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+        } catch { alert('Error al actualizar el estado del lead.'); }
     };
 
     const deleteLead = async (id) => {
         if (!confirm('¿Eliminar este lead?')) return;
-        await api.delete(`/api/leads/${id}`);
-        setLeads(prev => prev.filter(l => l.id !== id));
-        if (selected?.id === id) setSelected(null);
+        try {
+            await api.delete(`/api/leads/${id}`);
+            setLeads(prev => prev.filter(l => l.id !== id));
+            if (selected?.id === id) setSelected(null);
+        } catch { alert('Error al eliminar el lead.'); }
     };
 
     const counts = {

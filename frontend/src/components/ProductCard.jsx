@@ -36,7 +36,7 @@ const ProductCard = ({ product }) => {
                     </Link>
                 </h3>
                 <p className="text-gray-500 text-sm mb-4 line-clamp-2">
-                    {product.description_short || 'Cortina de alta calidad fabricada a medida.'}
+                    {product.short_description || 'Cortina de alta calidad fabricada a medida.'}
                 </p>
 
                 <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">

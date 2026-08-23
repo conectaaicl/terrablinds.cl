@@ -39,9 +39,9 @@ const DEFAULTS = {
     footer_schedule: 'Lun – Vie: 9:00 – 18:00 · Sáb: 10:00 – 14:00',
     footer_address: 'Santiago, Chile',
     whatsapp_number: '',
-    instagram_url: '',
-    facebook_url: '',
-    tiktok_url: '',
+    social_instagram: '',
+    social_facebook: '',
+    social_tiktok: '',
     google_analytics_id: '',
 };
 
@@ -166,13 +166,13 @@ export default function AdminContenido() {
                             <input className={INPUT} name="whatsapp_number" value={s.whatsapp_number || ''} onChange={onChange} placeholder="56912345678" />
                         </Field>
                         <Field label="Instagram URL">
-                            <input className={INPUT} name="instagram_url" value={s.instagram_url || ''} onChange={onChange} placeholder="https://instagram.com/terrablinds" />
+                            <input className={INPUT} name="social_instagram" value={s.social_instagram || ''} onChange={onChange} placeholder="https://instagram.com/terrablinds" />
                         </Field>
                         <Field label="Facebook URL">
-                            <input className={INPUT} name="facebook_url" value={s.facebook_url || ''} onChange={onChange} placeholder="https://facebook.com/terrablinds" />
+                            <input className={INPUT} name="social_facebook" value={s.social_facebook || ''} onChange={onChange} placeholder="https://facebook.com/terrablinds" />
                         </Field>
                         <Field label="TikTok URL">
-                            <input className={INPUT} name="tiktok_url" value={s.tiktok_url || ''} onChange={onChange} placeholder="https://tiktok.com/@terrablinds" />
+                            <input className={INPUT} name="social_tiktok" value={s.social_tiktok || ''} onChange={onChange} placeholder="https://tiktok.com/@terrablinds" />
                         </Field>
                     </div>
                 </Section>

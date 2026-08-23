@@ -162,7 +162,7 @@ const ProductDetail = () => {
                             <div className="grid grid-cols-3 gap-4 border-t border-gray-200 pt-8">
                                 <div className="text-center">
                                     <Shield className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                    <span className="text-xs text-gray-500">Garantia 1 ano</span>
+                                    <span className="text-xs text-gray-500">Garantía 1 año</span>
                                 </div>
                                 <div className="text-center">
                                     <Truck className="w-8 h-8 text-gray-400 mx-auto mb-2" />
@@ -170,7 +170,7 @@ const ProductDetail = () => {
                                 </div>
                                 <div className="text-center">
                                     <PenTool className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                    <span className="text-xs text-gray-500">Instalacion Expertos</span>
+                                    <span className="text-xs text-gray-500">Instalación Expertos</span>
                                 </div>
                             </div>
                         </div>

@@ -217,6 +217,16 @@ const ALLOWED_CONFIG_KEYS = [
     'stat4_num', 'stat4_label',
     // Footer and WhatsApp configurable text
     'footer_description', 'whatsapp_default_msg',
+    // AdminContenido keys
+    'catalog_title', 'catalog_subtitle',
+    'faq_title', 'faq_subtitle',
+    'projects_title', 'projects_subtitle',
+    'blog_title', 'blog_subtitle',
+    'booking_hero_title', 'booking_hero_subtitle',
+    'footer_schedule', 'footer_address',
+    'google_analytics_id', 'contact_extra_text',
+    // AdminApariencia theme tokens
+    'theme_bg_dark', 'theme_text_light',
 ];
 
 // Get all config (admin only - masks sensitive values)

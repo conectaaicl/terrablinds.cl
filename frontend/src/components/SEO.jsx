@@ -20,6 +20,7 @@ const SEO = ({ title, description = DEFAULT_DESCRIPTION, path = '/', image, type
             {image && <meta property="og:image" content={image} />}
 
             {/* Twitter */}
+            <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={fullTitle} />
             <meta name="twitter:description" content={description} />
             {image && <meta name="twitter:image" content={image} />}

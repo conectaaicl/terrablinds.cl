@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import api from '../api';
@@ -31,6 +31,9 @@ const Layout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = React.useState(false);
     const [siteConfig, setSiteConfig] = React.useState({});
     const { cartCount } = useCart();
+    const location = useLocation();
+
+    React.useEffect(() => { setIsMenuOpen(false); }, [location.pathname]);
 
     React.useEffect(() => {
         api.get('/api/config/public')

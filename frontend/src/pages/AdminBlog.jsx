@@ -22,7 +22,8 @@ function PhotoUpload({ value, onChange }) {
         try {
             const fd = new FormData(); fd.append('image', file);
             const res = await api.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-            const url = res.data.url.startsWith('http') ? res.data.url : `${baseUrl}${res.data.url}`;
+            const filePath = res.data.filePath;
+            const url = filePath.startsWith('http') ? filePath : `${baseUrl}${filePath}`;
             onChange(url);
         } catch { alert('Error al subir la imagen'); } finally { setUploading(false); }
     };

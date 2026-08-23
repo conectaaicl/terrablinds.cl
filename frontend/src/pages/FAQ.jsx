@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { ChevronDown } from 'lucide-react';
@@ -75,9 +76,9 @@ const FAQ = () => {
                 <div className="mt-12 text-center bg-primary-50 border border-primary-100 rounded-2xl p-10">
                     <h2 className="text-xl font-bold text-gray-900 mb-2">¿No encontraste tu respuesta?</h2>
                     <p className="text-gray-600 mb-6">Escríbenos por WhatsApp o al formulario de contacto.</p>
-                    <a href="/contact" className="inline-block px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
+                    <Link to="/contact" className="inline-block px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-lg transition-colors">
                         Contactarnos
-                    </a>
+                    </Link>
                 </div>
             </div>
         </Layout>
