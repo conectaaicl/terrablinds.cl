@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Save, Loader, CheckCircle, Settings, Eye, EyeOff } from 'lucide-react';
+import { Save, Loader, CheckCircle, Settings, Eye, EyeOff, Plus, X, CreditCard } from 'lucide-react';
 import api from '../api';
 
 const Section = ({ title, desc, children }) => (
@@ -44,13 +44,20 @@ const SecretInput = ({ name, value, onChange, placeholder }) => {
 };
 
 export default function AdminSettings() {
+    const DEFAULT_PAYMENT_METHODS = ['Efectivo', 'Transferencia', 'Tarjeta Débito', 'Tarjeta Crédito'];
+
     const [s, setS] = useState({
         flow_api_key: '', flow_secret_key: '', flow_api_url: 'https://www.flow.cl/api',
         mercadopago_access_token: '', mercadopago_public_key: '',
         resend_api_key: '', admin_notification_email: '',
         webhook_url: '',
         groq_api_key: '',
+        quote_payment_methods: JSON.stringify(DEFAULT_PAYMENT_METHODS),
     });
+    const [pmInput, setPmInput] = useState('');
+    const paymentMethods = (() => {
+        try { return JSON.parse(s.quote_payment_methods || '[]'); } catch { return DEFAULT_PAYMENT_METHODS; }
+    })();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
@@ -177,6 +184,56 @@ export default function AdminSettings() {
                             <li>Guía al cliente al cotizador para cerrar ventas</li>
                         </ul>
                     </div>
+                </Section>
+
+                {/* Payment Methods */}
+                <Section title="Métodos de Pago — Cotizaciones" desc="Configura qué métodos de pago aparecen en el pie de cada cotización PDF.">
+                    <div className="flex flex-wrap gap-2 mb-3">
+                        {paymentMethods.map((m, i) => (
+                            <span key={i} className="flex items-center gap-1.5 bg-blue-50 text-blue-800 border border-blue-200 px-3 py-1.5 rounded-full text-sm font-medium">
+                                <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                                {m}
+                                <button type="button" onClick={() => {
+                                    const next = paymentMethods.filter((_, idx) => idx !== i);
+                                    setS(p => ({ ...p, quote_payment_methods: JSON.stringify(next) }));
+                                }} className="ml-0.5 text-blue-400 hover:text-red-500 transition-colors">
+                                    <X className="w-3.5 h-3.5" />
+                                </button>
+                            </span>
+                        ))}
+                        {paymentMethods.length === 0 && (
+                            <span className="text-sm text-gray-400 italic">Sin métodos configurados</span>
+                        )}
+                    </div>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={pmInput}
+                            onChange={e => setPmInput(e.target.value)}
+                            onKeyDown={e => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const v = pmInput.trim();
+                                    if (v && !paymentMethods.includes(v)) {
+                                        setS(p => ({ ...p, quote_payment_methods: JSON.stringify([...paymentMethods, v]) }));
+                                    }
+                                    setPmInput('');
+                                }
+                            }}
+                            placeholder="Ej: WebPay, Flow, Cheque..."
+                            className={INPUT + ' flex-1'}
+                        />
+                        <button type="button" onClick={() => {
+                            const v = pmInput.trim();
+                            if (v && !paymentMethods.includes(v)) {
+                                setS(p => ({ ...p, quote_payment_methods: JSON.stringify([...paymentMethods, v]) }));
+                            }
+                            setPmInput('');
+                        }} className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
+                            <Plus className="w-4 h-4" /> Agregar
+                        </button>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-2">Presiona Enter o el botón para agregar. Haz clic en la X para eliminar un método.</p>
                 </Section>
 
                 <div className="flex justify-end pt-2">

@@ -90,6 +90,7 @@ const PUBLIC_KEYS = [
     'auto_feat5_title', 'auto_feat5_desc',
     'auto_feat6_title', 'auto_feat6_desc',
     'auto_photo1', 'auto_photo2', 'auto_photo3', 'auto_photo4',
+    'quote_payment_methods',
 ];
 
 // Keys allowed to be updated via admin panel
@@ -97,6 +98,7 @@ const ALLOWED_CONFIG_KEYS = [
     'flow_api_key', 'flow_secret_key', 'flow_api_url',
     'mercadopago_access_token', 'mercadopago_public_key',
     'resend_api_key', 'admin_notification_email',
+    'quote_payment_methods',
     'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
     'favicon_url', 'brand_name', 'brand_slogan',
     'hero_title', 'hero_subtitle', 'hero_cta_primary', 'hero_cta_secondary', 'hero_bg_image', 'hero_badge',

@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
 import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw, Trash2 } from 'lucide-react';
+import api from '../api';
 
 const LOGO_URL = '/logoterrablinds.png';
 const fmt = n => Math.round(Number(n) || 0).toLocaleString('es-CL');
 const p2  = n => String(n).padStart(2, '0');
 
-function printQuote(quote, items) {
+const DEFAULT_PAYMENT_METHODS = ['Efectivo', 'Transferencia', 'Tarjeta Débito', 'Tarjeta Crédito'];
+
+const PM_STYLES = [
+    'background:#f5f5f5;border:1px solid #bbb;color:#333',
+    'background:#e3f2fd;border:1px solid #90caf9;color:#1565c0',
+    'background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32',
+    'background:#fff3e0;border:1px solid #ffcc80;color:#e65100',
+    'background:#f3e5f5;border:1px solid #ce93d8;color:#6a1b9a',
+    'background:#e0f7fa;border:1px solid #80deea;color:#00695c',
+];
+
+function printQuote(quote, items, paymentMethods = DEFAULT_PAYMENT_METHODS) {
     const d = new Date(quote.created_at || Date.now());
     const cotNum = String(quote.id).padStart(4, '0');
     const logoSrc = `${window.location.origin}${LOGO_URL}`;
@@ -105,12 +117,7 @@ table.ft td{border:1px solid #ccc;padding:4px 6px;vertical-align:top}
   <tr>
     <td style="width:55%">
       <div style="font-weight:700;text-align:center;margin-bottom:4px">Métodos de Pago</div>
-      <div style="text-align:center">
-        <span class="pb" style="background:#f5f5f5;border:1px solid #bbb;color:#333">Efectivo</span>
-        <span class="pb" style="background:#e3f2fd;border:1px solid #90caf9;color:#1565c0">Transferencia</span>
-        <span class="pb" style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32">Tarjeta Débito</span>
-        <span class="pb" style="background:#e8f5e9;border:1px solid #a5d6a7;color:#2e7d32">Tarjeta Crédito</span>
-      </div>
+      <div style="text-align:center">${paymentMethods.map((m, i) => `<span class="pb" style="${PM_STYLES[i % PM_STYLES.length]}">${m}</span>`).join('')}</div>
     </td>
     <td style="width:45%;padding:0">
       <table style="width:100%;border-collapse:collapse">
@@ -142,8 +149,6 @@ table.ft td{border:1px solid #ccc;padding:4px 6px;vertical-align:top}
     w.focus();
     setTimeout(() => { w.print(); }, 500);
 }
-import api from '../api';
-
 const STATUS_MAP = {
     pending:   { label: 'Pendiente',          cls: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
     contacted: { label: 'Contactado',         cls: 'bg-blue-100 text-blue-800 border-blue-200' },
@@ -163,8 +168,17 @@ const AdminQuotes = () => {
     const [updatingStatus, setUpdatingStatus] = useState(null);
     const [resendingEmail, setResendingEmail] = useState(null);
     const [deletingQuote, setDeletingQuote] = useState(null);
+    const [paymentMethods, setPaymentMethods] = useState(DEFAULT_PAYMENT_METHODS);
 
-    useEffect(() => { fetchQuotes(); }, []);
+    useEffect(() => {
+        fetchQuotes();
+        api.get('/api/config/public').then(r => {
+            try {
+                const pm = JSON.parse(r.data.quote_payment_methods || '[]');
+                if (Array.isArray(pm) && pm.length > 0) setPaymentMethods(pm);
+            } catch {}
+        }).catch(() => {});
+    }, []);
 
     const fetchQuotes = async () => {
         setLoading(true);
@@ -434,7 +448,7 @@ const AdminQuotes = () => {
                         {/* Action footer */}
                         <div className="p-4 sm:p-6 border-t border-gray-100 bg-gray-50 flex flex-wrap gap-2 sm:gap-3">
                             <button
-                                onClick={() => printQuote(selectedQuote, parseItems(selectedQuote))}
+                                onClick={() => printQuote(selectedQuote, parseItems(selectedQuote), paymentMethods)}
                                 className="flex items-center gap-2 px-3 sm:px-4 py-2.5 bg-gray-900 text-white rounded-xl font-medium text-sm hover:bg-gray-700 transition-colors">
                                 <Printer className="w-4 h-4" /> <span className="hidden sm:inline">Descargar</span> PDF
                             </button>
