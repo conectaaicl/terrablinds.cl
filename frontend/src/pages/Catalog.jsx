@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import SEO from '../components/SEO';
-import { Filter } from 'lucide-react';
+
 import api from '../api';
 
 const Catalog = () => {
@@ -84,70 +84,59 @@ const Catalog = () => {
                 </p>
             </div>
 
-            <div className="container mx-auto px-4 py-12 flex flex-col md:flex-row gap-8">
-                {/* Filters Sidebar */}
-                <aside className="w-full md:w-64 flex-shrink-0">
-                    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-24">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="font-bold text-gray-900 flex items-center">
-                                <Filter className="w-5 h-5 mr-2" /> Filtros
-                            </h3>
+            <div className="container mx-auto px-4 py-10">
+                {/* Category pills */}
+                {!loading && categories.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-8">
+                        <button
+                            onClick={() => handleFilterChange('category', 'all')}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                                filters.category === 'all'
+                                    ? 'bg-gray-900 text-white border-gray-900'
+                                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                            }`}
+                        >
+                            Todas ({products.length})
+                        </button>
+                        {categories.map(cat => (
                             <button
-                                className="text-sm text-primary-600 hover:text-primary-700"
-                                onClick={() => setFilters({ category: 'all' })}
+                                key={cat}
+                                onClick={() => handleFilterChange('category', cat)}
+                                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                                    filters.category === cat
+                                        ? 'bg-gray-900 text-white border-gray-900'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+                                }`}
                             >
-                                Limpiar
+                                {cat} ({products.filter(p => p.category === cat).length})
                             </button>
-                        </div>
-
-                        <div className="mb-8">
-                            <h4 className="font-semibold mb-3 text-sm uppercase tracking-wider text-gray-500">Categoria</h4>
-                            <div className="space-y-2">
-                                <label className="flex items-center cursor-pointer group mb-2">
-                                    <input type="radio" name="category" className="form-radio text-primary-600"
-                                        checked={filters.category === 'all'} onChange={() => handleFilterChange('category', 'all')} />
-                                    <span className="ml-2 font-semibold text-gray-900 group-hover:text-primary-600">Ver Todas ({products.length})</span>
-                                </label>
-                                {categories.map(cat => (
-                                    <label key={cat} className="flex items-center cursor-pointer group">
-                                        <input type="radio" name="category" className="form-radio text-primary-600"
-                                            checked={filters.category === cat} onChange={() => handleFilterChange('category', cat)} />
-                                        <span className="ml-2 text-sm text-gray-600 group-hover:text-primary-600">
-                                            {cat} ({products.filter(p => p.category === cat).length})
-                                        </span>
-                                    </label>
-                                ))}
-                            </div>
-                        </div>
+                        ))}
                     </div>
-                </aside>
+                )}
 
                 {/* Product Grid */}
-                <div className="flex-1">
-                    <div className="flex justify-between items-center mb-6">
-                        <p className="text-gray-500">Mostrando {filteredProducts.length} productos</p>
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
                     </div>
-
-                    {loading ? (
-                        <div className="flex justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-                        </div>
-                    ) : error ? (
-                        <div className="text-center py-20 bg-white rounded-xl border border-red-200">
-                            <p className="text-red-500 text-lg">{error}</p>
-                        </div>
-                    ) : filteredProducts.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                ) : error ? (
+                    <div className="text-center py-20 bg-white rounded-xl border border-red-200">
+                        <p className="text-red-500 text-lg">{error}</p>
+                    </div>
+                ) : filteredProducts.length > 0 ? (
+                    <>
+                        <p className="text-gray-400 text-sm mb-5">{filteredProducts.length} producto{filteredProducts.length !== 1 ? 's' : ''}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredProducts.map(product => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
-                    ) : (
-                        <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
-                            <p className="text-gray-500 text-lg">No se encontraron productos con estos filtros.</p>
-                        </div>
-                    )}
-                </div>
+                    </>
+                ) : (
+                    <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
+                        <p className="text-gray-500 text-lg">No se encontraron productos con estos filtros.</p>
+                    </div>
+                )}
             </div>
         </Layout>
     );
