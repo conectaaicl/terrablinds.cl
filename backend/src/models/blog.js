@@ -24,13 +24,15 @@ const Blog = sequelize.define('Blog', {
         allowNull: false
     },
     meta_description: {
-        type: DataTypes.STRING(160)
+        type: DataTypes.STRING(200)
     },
     meta_keywords: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        field: 'keywords'
     },
     cover_image: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        field: 'featured_image'
     },
     author: {
         type: DataTypes.STRING,
