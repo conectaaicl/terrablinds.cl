@@ -9,6 +9,6 @@ const Review = sequelize.define('Review', {
     content: { type: DataTypes.TEXT, allowNull: false },
     avatar_url: { type: DataTypes.STRING(500) },
     is_active: { type: DataTypes.BOOLEAN, defaultValue: true },
-}, { tableName: 'reviews', underscored: true, timestamps: true });
+}, { tableName: 'testimonials', underscored: true, timestamps: true });
 
 module.exports = Review;

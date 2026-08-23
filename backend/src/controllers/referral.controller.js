@@ -1,6 +1,11 @@
 const { Referral } = require('../models');
+const { Op } = require('sequelize');
 
-const VALID_STATUSES = ['pending', 'contacted', 'completed', 'rejected'];
+function generateCode(name) {
+    const base = (name || 'REF').replace(/[^A-Z0-9]/gi, '').toUpperCase().substring(0, 5) || 'REF';
+    const rand = Math.floor(Math.random() * 9000 + 1000);
+    return `${base}${rand}`;
+}
 
 exports.getAll = async (req, res) => {
     try {
@@ -13,39 +18,44 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
     try {
-        const { referrer_name, referrer_email, referrer_phone, referred_name, referred_email, referred_phone, notes } = req.body;
-        if (!referrer_name) {
-            return res.status(400).json({ error: 'referrer_name is required' });
-        }
+        const { owner_name, owner_email, discount_pct, max_uses, notes, code: customCode } = req.body;
+        if (!owner_name) return res.status(400).json({ error: 'owner_name is required' });
+
+        let code = customCode ? String(customCode).toUpperCase().substring(0, 50) : generateCode(owner_name);
+        // Ensure uniqueness
+        const existing = await Referral.findOne({ where: { code } });
+        if (existing) code = generateCode(owner_name);
+
         const referral = await Referral.create({
-            referrer_name: String(referrer_name).substring(0, 200),
-            referrer_email: referrer_email ? String(referrer_email).substring(0, 200) : null,
-            referrer_phone: referrer_phone ? String(referrer_phone).substring(0, 30) : null,
-            referred_name: referred_name ? String(referred_name).substring(0, 200) : null,
-            referred_email: referred_email ? String(referred_email).substring(0, 200) : null,
-            referred_phone: referred_phone ? String(referred_phone).substring(0, 30) : null,
+            code,
+            owner_name: String(owner_name).substring(0, 200),
+            owner_email: owner_email ? String(owner_email).substring(0, 200) : null,
+            discount_pct: Math.min(50, Math.max(1, parseInt(discount_pct) || 10)),
+            max_uses: max_uses ? Math.max(1, parseInt(max_uses)) : null,
+            uses_count: 0,
+            active: true,
             notes: notes ? String(notes).substring(0, 1000) : null,
-            status: 'pending',
-            reward_amount: 0,
         });
         res.status(201).json(referral);
     } catch (err) {
+        if (err.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({ error: 'Referral code already exists' });
+        }
         res.status(500).json({ error: 'Error creating referral' });
     }
 };
 
-exports.updateStatus = async (req, res) => {
+exports.update = async (req, res) => {
     try {
         const referral = await Referral.findByPk(req.params.id);
         if (!referral) return res.status(404).json({ error: 'Referral not found' });
-        const { status, reward_amount, notes } = req.body;
-        if (status && !VALID_STATUSES.includes(status)) {
-            return res.status(400).json({ error: `status must be one of: ${VALID_STATUSES.join(', ')}` });
-        }
+        const { active, discount_pct, max_uses, notes, owner_email } = req.body;
         await referral.update({
-            ...(status && { status }),
-            ...(reward_amount != null && { reward_amount: Math.max(0, parseInt(reward_amount) || 0) }),
+            ...(active != null && { active: Boolean(active) }),
+            ...(discount_pct != null && { discount_pct: Math.min(50, Math.max(1, parseInt(discount_pct) || 10)) }),
+            ...(max_uses !== undefined && { max_uses: max_uses ? Math.max(1, parseInt(max_uses)) : null }),
             ...(notes != null && { notes: String(notes).substring(0, 1000) }),
+            ...(owner_email !== undefined && { owner_email: owner_email ? String(owner_email).substring(0, 200) : null }),
         });
         res.json(referral);
     } catch (err) {

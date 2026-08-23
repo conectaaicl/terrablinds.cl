@@ -1,7 +1,8 @@
--- Migration: create reviews and referrals tables
+-- Migration: create testimonials table for marketing reviews/testimonials
+-- (The 'reviews' table already exists for product reviews with different schema)
 -- Safe: uses IF NOT EXISTS, never drops data
 
-CREATE TABLE IF NOT EXISTS reviews (
+CREATE TABLE IF NOT EXISTS testimonials (
     id          SERIAL PRIMARY KEY,
     author_name VARCHAR(200) NOT NULL,
     author_role VARCHAR(200) NOT NULL DEFAULT 'Cliente',
@@ -11,19 +12,4 @@ CREATE TABLE IF NOT EXISTS reviews (
     is_active   BOOLEAN NOT NULL DEFAULT TRUE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS referrals (
-    id             SERIAL PRIMARY KEY,
-    referrer_name  VARCHAR(200) NOT NULL,
-    referrer_email VARCHAR(200),
-    referrer_phone VARCHAR(30),
-    referred_name  VARCHAR(200),
-    referred_email VARCHAR(200),
-    referred_phone VARCHAR(30),
-    status         VARCHAR(20) NOT NULL DEFAULT 'pending',
-    reward_amount  INTEGER NOT NULL DEFAULT 0,
-    notes          TEXT,
-    created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
