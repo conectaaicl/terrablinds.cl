@@ -9,6 +9,8 @@ const Lead = sequelize.define('Lead', {
     source: { type: DataTypes.STRING, defaultValue: 'chat' },
     notes: { type: DataTypes.TEXT, allowNull: true },
     status: { type: DataTypes.ENUM('new', 'contacted', 'converted', 'lost'), defaultValue: 'new' },
+    contact_id: { type: DataTypes.INTEGER, allowNull: true },
+    opportunity_id: { type: DataTypes.INTEGER, allowNull: true },
 }, {
     tableName: 'leads',
     underscored: true,

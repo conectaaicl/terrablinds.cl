@@ -9,7 +9,7 @@
     "seed": "node src/scripts/seed.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
     "seed:config": "node src/scripts/seedConfigs.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.24",
+    "jest": "^29.7.0",
     "nodemon": "^3.1.11",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.18"

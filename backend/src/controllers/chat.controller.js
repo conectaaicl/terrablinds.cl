@@ -1,10 +1,12 @@
 const { Config } = require('../models');
 const https = require('https');
+const { ingestLead } = require('../services/ingest.service');
 
-const TG_TOKEN   = '58724091624:AAEpnBRNe-y49FM8DH0igIie-HnL83BA8yw';
-const TG_CHAT_ID = '8676382169';
+const TG_TOKEN   = process.env.TG_TOKEN;
+const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
 function sendTelegram(text) {
+    if (!TG_TOKEN || !TG_CHAT_ID) return;
     const body = JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'Markdown' });
     const req = https.request({
         hostname: 'api.telegram.org',
@@ -65,7 +67,7 @@ INSTRUCCIONES:
 
 exports.chat = async (req, res) => {
     try {
-        const { messages } = req.body;
+        const { messages, sessionId, contact: contactInfo } = req.body;
 
         if (!messages || !Array.isArray(messages) || messages.length === 0) {
             return res.status(400).json({ error: 'messages requerido' });
@@ -137,6 +139,24 @@ exports.chat = async (req, res) => {
 
         const reply = data.choices?.[0]?.message?.content?.trim();
         if (!reply) throw new Error('Empty response from Groq');
+
+        // Growth Engine: fire-and-forget when the frontend has captured contact info.
+        // Requires a stable sessionId (UUID per chat session from frontend localStorage).
+        // Only fires when the user has provided email or phone — never for anonymous chats.
+        if (sessionId && contactInfo && (contactInfo.email || contactInfo.phone)) {
+            ingestLead({
+                source:      'chat_widget',
+                externalRef: `chat:${sessionId}`,
+                contact:     contactInfo,
+                metadata:    { trigger: 'chat_contact_capture' },
+            }).then(r => {
+                if (!r.duplicate) {
+                    console.log(`[Chat] Contact ingested: id=${r.contact?.id} opp=${r.opportunity?.id}`);
+                }
+            }).catch(err => {
+                console.error(`[Chat] GE ingest failed session=${sessionId}: ${err.message}`);
+            });
+        }
 
         // Notify via Telegram on first user message only (non-blocking)
         if (recentMessages.length === 1) {

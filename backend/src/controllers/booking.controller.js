@@ -1,7 +1,9 @@
 const axios = require('axios');
 const crypto = require('crypto');
 const https = require('https');
-const { Booking, BlockedDay, Config } = require('../models');
+const { sequelize, Booking, BlockedDay, Config } = require('../models');
+const { ingestLead } = require('../services/ingest.service');
+const { enqueue } = require('../services/ge_worker.service');
 const { Op } = require('sequelize');
 const emailService = require('../services/email.service');
 
@@ -19,10 +21,11 @@ const FREE_SERVICES = new Set(['instalacion', 'automatizacion']);
 
 const AMOUNT = 15000;
 
-const TG_TOKEN   = '58724091624:AAEpnBRNe-y49FM8DH0igIie-HnL83BA8yw';
-const TG_CHAT_ID = '8676382169';
+const TG_TOKEN   = process.env.TG_TOKEN;
+const TG_CHAT_ID = process.env.TG_CHAT_ID;
 
 function notifyBookingTelegram(booking, serviceLabel) {
+    if (!TG_TOKEN || !TG_CHAT_ID) return;
     const body = JSON.stringify({
         chat_id: TG_CHAT_ID,
         text: `📅 *Nueva Reserva — TerraBlinds*\n\n👤 *Cliente:* ${booking.client_name}\n🔧 *Servicio:* ${serviceLabel}\n📆 *Fecha:* ${booking.date} · ${booking.time_slot} hrs\n📱 *Teléfono:* ${booking.client_phone || 'No indicado'}\n📧 *Email:* ${booking.client_email}`,
@@ -119,32 +122,56 @@ exports.createBooking = async (req, res, next) => {
         if (existing) return res.status(409).json({ error: 'Este horario ya está reservado. Elige otro.' });
 
         const isFree = FREE_SERVICES.has(service_type);
-        const bookingAmount = isFree ? 0 : AMOUNT;
 
-        const booking = await Booking.create({
-            service_type, date, time_slot,
-            client_name, client_email,
-            client_phone: client_phone || null,
-            client_address: client_address || null,
-            notes: notes || null,
-            amount: bookingAmount,
-            status: isFree ? 'confirmed' : 'pending_payment',
-        });
+        let booking;
 
-        // Telegram notification (non-blocking)
-        notifyBookingTelegram(booking, SERVICE_LABELS[service_type]).catch(() => {});
-
-        // For free services: send confirmation email and return directly
         if (isFree) {
+            // Free services: atomic Booking.create + Growth Engine ingest in one transaction.
+            // If GE fails the entire unit rolls back — no orphaned booking without a touchpoint.
+            await sequelize.transaction(async (t) => {
+                booking = await Booking.create({
+                    service_type, date, time_slot,
+                    client_name, client_email,
+                    client_phone:    client_phone    || null,
+                    client_address:  client_address  || null,
+                    notes:           notes           || null,
+                    amount:          0,
+                    status:          'confirmed',
+                }, { transaction: t });
+
+                await enqueue('ingest_lead', {
+                    source:      'booking',
+                    externalRef: `booking:${booking.id}`,
+                    contact:     { name: client_name, email: client_email, phone: client_phone || null },
+                    metadata:    { service_type, date, time_slot, amount: 0 },
+                }, { transaction: t });
+            });
+
+            // After commit: HTTP side-effects (Telegram + email) stay outside the transaction
+            notifyBookingTelegram(booking, SERVICE_LABELS[service_type]);
             emailService.sendBookingConfirmation(booking).catch(e => {
                 console.error('Booking confirmation email error:', e.message);
             });
             const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
             return res.json({
-                bookingId: booking.id,
+                bookingId:   booking.id,
                 redirectUrl: `${frontendUrl}/reserva/resultado?free=1&id=${booking.id}`,
             });
         }
+
+        // Paid services: create booking (GE fires on payment confirmation, not here)
+        booking = await Booking.create({
+            service_type, date, time_slot,
+            client_name, client_email,
+            client_phone:    client_phone    || null,
+            client_address:  client_address  || null,
+            notes:           notes           || null,
+            amount:          AMOUNT,
+            status:          'pending_payment',
+        });
+
+        // Telegram notification (non-blocking)
+        notifyBookingTelegram(booking, SERVICE_LABELS[service_type]);
 
         const { apiKey, secretKey, apiUrl } = await getFlowConfig();
         if (!apiKey || !secretKey) {
@@ -170,9 +197,19 @@ exports.createBooking = async (req, res, next) => {
         params.s = signParams(params, secretKey);
 
         const formData = new URLSearchParams(params);
-        const flowRes = await axios.post(`${apiUrl}/payment/create`, formData, {
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        });
+        let flowRes;
+        try {
+            flowRes = await axios.post(`${apiUrl}/payment/create`, formData, {
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            });
+        } catch (flowErr) {
+            // Flow API unreachable or returned a network error — mark as payment_failed (not commercial 'cancelled')
+            await booking.update({
+                status: 'payment_failed',
+                notes: `[Error pago] Flow API no disponible: ${flowErr.message}`,
+            });
+            return res.status(502).json({ error: 'El sistema de pago no está disponible. Intenta nuevamente.' });
+        }
 
         if (flowRes.data.url && flowRes.data.token) {
             await booking.update({ flow_commerce_order: commerceOrder, flow_token: flowRes.data.token });
@@ -181,7 +218,10 @@ exports.createBooking = async (req, res, next) => {
                 redirectUrl: `${flowRes.data.url}?token=${flowRes.data.token}`,
             });
         } else {
-            await booking.destroy();
+            await booking.update({
+                status: 'payment_failed',
+                notes: '[Error pago] Flow no devolvió URL/token válido.',
+            });
             return res.status(400).json({ error: 'Error al crear el pago en Flow' });
         }
     } catch (err) { next(err); }
@@ -212,6 +252,28 @@ exports.confirmPayment = async (req, res) => {
                 if (booking && booking.status === 'pending_payment') {
                     if (paymentData.status === 2) {
                         await booking.update({ status: 'confirmed', paid_at: new Date() });
+
+                        // Growth Engine: enqueue for reliable async delivery.
+                        // Outbox worker processes after webhook returns 'OK'; idempotent via externalRef.
+                        enqueue('ingest_lead', {
+                            source:      'booking',
+                            externalRef: `booking:${booking.id}`,
+                            contact: {
+                                name:  booking.client_name,
+                                email: booking.client_email,
+                                phone: booking.client_phone || null,
+                            },
+                            metadata: {
+                                service_type: booking.service_type,
+                                date:         booking.date,
+                                time_slot:    booking.time_slot,
+                                amount:       booking.amount,
+                            },
+                            occurredAt: booking.paid_at || new Date(),
+                        }).catch(err => {
+                            console.error(`[Booking] GE enqueue failed booking=${booking.id}: ${err.message}`);
+                        });
+
                         emailService.sendBookingConfirmation(booking).catch(e => {
                             console.error('Booking email error:', e.message);
                         });

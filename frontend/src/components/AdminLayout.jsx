@@ -4,8 +4,9 @@ import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
     Image, HelpCircle, ChevronDown, ChevronRight, Home, Users, Phone,
     MonitorSmartphone, Palette, Bell, ShoppingBag, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen, Camera, Sun, KeyRound,
-    Star, Gift, BarChart2,
+    Star, Gift, BarChart2, TrendingUp, Kanban, Contact, Activity, ListFilter,
 } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import api from '../api';
 
 const AdminLayout = ({ children }) => {
@@ -14,7 +15,8 @@ const AdminLayout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [pendingCount, setPendingCount] = useState(0);
     const [pendingBookings, setPendingBookings] = useState(0);
-    const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'marketing', 'sistema']);
+    const [geAlerts, setGeAlerts] = useState(0);
+    const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'marketing', 'sistema', 'comercial']);
     const [logoUrl, setLogoUrl] = useState('');
 
     useEffect(() => {
@@ -37,6 +39,9 @@ const AdminLayout = ({ children }) => {
         }).catch(() => {});
         api.get('/api/bookings/stats').then(res => {
             setPendingBookings(res.data?.pending || 0);
+        }).catch(() => {});
+        api.get('/api/growth/alerts').then(res => {
+            setGeAlerts(res.data?.total || 0);
         }).catch(() => {});
     }, [location.pathname]);
 
@@ -144,6 +149,15 @@ const AdminLayout = ({ children }) => {
 
                 <NavGroup label="Diseño" groupKey="diseno">
                     <NavItem to="/admin/apariencia" icon={Palette} label="Apariencia & Colores" />
+                </NavGroup>
+
+                <NavGroup label="Comercial" groupKey="comercial">
+                    <NavItem to="/admin/growth/today" icon={Clock} label="Hoy" badge={geAlerts} />
+                    <NavItem to="/admin/growth" icon={TrendingUp} label="Dashboard Comercial" />
+                    <NavItem to="/admin/growth/pipeline" icon={Kanban} label="Pipeline" />
+                    <NavItem to="/admin/growth/opportunities" icon={ListFilter} label="Oportunidades" />
+                    <NavItem to="/admin/growth/contacts" icon={Contact} label="Contactos" />
+                    <NavItem to="/admin/growth/activity" icon={Activity} label="Actividad" />
                 </NavGroup>
 
                 <NavGroup label="Marketing" groupKey="marketing">

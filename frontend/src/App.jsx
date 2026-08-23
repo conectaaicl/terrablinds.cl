@@ -52,6 +52,16 @@ import AdminReferidos from './pages/AdminReferidos';
 import AdminSEO from './pages/AdminSEO';
 import ProtectedRoute from './components/ProtectedRoute';
 
+// Growth Engine — lazy loaded for code-splitting
+const AdminGrowthDashboard   = React.lazy(() => import('./pages/AdminGrowthDashboard'));
+const AdminGrowthPipeline    = React.lazy(() => import('./pages/AdminGrowthPipeline'));
+const AdminGrowthOpportunities = React.lazy(() => import('./pages/AdminGrowthOpportunities'));
+const AdminGrowthOpportunity = React.lazy(() => import('./pages/AdminGrowthOpportunity'));
+const AdminGrowthContacts    = React.lazy(() => import('./pages/AdminGrowthContacts'));
+const AdminGrowthContact     = React.lazy(() => import('./pages/AdminGrowthContact'));
+const AdminGrowthActivity    = React.lazy(() => import('./pages/AdminGrowthActivity'));
+const AdminGrowthToday       = React.lazy(() => import('./pages/AdminGrowthToday'));
+
 function App() {
   return (
     <CartProvider>
@@ -111,6 +121,16 @@ function App() {
             <Route path="/admin/reviews" element={<AdminReviews />} />
             <Route path="/admin/referidos" element={<AdminReferidos />} />
             <Route path="/admin/seo" element={<AdminSEO />} />
+            <React.Suspense fallback={<div className="p-8 text-center text-gray-500">Cargando...</div>}>
+              <Route path="/admin/growth" element={<AdminGrowthDashboard />} />
+              <Route path="/admin/growth/today" element={<AdminGrowthToday />} />
+              <Route path="/admin/growth/pipeline" element={<AdminGrowthPipeline />} />
+              <Route path="/admin/growth/opportunities" element={<AdminGrowthOpportunities />} />
+              <Route path="/admin/growth/opportunities/:id" element={<AdminGrowthOpportunity />} />
+              <Route path="/admin/growth/contacts" element={<AdminGrowthContacts />} />
+              <Route path="/admin/growth/contacts/:id" element={<AdminGrowthContact />} />
+              <Route path="/admin/growth/activity" element={<AdminGrowthActivity />} />
+            </React.Suspense>
           </Route>
 
           {/* 404 */}

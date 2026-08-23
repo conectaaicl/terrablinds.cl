@@ -32,7 +32,9 @@ const Quote = sequelize.define('Quote', {
     status: {
         type: DataTypes.ENUM('pending', 'contacted', 'sent', 'accepted', 'rejected', 'completed'),
         defaultValue: 'pending'
-    }
+    },
+    opportunity_id: { type: DataTypes.INTEGER, allowNull: true },
+    version_number: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 1 },
 }, {
     tableName: 'quotes',
     timestamps: true,

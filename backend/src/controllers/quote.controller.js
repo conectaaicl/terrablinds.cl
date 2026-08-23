@@ -1,4 +1,4 @@
-const { Quote, Config } = require('../models');
+const { Quote, Config, Opportunity } = require('../models');
 const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail, resendQuoteEmail } = require('../services/email.service');
 const axios = require('axios');
 
@@ -26,7 +26,7 @@ async function fireWebhook(quote) {
 // Create quote (public, rate-limited)
 exports.createQuote = async (req, res) => {
     try {
-        const { customer_name, customer_email, customer_phone, notes, items } = req.body;
+        const { customer_name, customer_email, customer_phone, notes, items, opportunity_id } = req.body;
 
         // Validation
         if (!customer_name || typeof customer_name !== 'string' || customer_name.trim().length < 2) {
@@ -59,14 +59,29 @@ exports.createQuote = async (req, res) => {
 
         const total_amount = sanitizedItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
 
+        // Optional: link quote to an existing open Opportunity (Quote ≠ won sale)
+        let linkedOpportunityId = null;
+        if (opportunity_id != null) {
+            const parsedId = parseInt(opportunity_id);
+            if (!parsedId || isNaN(parsedId)) {
+                return res.status(400).json({ error: 'opportunity_id must be a valid integer' });
+            }
+            const opp = await Opportunity.findByPk(parsedId);
+            if (!opp) {
+                return res.status(400).json({ error: `Opportunity ${parsedId} not found` });
+            }
+            linkedOpportunityId = opp.id;
+        }
+
         const quote = await Quote.create({
-            customer_name: customer_name.trim().substring(0, 200),
+            customer_name:  customer_name.trim().substring(0, 200),
             customer_email: customer_email.trim().toLowerCase(),
             customer_phone: customer_phone ? String(customer_phone).substring(0, 20) : null,
-            notes: notes ? String(notes).substring(0, 1000) : null,
-            items: sanitizedItems,
+            notes:          notes ? String(notes).substring(0, 1000) : null,
+            items:          sanitizedItems,
             total_amount,
-            status: 'pending'
+            status:         'pending',
+            opportunity_id: linkedOpportunityId,
         });
 
         // Send emails (non-blocking)
