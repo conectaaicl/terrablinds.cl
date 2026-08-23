@@ -54,7 +54,7 @@ const About = () => {
             <div className="container mx-auto px-4 py-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     {cfg.about_image_url ? (
-                        <img src={cfg.about_image_url} alt="Sobre nosotros" className="rounded-xl shadow-lg w-full h-80 object-cover" />
+                        <img src={cfg.about_image_url} alt="Sobre nosotros" className="rounded-xl shadow-lg w-full h-80 object-cover object-center" />
                     ) : (
                         <div className="rounded-xl shadow-lg bg-gradient-to-br from-gray-700 to-gray-900 h-80 flex items-center justify-center">
                             <PenTool className="w-24 h-24 text-white/20" />
