@@ -2,7 +2,7 @@
 
 const { Op } = require('sequelize');
 const {
-    Contact, Opportunity, Touchpoint, OpportunityEvent, Quote, GeOutbox, FollowUp, sequelize,
+    Contact, Opportunity, Touchpoint, OpportunityEvent, Quote, GeOutbox, FollowUp, Lead, sequelize,
 } = require('../models');
 const { transitionOpportunity, VALID_TRANSITIONS } = require('../services/opportunity.service');
 const { OPPORTUNITY_STATUSES, TERMINAL_STATUSES, STALE_DAYS } = require('../models/constants');
@@ -610,6 +610,65 @@ exports.getHealth = async (req, res, next) => {
             overdue_follow_ups:  overdueFollowUps,
             stale_opportunities: staleCount,
             checked_at:          now,
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
+// ── GET /api/growth/lead-stats ───────────────────────────────────────────────
+// Returns time-period breakdowns for contacts (authoritative GE source) and
+// raw leads table (note: lead rows may be deleted; contacts persist).
+// Three state kinds kept separate: technical GE state, lead reception, pipeline.
+
+exports.getLeadStats = async (req, res, next) => {
+    try {
+        const now           = new Date();
+        const oneDayAgo     = new Date(now - 86400000);
+        const sevenDaysAgo  = new Date(now - 7  * 86400000);
+        const thirtyDaysAgo = new Date(now - 30 * 86400000);
+
+        const [
+            contactsToday, contacts7d, contacts30d, totalContacts, lastContact,
+            totalLeads,    leadsToday, leads7d,     leads30d,
+            convertedContacts,
+        ] = await Promise.all([
+            Contact.count({ where: { created_at: { [Op.gte]: oneDayAgo     } } }),
+            Contact.count({ where: { created_at: { [Op.gte]: sevenDaysAgo  } } }),
+            Contact.count({ where: { created_at: { [Op.gte]: thirtyDaysAgo } } }),
+            Contact.count(),
+            Contact.findOne({ order: [['created_at', 'DESC']], attributes: ['created_at'] }),
+            Lead.count(),
+            Lead.count({ where: { created_at: { [Op.gte]: oneDayAgo     } } }),
+            Lead.count({ where: { created_at: { [Op.gte]: sevenDaysAgo  } } }),
+            Lead.count({ where: { created_at: { [Op.gte]: thirtyDaysAgo } } }),
+            // Contacts that have at least one opportunity = converted
+            Contact.count({
+                include: [{
+                    model:    Opportunity,
+                    as:       'opportunities',
+                    required: true,
+                    attributes: [],
+                }],
+                distinct: true,
+            }),
+        ]);
+
+        res.json({
+            contacts: {
+                total:    totalContacts,
+                today:    contactsToday,
+                last_7d:  contacts7d,
+                last_30d: contacts30d,
+                last_at:  lastContact?.created_at || null,
+                converted_to_opportunity: convertedContacts,
+            },
+            leads: {
+                total:    totalLeads,
+                today:    leadsToday,
+                last_7d:  leads7d,
+                last_30d: leads30d,
+            },
         });
     } catch (err) {
         next(err);

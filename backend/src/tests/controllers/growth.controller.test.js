@@ -27,6 +27,7 @@ jest.mock('../../models', () => {
         Quote:             model(),
         GeOutbox:          model(),
         FollowUp:          model(),
+        Lead:              model(),
         sequelize:         seq,
     };
 });

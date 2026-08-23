@@ -16,12 +16,14 @@ const {
     getGrowthConfig,
     getHealth,
     getAlerts,
+    getLeadStats,
 } = require('../controllers/growth.controller');
 
 // All growth routes require an authenticated admin
 router.use(protect, restrictTo('admin'));
 
 router.get('/config',                        getGrowthConfig);
+router.get('/lead-stats',                    getLeadStats);
 router.get('/dashboard',                     getDashboard);
 router.get('/pipeline',                      getPipeline);
 router.get('/health',                        getHealth);

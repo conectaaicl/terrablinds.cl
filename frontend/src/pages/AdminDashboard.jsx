@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
-import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight, Zap, MessageCircle, RefreshCw } from 'lucide-react';
+import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight, Zap, MessageCircle, RefreshCw, Activity, AlertTriangle, XCircle, CheckCircle, Info } from 'lucide-react';
 import api from '../api';
 
 const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
@@ -14,6 +14,149 @@ const STATUS_LABELS = {
     completed: { label: 'Completada',  cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
 };
 
+// ── Growth Engine Widget helpers ─────────────────────────────────────────────
+
+function geColor(health) {
+    if (!health) return 'gray';
+    if (health.ge_severity === 'critical' || (health.outbox?.failed > 0)) return 'red';
+    if (health.stale_opportunities > 0 || (health.outbox?.pending > 5)) return 'yellow';
+    return 'green';
+}
+
+const GE_COLORS = {
+    green:  { bg: 'bg-green-50',   border: 'border-green-200', dot: 'bg-green-500',  text: 'text-green-700',  label: 'OPERATIVO' },
+    yellow: { bg: 'bg-yellow-50',  border: 'border-yellow-200', dot: 'bg-yellow-500', text: 'text-yellow-700', label: 'ADVERTENCIA' },
+    red:    { bg: 'bg-red-50',     border: 'border-red-200',    dot: 'bg-red-500',    text: 'text-red-700',    label: 'CAÍDO' },
+    gray:   { bg: 'bg-gray-50',    border: 'border-gray-200',   dot: 'bg-gray-400',   text: 'text-gray-500',   label: 'CARGANDO...' },
+};
+
+const GrowthWidget = ({ health, leadStats, dashboard, loading }) => {
+    const [showDetails, setShowDetails] = useState(false);
+    const color = loading ? 'gray' : geColor(health);
+    const c = GE_COLORS[color];
+    const fmt = n => n == null ? '–' : Number(n).toLocaleString('es-CL');
+    const fmtDate = d => d ? new Date(d).toLocaleString('es-CL', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '–';
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {/* Header */}
+            <div className={`px-5 py-4 flex items-center justify-between border-b ${c.border} ${c.bg}`}>
+                <div className="flex items-center gap-3">
+                    <Activity className="w-5 h-5 text-gray-600" />
+                    <span className="font-bold text-gray-800 text-sm">Motor de Crecimiento</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${c.dot} ${loading ? 'animate-pulse' : ''}`} />
+                    <span className={`font-bold text-xs tracking-wide ${c.text}`}>{c.label}</span>
+                    <button onClick={() => setShowDetails(s => !s)} className="ml-2 text-gray-400 hover:text-gray-600">
+                        <Info className="w-4 h-4" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Details panel (collapsible) */}
+            {showDetails && health && (
+                <div className={`px-5 py-3 border-b ${c.border} ${c.bg} text-xs text-gray-600 grid grid-cols-2 sm:grid-cols-4 gap-2`}>
+                    <div><span className="font-semibold text-gray-500 uppercase text-[10px] block">Worker</span>{health.ge_status}</div>
+                    <div><span className="font-semibold text-gray-500 uppercase text-[10px] block">Outbox pendiente</span>{fmt(health.outbox?.pending)}</div>
+                    <div><span className="font-semibold text-gray-500 uppercase text-[10px] block">Outbox fallidos</span>{fmt(health.outbox?.failed)}</div>
+                    <div><span className="font-semibold text-gray-500 uppercase text-[10px] block">Verificado</span>{fmtDate(health.checked_at)}</div>
+                </div>
+            )}
+
+            {/* Body: 3 panels */}
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+
+                {/* Panel 1: Technical status */}
+                <div className="p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Estado Técnico</p>
+                    <div className="space-y-2">
+                        {[
+                            { label: 'Servidor',        ok: health ? health.ge_severity === 'ok' : null },
+                            { label: 'Outbox',          ok: health ? (health.outbox?.failed === 0) : null },
+                            { label: 'Opps estancadas', ok: health ? health.stale_opportunities === 0 : null, warn: health?.stale_opportunities > 0 },
+                        ].map(({ label, ok, warn }) => (
+                            <div key={label} className="flex items-center justify-between text-sm">
+                                <span className="text-gray-600">{label}</span>
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                                    ok === null ? 'bg-gray-100 text-gray-400'
+                                    : ok ? 'bg-green-100 text-green-700'
+                                    : warn ? 'bg-yellow-100 text-yellow-700'
+                                    : 'bg-red-100 text-red-700'
+                                }`}>
+                                    {ok === null ? '...' : ok ? 'OK' : warn ? 'Advertencia' : 'Error'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Panel 2: Lead reception */}
+                <div className="p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Recepción de Leads</p>
+                    {leadStats ? (
+                        <div className="space-y-1.5 text-sm">
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Hoy</span>
+                                <span className="font-bold text-gray-800">{fmt(leadStats.contacts.today)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Últimos 7 días</span>
+                                <span className="font-bold text-gray-800">{fmt(leadStats.contacts.last_7d)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Últimos 30 días</span>
+                                <span className="font-bold text-gray-800">{fmt(leadStats.contacts.last_30d)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Convertidos a Opp.</span>
+                                <span className="font-bold text-gray-800">{fmt(leadStats.contacts.converted_to_opportunity)}</span>
+                            </div>
+                            <div className="pt-1 border-t border-gray-100 flex justify-between">
+                                <span className="text-gray-400 text-xs">Último lead</span>
+                                <span className="text-xs text-gray-500">{fmtDate(leadStats.contacts.last_at)}</span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="text-gray-400 text-xs">Cargando...</div>
+                    )}
+                    <p className="text-[10px] text-gray-300 mt-2">Fuente: tabla contacts (persiste aunque se borre el lead)</p>
+                </div>
+
+                {/* Panel 3: Commercial pipeline */}
+                <div className="p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Pipeline Comercial</p>
+                    {dashboard ? (
+                        <div className="space-y-1.5 text-sm">
+                            {[
+                                { label: 'Nuevas',       value: dashboard.opportunities.new,  cls: 'text-blue-700 bg-blue-50' },
+                                { label: 'En proceso',   value: dashboard.opportunities.open - dashboard.opportunities.new, cls: 'text-indigo-700 bg-indigo-50' },
+                                { label: 'Ganadas',      value: dashboard.opportunities.won,  cls: 'text-green-700 bg-green-50' },
+                                { label: 'Perdidas',     value: dashboard.opportunities.lost, cls: 'text-red-700 bg-red-50' },
+                            ].map(({ label, value, cls }) => (
+                                <div key={label} className="flex items-center justify-between">
+                                    <span className="text-gray-500">{label}</span>
+                                    <span className={`font-bold text-xs px-2 py-0.5 rounded-full ${cls}`}>{fmt(value)}</span>
+                                </div>
+                            ))}
+                            {dashboard.revenue?.won > 0 && (
+                                <div className="pt-1 border-t border-gray-100 flex justify-between">
+                                    <span className="text-gray-400 text-xs">Ingresos ganados</span>
+                                    <span className="text-xs font-bold text-green-700">${fmt(dashboard.revenue.won)}</span>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="text-gray-400 text-xs">Cargando...</div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ── Main Dashboard ────────────────────────────────────────────────────────────
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ totalQuotes: 0, newLeads: 0, activeProducts: 0, pendingQuotes: 0, totalRevenue: 0, conversionRate: 0 });
@@ -22,8 +165,28 @@ const AdminDashboard = () => {
     const [systemStatus, setSystemStatus] = useState({ backend: null, db: null });
     const [loading, setLoading] = useState(true);
     const [lastUpdated, setLastUpdated] = useState(null);
+    const [geHealth, setGeHealth] = useState(null);
+    const [geLeadStats, setGeLeadStats] = useState(null);
+    const [geDashboard, setGeDashboard] = useState(null);
+    const [geLoading, setGeLoading] = useState(true);
 
-    useEffect(() => { fetchAll(); checkSystemStatus(); }, []);
+    useEffect(() => { fetchAll(); checkSystemStatus(); fetchGE(); }, []);
+
+    const fetchGE = async () => {
+        setGeLoading(true);
+        try {
+            const [h, ls, d] = await Promise.allSettled([
+                api.get('/api/growth/health'),
+                api.get('/api/growth/lead-stats'),
+                api.get('/api/growth/dashboard'),
+            ]);
+            if (h.status === 'fulfilled')  setGeHealth(h.value.data);
+            if (ls.status === 'fulfilled') setGeLeadStats(ls.value.data);
+            if (d.status === 'fulfilled')  setGeDashboard(d.value.data);
+        } finally {
+            setGeLoading(false);
+        }
+    };
 
     const checkSystemStatus = async () => {
         try {
@@ -106,7 +269,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="flex items-center gap-3">
                         <p className="text-blue-300 text-xs hidden sm:block">{lastUpdated ? `Actualizado: ${lastUpdated.toLocaleTimeString('es-CL')}` : ''}</p>
-                        <button onClick={() => { fetchAll(); checkSystemStatus(); }} className="flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl text-sm font-medium text-white transition-colors backdrop-blur-sm">
+                        <button onClick={() => { fetchAll(); checkSystemStatus(); fetchGE(); }} className="flex items-center gap-2 px-4 py-2 bg-white/15 hover:bg-white/25 border border-white/20 rounded-xl text-sm font-medium text-white transition-colors backdrop-blur-sm">
                             <RefreshCw className="w-4 h-4" /> Actualizar
                         </button>
                     </div>
@@ -163,6 +326,14 @@ const AdminDashboard = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Growth Engine Widget */}
+                    <GrowthWidget
+                        health={geHealth}
+                        leadStats={geLeadStats}
+                        dashboard={geDashboard}
+                        loading={geLoading}
+                    />
 
                     {/* Estado por categoría */}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">

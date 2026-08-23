@@ -4,6 +4,11 @@ if (process.env.NODE_ENV === 'production') {
     console.error('FATAL: seed.js no puede ejecutarse en produccion. Usa las migraciones.');
     process.exit(1);
 }
+if (process.env.ALLOW_DESTRUCTIVE_SEED !== 'true') {
+    console.error('ERROR: Este script ejecuta sync({ force: true }) y BORRA TODOS LOS DATOS.');
+    console.error('Para confirmar, ejecuta con: ALLOW_DESTRUCTIVE_SEED=true node src/scripts/seed.js');
+    process.exit(1);
+}
 
 const { sequelize, Product, User, Config } = require('../models');
 

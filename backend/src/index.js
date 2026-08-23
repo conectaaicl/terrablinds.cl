@@ -23,8 +23,8 @@ const optionalMissing = [];
 if (!process.env.TG_TOKEN || !process.env.TG_CHAT_ID) {
     optionalMissing.push('TG_TOKEN / TG_CHAT_ID — Telegram notifications disabled');
 }
-if (!process.env.RESEND_API_KEY) {
-    optionalMissing.push('RESEND_API_KEY — email delivery disabled');
+if (!process.env.MAILSAAS_API_KEY) {
+    optionalMissing.push('MAILSAAS_API_KEY — email delivery (mail.conectaai.cl) disabled');
 }
 if (process.env.GE_WORKER_ENABLED !== 'true') {
     optionalMissing.push('GE_WORKER_ENABLED — Growth Engine outbox worker disabled. ' +

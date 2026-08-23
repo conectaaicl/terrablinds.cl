@@ -1,9 +1,10 @@
 'use strict';
 
 jest.mock('../../models', () => ({
-    Contact:          { findAll: jest.fn(), count: jest.fn() },
+    Contact:          { findAll: jest.fn(), count: jest.fn(), findOne: jest.fn() },
     Opportunity:      { findAll: jest.fn(), count: jest.fn(), findOne: jest.fn(), findAndCountAll: jest.fn() },
-    Touchpoint:       { findAll: jest.fn() },
+    Lead:             { count: jest.fn() },
+    Touchpoint:       { findAll: jest.fn(), count: jest.fn() },
     OpportunityEvent: { findAll: jest.fn() },
     Quote:            { findAll: jest.fn() },
     GeOutbox:         { count: jest.fn(), findOne: jest.fn() },

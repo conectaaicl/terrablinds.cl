@@ -1,9 +1,9 @@
 const axios = require('axios');
 const { Config } = require('../models');
 
-const MAIL_API_KEY = process.env.RESEND_API_KEY;
+const MAIL_API_KEY = process.env.MAILSAAS_API_KEY;
 const MAIL_API_URL = 'https://mail.conectaai.cl/api/send';
-const MAIL_FROM    = process.env.RESEND_FROM_EMAIL || 'TerraBlinds <noreply@terrablinds.cl>';
+const MAIL_FROM    = process.env.MAILSAAS_FROM_EMAIL || 'TerraBlinds <noreply@terrablinds.cl>';
 
 async function getConfig() {
     const companyEmailConfig = await Config.findOne({ where: { key: 'company_email' } });
