@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useRef, useLayoutEffect, createContext, useContext, useCallback, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
@@ -8,6 +8,54 @@ import {
 } from 'lucide-react';
 import { Clock } from 'lucide-react';
 import api from '../api';
+
+// Context shared with NavItem / NavGroup — defined once at module level
+const SidebarCtx = createContext(null);
+
+// Stable module-level components — React reconciles (updates) these instead of
+// unmounting/remounting on every AdminLayout render, preserving nav scroll position.
+const NavItem = ({ to, icon: Icon, label, badge }) => {
+    const { activePath, onClose } = useContext(SidebarCtx);
+    const active = activePath === to;
+    return (
+        <Link
+            to={to}
+            onClick={onClose}
+            className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
+                active
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-gray-400 hover:bg-white/10 hover:text-white'
+            }`}
+        >
+            <div className="flex items-center gap-2.5">
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span className="font-medium">{label}</span>
+            </div>
+            {badge > 0 && (
+                <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+                    {badge}
+                </span>
+            )}
+        </Link>
+    );
+};
+
+const NavGroup = ({ label, groupKey, children }) => {
+    const { openGroups, toggleGroup } = useContext(SidebarCtx);
+    const open = openGroups.includes(groupKey);
+    return (
+        <div className="mt-4">
+            <button
+                onClick={() => toggleGroup(groupKey)}
+                className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-blue-400/80 hover:text-blue-300 transition-colors mb-1"
+            >
+                <span>{label}</span>
+                {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
+            {open && <div className="space-y-0.5">{children}</div>}
+        </div>
+    );
+};
 
 const AdminLayout = ({ children }) => {
     const location = useLocation();
@@ -58,50 +106,16 @@ const AdminLayout = ({ children }) => {
         navigate('/admin/login');
     };
 
-    const toggleGroup = (key) => {
+    const toggleGroup = useCallback((key) => {
         setOpenGroups(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
-    };
+    }, []);
 
-    const NavItem = ({ to, icon: Icon, label, badge }) => {
-        const active = location.pathname === to;
-        return (
-            <Link
-                to={to}
-                onClick={() => setSidebarOpen(false)}
-                className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-all ${
-                    active
-                        ? 'bg-blue-600 text-white shadow-sm'
-                        : 'text-gray-400 hover:bg-white/10 hover:text-white'
-                }`}
-            >
-                <div className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span className="font-medium">{label}</span>
-                </div>
-                {badge > 0 && (
-                    <span className="bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
-                        {badge}
-                    </span>
-                )}
-            </Link>
-        );
-    };
-
-    const NavGroup = ({ label, groupKey, children }) => {
-        const open = openGroups.includes(groupKey);
-        return (
-            <div className="mt-4">
-                <button
-                    onClick={() => toggleGroup(groupKey)}
-                    className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-blue-400/80 hover:text-blue-300 transition-colors mb-1"
-                >
-                    <span>{label}</span>
-                    {open ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                </button>
-                {open && <div className="space-y-0.5">{children}</div>}
-            </div>
-        );
-    };
+    const ctxValue = useMemo(() => ({
+        activePath: location.pathname,
+        onClose: () => setSidebarOpen(false),
+        openGroups,
+        toggleGroup,
+    }), [location.pathname, openGroups, toggleGroup]);
 
     const SidebarContent = () => (
         <>
@@ -122,10 +136,10 @@ const AdminLayout = ({ children }) => {
             </div>
 
             <nav
-                    ref={sidebarNavRef}
-                    onScroll={(e) => { savedScrollTop.current = e.currentTarget.scrollTop; }}
-                    className="flex-1 overflow-y-auto p-3 space-y-0.5"
-                >
+                ref={sidebarNavRef}
+                onScroll={(e) => { savedScrollTop.current = e.currentTarget.scrollTop; }}
+                className="flex-1 overflow-y-auto p-3 space-y-0.5"
+            >
                 <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />
 
                 <NavGroup label="Reservas" groupKey="reservas">
@@ -205,51 +219,53 @@ const AdminLayout = ({ children }) => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 flex font-sans">
-            {/* Desktop Sidebar */}
-            <aside className="w-56 bg-gray-900 flex-shrink-0 hidden lg:flex flex-col fixed h-full z-20">
-                {SidebarContent()}
-            </aside>
+        <SidebarCtx.Provider value={ctxValue}>
+            <div className="min-h-screen bg-gray-50 flex font-sans">
+                {/* Desktop Sidebar */}
+                <aside className="w-56 bg-gray-900 flex-shrink-0 hidden lg:flex flex-col fixed h-full z-20">
+                    {SidebarContent()}
+                </aside>
 
-            {/* Mobile Sidebar */}
-            {sidebarOpen && (
-                <div className="fixed inset-0 z-50 lg:hidden">
-                    <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-                    <aside className="absolute left-0 top-0 h-full w-56 bg-gray-900 flex flex-col">
-                        {SidebarContent()}
-                    </aside>
-                </div>
-            )}
-
-            {/* Main Content */}
-            <main className="flex-1 lg:ml-56 flex flex-col min-h-screen">
-                <header className="bg-white border-b border-gray-200 px-5 py-3.5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <button className="lg:hidden text-gray-600" onClick={() => setSidebarOpen(true)}>
-                            <Menu className="w-5 h-5" />
-                        </button>
-                        <p className="hidden lg:block text-sm text-gray-400">Panel de Administración · TerraBlinds.cl</p>
+                {/* Mobile Sidebar */}
+                {sidebarOpen && (
+                    <div className="fixed inset-0 z-50 lg:hidden">
+                        <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
+                        <aside className="absolute left-0 top-0 h-full w-56 bg-gray-900 flex flex-col">
+                            {SidebarContent()}
+                        </aside>
                     </div>
-                    <div className="flex items-center gap-3">
-                        {pendingCount > 0 && (
-                            <Link to="/admin/quotes"
-                                className="flex items-center gap-1.5 bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-orange-100 transition-colors">
-                                <Bell className="w-3.5 h-3.5" />
-                                {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
-                            </Link>
-                        )}
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
-                            <span className="hidden sm:block text-sm font-medium text-gray-700">Admin</span>
+                )}
+
+                {/* Main Content */}
+                <main className="flex-1 lg:ml-56 flex flex-col min-h-screen">
+                    <header className="bg-white border-b border-gray-200 px-5 py-3.5 flex items-center justify-between sticky top-0 z-10 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <button className="lg:hidden text-gray-600" onClick={() => setSidebarOpen(true)}>
+                                <Menu className="w-5 h-5" />
+                            </button>
+                            <p className="hidden lg:block text-sm text-gray-400">Panel de Administración · TerraBlinds.cl</p>
                         </div>
-                    </div>
-                </header>
+                        <div className="flex items-center gap-3">
+                            {pendingCount > 0 && (
+                                <Link to="/admin/quotes"
+                                    className="flex items-center gap-1.5 bg-orange-50 text-orange-600 border border-orange-200 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-orange-100 transition-colors">
+                                    <Bell className="w-3.5 h-3.5" />
+                                    {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
+                                </Link>
+                            )}
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">A</div>
+                                <span className="hidden sm:block text-sm font-medium text-gray-700">Admin</span>
+                            </div>
+                        </div>
+                    </header>
 
-                <div className="flex-1 p-5 lg:p-7">
-                    {children}
-                </div>
-            </main>
-        </div>
+                    <div className="flex-1 p-5 lg:p-7">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </SidebarCtx.Provider>
     );
 };
 
