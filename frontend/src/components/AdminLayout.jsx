@@ -196,7 +196,7 @@ const AdminLayout = ({ children }) => {
         <div className="min-h-screen bg-gray-50 flex font-sans">
             {/* Desktop Sidebar */}
             <aside className="w-56 bg-gray-900 flex-shrink-0 hidden lg:flex flex-col fixed h-full z-20">
-                <SidebarContent />
+                {SidebarContent()}
             </aside>
 
             {/* Mobile Sidebar */}
@@ -204,7 +204,7 @@ const AdminLayout = ({ children }) => {
                 <div className="fixed inset-0 z-50 lg:hidden">
                     <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
                     <aside className="absolute left-0 top-0 h-full w-56 bg-gray-900 flex flex-col">
-                        <SidebarContent />
+                        {SidebarContent()}
                     </aside>
                 </div>
             )}

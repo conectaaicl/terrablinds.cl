@@ -60,7 +60,7 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/health', async (req, res) => {
+app.get(['/health', '/api/health'], async (req, res) => {
     try {
         await sequelize.authenticate();
         res.json({ status: 'ok', db: 'connected' });

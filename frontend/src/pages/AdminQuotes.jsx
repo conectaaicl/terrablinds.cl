@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw } from 'lucide-react';
+import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw, Trash2 } from 'lucide-react';
 
 const LOGO_URL = '/uploads/image-1773550576065-529383678.jpeg';
 
@@ -90,6 +90,7 @@ const AdminQuotes = () => {
     const [selectedQuote, setSelectedQuote] = useState(null);
     const [updatingStatus, setUpdatingStatus] = useState(null);
     const [resendingEmail, setResendingEmail] = useState(null);
+    const [deletingQuote, setDeletingQuote] = useState(null);
 
     useEffect(() => { fetchQuotes(); }, []);
 
@@ -130,6 +131,20 @@ const AdminQuotes = () => {
         const num = phone.startsWith('56') ? phone : '56' + phone;
         const msg = encodeURIComponent(`Hola ${quote.customer_name}, te contactamos de TerraBlinds sobre tu cotización #${quote.id} por $${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}. ¿Cómo podemos ayudarte?`);
         return `https://wa.me/${num}?text=${msg}`;
+    };
+
+    const handleDeleteQuote = async (quote) => {
+        if (!window.confirm(`¿Eliminar cotización #${quote.id} de ${quote.customer_name}? Esta acción no se puede deshacer.`)) return;
+        setDeletingQuote(quote.id);
+        try {
+            await api.delete(`/api/quotes/${quote.id}`);
+            setQuotes(prev => prev.filter(q => q.id !== quote.id));
+            if (selectedQuote?.id === quote.id) setSelectedQuote(null);
+        } catch {
+            alert('Error al eliminar la cotización.');
+        } finally {
+            setDeletingQuote(null);
+        }
     };
 
     const handleResendEmail = async (quoteId, email) => {
@@ -226,7 +241,7 @@ const AdminQuotes = () => {
                                                 <div className="text-xs text-gray-400">{quote.customer_email}</div>
                                                 {quote.customer_phone && <div className="text-xs text-gray-400">{quote.customer_phone}</div>}
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500">{new Date(quote.created_at).toLocaleDateString('es-CL')}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-500">{quote.createdAt ? new Date(quote.createdAt).toLocaleDateString('es-CL') : '—'}</td>
                                             <td className="px-6 py-4 font-bold text-gray-900">${parseFloat(quote.total_amount || 0).toLocaleString('es-CL')}</td>
                                             <td className="px-6 py-4">
                                                 <div className="relative inline-block">
@@ -254,6 +269,14 @@ const AdminQuotes = () => {
                                                     <button onClick={() => setSelectedQuote(quote)} className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
                                                         <Eye className="w-4 h-4" />
                                                     </button>
+                                                    <button
+                                                        onClick={() => handleDeleteQuote(quote)}
+                                                        disabled={deletingQuote === quote.id}
+                                                        title="Eliminar cotización"
+                                                        className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors disabled:opacity-50"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -272,7 +295,7 @@ const AdminQuotes = () => {
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Cotización #{selectedQuote.id}</h2>
-                                <p className="text-sm text-gray-500 mt-0.5">{new Date(selectedQuote.created_at).toLocaleString('es-CL')}</p>
+                                <p className="text-sm text-gray-500 mt-0.5">{selectedQuote.createdAt ? new Date(selectedQuote.createdAt).toLocaleString('es-CL') : '—'}</p>
                             </div>
                             <button onClick={() => setSelectedQuote(null)} className="p-2 hover:bg-gray-200 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
                         </div>

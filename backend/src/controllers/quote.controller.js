@@ -183,6 +183,21 @@ exports.resendEmail = async (req, res) => {
     }
 };
 
+// Delete quote (admin only)
+exports.deleteQuote = async (req, res) => {
+    try {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: 'Invalid quote ID' });
+        const quote = await Quote.findByPk(id);
+        if (!quote) return res.status(404).json({ error: 'Quote not found' });
+        await quote.destroy();
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting quote:', error.message);
+        res.status(500).json({ error: 'Error deleting quote' });
+    }
+};
+
 // Update quote status (admin only)
 exports.updateQuoteStatus = async (req, res) => {
     try {
