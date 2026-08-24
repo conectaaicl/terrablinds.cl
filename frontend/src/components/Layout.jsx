@@ -73,12 +73,15 @@ const Layout = ({ children }) => {
                 <div className="container mx-auto px-4 py-3 flex justify-between items-center">
 
                     {/* Logo */}
-                    <Link to="/" className="flex items-center flex-shrink-0">
+                    <Link to="/" className="flex items-center gap-3 flex-shrink-0">
                         {logoUrl ? (
                             <img src={logoUrl} alt={brandName} className="h-12 md:h-14 w-auto object-contain rounded-lg" />
                         ) : (
                             <span className="text-lg md:text-xl font-bold text-white tracking-tight">{brandName}</span>
                         )}
+                        <div className="hidden sm:flex flex-col leading-none">
+                            <span className="text-[9px] font-bold tracking-[0.13em] text-white/50 uppercase">CORTINAS · TOLDOS · PERSIANAS</span>
+                        </div>
                     </Link>
 
                     {/* Desktop nav */}
