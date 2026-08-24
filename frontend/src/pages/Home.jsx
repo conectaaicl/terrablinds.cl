@@ -23,12 +23,12 @@ const BENEFITS = [
 ];
 
 const SOLUTIONS = [
-    { title: 'Cortinas Roller',      desc: 'Control de luz y privacidad con diseño minimalista.',             link: '/catalog?category=Roller',    img: '/assets/cotizador/hero-roller.png',   grad: 'from-stone-700 to-stone-900' },
-    { title: 'Persianas',            desc: 'Elegancia y control de luz en cada ambiente.',                    link: '/catalog?category=Persianas', img: null,                                  grad: 'from-neutral-700 to-neutral-900' },
-    { title: 'Toldos',               desc: 'Disfruta tus espacios al aire libre todo el año.',                link: '/catalog?category=Toldos',    img: '/assets/cotizador/hero-exterior.png', grad: 'from-zinc-700 to-zinc-900' },
-    { title: 'Persianas Exteriores', desc: 'Protección solar y térmica. Mayor eficiencia energética.',        link: '/catalog?category=Exteriores', img: null,                                 grad: 'from-slate-700 to-slate-900' },
-    { title: 'Mallas de Seguridad',  desc: 'Protección confiable para niños, mascotas y terrazas.',          link: '/catalog?category=Mallas',    img: null,                                  grad: 'from-gray-700 to-gray-900' },
-    { title: 'Cierre de Terrazas',   desc: 'Amplía y protege tus espacios durante todo el año.',             link: '/catalog?category=Terrazas',  img: '/assets/cotizador/hero-comfort.png',  grad: 'from-amber-900 to-stone-900' },
+    { title: 'Cortinas Roller',      desc: 'Control de luz y privacidad con diseño minimalista.',       link: '/catalog?category=Roller',     cfgKey: 'cat1_image', grad: 'from-slate-700 to-slate-900' },
+    { title: 'Persianas',            desc: 'Elegancia y control de luz en cada ambiente.',              link: '/catalog?category=Persianas',  cfgKey: 'cat2_image', grad: 'from-neutral-700 to-neutral-900' },
+    { title: 'Toldos',               desc: 'Disfruta tus espacios al aire libre todo el año.',          link: '/catalog?category=Toldos',     cfgKey: 'cat3_image', grad: 'from-zinc-700 to-zinc-900' },
+    { title: 'Persianas Exteriores', desc: 'Protección solar y térmica. Mayor eficiencia energética.',  link: '/catalog?category=Exteriores', cfgKey: null,         grad: 'from-stone-700 to-stone-900' },
+    { title: 'Mallas de Seguridad',  desc: 'Protección confiable para niños, mascotas y terrazas.',    link: '/catalog?category=Mallas',     cfgKey: null,         grad: 'from-gray-800 to-gray-950' },
+    { title: 'Cierre de Terrazas',   desc: 'Amplía y protege tus espacios durante todo el año.',       link: '/catalog?category=Terrazas',   cfgKey: null,         grad: 'from-amber-900 to-stone-900' },
 ];
 
 const DEFAULT_STATS = [
@@ -107,7 +107,9 @@ const Home = () => {
                         </h2>
                     </motion.div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                        {SOLUTIONS.map((s, i) => (
+                        {SOLUTIONS.map((s, i) => {
+                            const imgSrc = s.cfgKey ? (cfg[s.cfgKey] || null) : null;
+                            return (
                             <motion.div
                                 key={s.title}
                                 initial={fadeUp.initial}
@@ -116,9 +118,9 @@ const Home = () => {
                                 transition={{ ...fadeUp.transition, delay: i * 0.07 }}
                             >
                                 <Link to={s.link} className="group block relative rounded-2xl overflow-hidden h-60 cursor-pointer">
-                                    {s.img ? (
-                                        <img src={s.img} alt={s.title}
-                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                    {imgSrc ? (
+                                        <img src={imgSrc} alt={s.title}
+                                            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105" />
                                     ) : (
                                         <div className={`absolute inset-0 bg-gradient-to-br ${s.grad} transition-transform duration-700 group-hover:scale-105`} />
                                     )}
@@ -133,7 +135,8 @@ const Home = () => {
                                     <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-[#C8973A]/50 transition-colors duration-300 pointer-events-none" />
                                 </Link>
                             </motion.div>
-                        ))}
+                            );
+                        })}
                     </div>
                 </div>
             </section>
