@@ -3,8 +3,11 @@ import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import {
     Plus, Trash2, Send, CheckCircle, ChevronRight, ChevronLeft,
-    Ruler, ShoppingCart, Info, Package, User, Mail, Phone, FileText,
-    CreditCard, Building2, Zap, Globe,
+    ShoppingCart, Info, Package, User, Mail, Phone, FileText,
+    CreditCard, Building2, Zap, Globe, Moon, Sun, Layers,
+    Home, AlignJustify, Umbrella, MessageSquare, LayoutGrid,
+    TreePine, Shield, Clock, Star, CalendarCheck, Ruler,
+    RectangleVertical,
 } from 'lucide-react';
 import api from '../api';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,25 +20,25 @@ const WhatsAppIcon = () => (
 );
 
 const PRODUCT_TYPES = [
-    { id: 'roller_blackout',    label: 'Roller Blackout',        icon: '🌑', desc: 'Oscurecimiento total',                hasMeasure: true },
-    { id: 'roller_screen',      label: 'Roller Screen',          icon: '🌐', desc: 'Filtra luz, mantiene vista al ext.', hasMeasure: true },
-    { id: 'roller_sunscreen',   label: 'Roller Sunscreen',       icon: '☀️', desc: 'Protección solar con luminosidad',   hasMeasure: true },
-    { id: 'roller_duo_trasl',   label: 'Roller Duo Traslúcido',  icon: '🎭', desc: 'Doble capa: screen + traslúcido',    hasMeasure: true },
-    { id: 'roller_duo_black',   label: 'Roller Duo Blackout',    icon: '🌓', desc: 'Doble capa: blackout + screen',      hasMeasure: true },
-    { id: 'roller_doble_dual',  label: 'Roller Dobles o Dual',   icon: '🔲', desc: 'Sistema doble en un solo bastidor',  hasMeasure: true },
-    { id: 'persiana_madera',    label: 'Persiana de Madera',     icon: '🪵', desc: 'Lamas madera natural, elegantes',    hasMeasure: true },
-    { id: 'minipersiana',       label: 'Minipersiana',           icon: '🪟', desc: 'Lamas aluminio 25mm regulables',     hasMeasure: true },
-    { id: 'persiana_exterior',  label: 'Persiana Exterior',      icon: '🏠', desc: 'Protección y seguridad exterior',    hasMeasure: true },
-    { id: 'toldo_retractil',    label: 'Toldo Retráctil',        icon: '⛱️', desc: 'Toldos extensibles para terraza',   hasMeasure: true },
-    { id: 'toldo_vertical',     label: 'Toldos Verticales',      icon: '🟦', desc: 'Lonas verticales para fachadas',    hasMeasure: true },
-    { id: 'otro',               label: 'Otros / Consulta',       icon: '💬', desc: 'Otro producto o consulta especial', hasMeasure: false },
+    { id: 'roller_blackout',   label: 'Roller Blackout',       Icon: Moon,              grad: 'from-indigo-900 to-indigo-700', ic: 'text-indigo-200', desc: 'Oscurecimiento total',             hasMeasure: true },
+    { id: 'roller_screen',     label: 'Roller Screen',         Icon: Globe,             grad: 'from-sky-700 to-sky-500',       ic: 'text-sky-100',    desc: 'Filtra luz · vista al exterior',  hasMeasure: true },
+    { id: 'roller_sunscreen',  label: 'Roller Sunscreen',      Icon: Sun,               grad: 'from-amber-600 to-amber-400',   ic: 'text-amber-100',  desc: 'Protección solar + luminosidad',   hasMeasure: true },
+    { id: 'roller_duo_trasl',  label: 'Roller Duo Traslúcido', Icon: Layers,            grad: 'from-blue-700 to-blue-500',     ic: 'text-blue-100',   desc: 'Screen + traslúcido',              hasMeasure: true },
+    { id: 'roller_duo_black',  label: 'Roller Duo Blackout',   Icon: Layers,            grad: 'from-slate-800 to-slate-600',   ic: 'text-slate-200',  desc: 'Blackout + screen',                hasMeasure: true },
+    { id: 'roller_doble_dual', label: 'Roller Dobles / Dual',  Icon: LayoutGrid,        grad: 'from-violet-700 to-violet-500', ic: 'text-violet-100', desc: 'Doble bastidor en uno',            hasMeasure: true },
+    { id: 'persiana_madera',   label: 'Persiana Madera',       Icon: TreePine,          grad: 'from-amber-800 to-amber-600',   ic: 'text-amber-100',  desc: 'Lamas madera natural',             hasMeasure: true },
+    { id: 'minipersiana',      label: 'Minipersiana',          Icon: AlignJustify,      grad: 'from-gray-600 to-gray-500',     ic: 'text-gray-100',   desc: 'Lamas aluminio 25mm',              hasMeasure: true },
+    { id: 'persiana_exterior', label: 'Persiana Exterior',     Icon: Home,              grad: 'from-teal-700 to-teal-500',     ic: 'text-teal-100',   desc: 'Protección exterior',              hasMeasure: true },
+    { id: 'toldo_retractil',   label: 'Toldo Retráctil',       Icon: Umbrella,          grad: 'from-green-700 to-green-500',   ic: 'text-green-100',  desc: 'Extensible para terraza',          hasMeasure: true },
+    { id: 'toldo_vertical',    label: 'Toldos Verticales',     Icon: RectangleVertical, grad: 'from-emerald-700 to-emerald-500', ic: 'text-emerald-100', desc: 'Lonas verticales fachada',       hasMeasure: true },
+    { id: 'otro',              label: 'Otro / Consulta',       Icon: MessageSquare,     grad: 'from-slate-600 to-slate-400',   ic: 'text-slate-100',  desc: 'Otro producto o consulta',         hasMeasure: false },
 ];
 
 const PAYMENT_METHODS = [
-    { icon: <Building2 className="w-5 h-5" />, label: 'Transferencia', desc: 'Banco Estado / Santander' },
-    { icon: <CreditCard className="w-5 h-5" />, label: 'WebPay', desc: 'Visa / Mastercard / Amex' },
-    { icon: <Zap className="w-5 h-5" />, label: 'Flow', desc: 'Tarjetas y débito' },
-    { icon: <Globe className="w-5 h-5" />, label: 'MercadoPago', desc: 'Múltiples métodos' },
+    { icon: <Building2 className="w-4 h-4" />, label: 'Transferencia', desc: 'Banco Estado / Santander' },
+    { icon: <CreditCard className="w-4 h-4" />, label: 'WebPay', desc: 'Visa / Mastercard / Amex' },
+    { icon: <Zap className="w-4 h-4" />, label: 'Flow', desc: 'Tarjetas y débito' },
+    { icon: <Globe className="w-4 h-4" />, label: 'MercadoPago', desc: 'Múltiples métodos' },
 ];
 
 const STEPS = [
@@ -44,28 +47,34 @@ const STEPS = [
     { num: 3, label: 'Confirmar' },
 ];
 
+const HERO_PHOTOS = [
+    '/assets/cotizador/hero-exterior.png',
+    '/assets/cotizador/hero-roller.png',
+    '/assets/cotizador/hero-comfort.png',
+];
+
 const fmtCLP = n => '$' + Math.round(n).toLocaleString('es-CL');
 
 const MeasureGuide = ({ unit }) => (
-    <div className="bg-gradient-to-br from-blue-950/50 to-indigo-900/50 border border-blue-700/40 rounded-xl p-4 flex flex-col items-center">
-        <p className="text-xs font-bold text-blue-300 uppercase tracking-wider mb-3">Guía de Medición</p>
-        <svg viewBox="0 0 160 200" className="w-28 h-36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="20" y="10" width="120" height="170" rx="4" stroke="#818cf8" strokeWidth="2.5" fill="#312e81" fillOpacity="0.3" />
-            <rect x="20" y="10" width="120" height="100" rx="2" fill="#6366f1" fillOpacity="0.25" />
-            {[30,45,60,75,90].map(y => <line key={y} x1="22" y1={y} x2="138" y2={y} stroke="#818cf8" strokeWidth="1.2" />)}
-            <line x1="20" y1="196" x2="140" y2="196" stroke="#60a5fa" strokeWidth="1.5" />
-            <line x1="20" y1="191" x2="20" y2="201" stroke="#60a5fa" strokeWidth="1.5" />
-            <line x1="140" y1="191" x2="140" y2="201" stroke="#60a5fa" strokeWidth="1.5" />
+    <div className="bg-gradient-to-br from-blue-950/60 to-indigo-900/60 border border-blue-700/40 rounded-xl p-4 flex flex-col items-center">
+        <p className="text-[10px] font-bold text-blue-300 uppercase tracking-widest mb-3">Guía de medición</p>
+        <svg viewBox="0 0 160 200" className="w-24 h-32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="20" y="10" width="120" height="170" rx="4" stroke="#818cf8" strokeWidth="2.5" fill="#312e81" fillOpacity="0.3"/>
+            <rect x="20" y="10" width="120" height="100" rx="2" fill="#6366f1" fillOpacity="0.25"/>
+            {[30,45,60,75,90].map(y => <line key={y} x1="22" y1={y} x2="138" y2={y} stroke="#818cf8" strokeWidth="1.2"/>)}
+            <line x1="20" y1="196" x2="140" y2="196" stroke="#60a5fa" strokeWidth="1.5"/>
+            <line x1="20" y1="191" x2="20" y2="201" stroke="#60a5fa" strokeWidth="1.5"/>
+            <line x1="140" y1="191" x2="140" y2="201" stroke="#60a5fa" strokeWidth="1.5"/>
             <text x="80" y="193" textAnchor="middle" fontSize="9" fill="#60a5fa" fontWeight="bold">ANCHO</text>
-            <line x1="152" y1="10" x2="152" y2="180" stroke="#60a5fa" strokeWidth="1.5" />
-            <line x1="148" y1="10" x2="156" y2="10" stroke="#60a5fa" strokeWidth="1.5" />
-            <line x1="148" y1="180" x2="156" y2="180" stroke="#60a5fa" strokeWidth="1.5" />
+            <line x1="152" y1="10" x2="152" y2="180" stroke="#60a5fa" strokeWidth="1.5"/>
+            <line x1="148" y1="10" x2="156" y2="10" stroke="#60a5fa" strokeWidth="1.5"/>
+            <line x1="148" y1="180" x2="156" y2="180" stroke="#60a5fa" strokeWidth="1.5"/>
             <text x="158" y="100" textAnchor="start" fontSize="9" fill="#60a5fa" fontWeight="bold" transform="rotate(90 158 100)">ALTO</text>
         </svg>
         <ul className="text-[11px] text-blue-300 mt-3 space-y-1 w-full">
             <li>→ Mide el <strong className="text-blue-200">hueco</strong> del vano</li>
             <li>→ Toma <strong className="text-blue-200">3 puntos</strong>, usa el menor</li>
-            <li>→ Unidad: <strong className="text-blue-200">{unit === 'mm' ? 'Milímetros (mm)' : 'Centímetros (cm)'}</strong></li>
+            <li>→ Unidad: <strong className="text-blue-200">{unit === 'mm' ? 'mm' : 'cm'}</strong></li>
         </ul>
     </div>
 );
@@ -74,15 +83,15 @@ export default function Quote() {
     const { addToCart } = useCart();
     const navigate = useNavigate();
 
-    // Multi-step form state: step 1 = data, step 2 = products, step 3 = confirm
     const [formStep, setFormStep] = useState(1);
+    const [heroIdx, setHeroIdx] = useState(0);
 
     // Step 1 data
     const [userData, setUserData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
     const [step1Errors, setStep1Errors] = useState({});
 
     // Step 2: product builder
-    const [builderStep, setBuilderStep] = useState(0); // 0=type, 1=measure, 2=color+qty
+    const [builderStep, setBuilderStep] = useState(0);
     const [unit, setUnit] = useState('cm');
     const [products, setProducts] = useState([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
@@ -96,7 +105,6 @@ export default function Quote() {
     const [items, setItems] = useState([]);
     const [builderError, setBuilderError] = useState(null);
 
-    // Submission
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState(null);
@@ -112,6 +120,9 @@ export default function Quote() {
             });
             setProducts(data);
         }).catch(() => {}).finally(() => setLoadingProducts(false));
+
+        const timer = setInterval(() => setHeroIdx(i => (i + 1) % HERO_PHOTOS.length), 5000);
+        return () => clearInterval(timer);
     }, []);
 
     const toCm = (val) => unit === 'mm' ? parseFloat(val) / 10 : parseFloat(val);
@@ -138,45 +149,31 @@ export default function Quote() {
         if (!selectedType) return;
         const hasMeasure = selectedType.hasMeasure;
         if (hasMeasure && (!width || !height)) { setBuilderError('Ingresa ancho y alto.'); return; }
-
         const wCm = hasMeasure ? toCm(width) : 0;
         const hCm = hasMeasure ? toCm(height) : 0;
         const price = calcPrice();
-
-        const displayDims = hasMeasure
-            ? `${width} × ${height} ${unit}`
-            : 'Sin medidas (requiere visita)';
-
+        const displayDims = hasMeasure ? `${width} × ${height} ${unit}` : 'Sin medidas (requiere visita)';
         setItems(prev => [...prev, {
             id: Date.now(),
             typeId: selectedType.id,
             typeLabel: selectedType.label,
-            typeIcon: selectedType.icon,
+            typeGrad: selectedType.grad,
+            TypeIcon: selectedType.Icon,
             productId: selectedProduct?.id || null,
             productName: selectedProduct?.name || selectedType.label,
             category: selectedType.label,
             color: color || null,
-            width: wCm,
-            height: hCm,
-            displayDims,
-            quantity,
-            price,
-            notes: itemNotes,
+            width: wCm, height: hCm,
+            displayDims, quantity, price, notes: itemNotes,
         }]);
-
-        setSelectedType(null);
-        setSelectedProduct(null);
-        setWidth(''); setHeight('');
-        setColor(''); setQuantity(1);
-        setItemNotes('');
-        setBuilderError(null);
-        setBuilderStep(0);
+        setSelectedType(null); setSelectedProduct(null);
+        setWidth(''); setHeight(''); setColor(''); setQuantity(1);
+        setItemNotes(''); setBuilderError(null); setBuilderStep(0);
     };
 
     const removeItem = (id) => setItems(prev => prev.filter(i => i.id !== id));
     const total = items.reduce((s, i) => s + i.price, 0);
 
-    // Step 1 validation
     const validateStep1 = () => {
         const errs = {};
         if (!userData.name.trim() || userData.name.trim().length < 2) errs.name = 'Nombre requerido (mínimo 2 caracteres)';
@@ -186,14 +183,10 @@ export default function Quote() {
         return Object.keys(errs).length === 0;
     };
 
-    const goToStep2 = () => {
-        if (validateStep1()) setFormStep(2);
-    };
-
+    const goToStep2 = () => { if (validateStep1()) setFormStep(2); };
     const goToStep3 = () => {
         if (items.length === 0) { setBuilderError('Agrega al menos un producto.'); return; }
-        setBuilderError(null);
-        setFormStep(3);
+        setBuilderError(null); setFormStep(3);
     };
 
     const handleSendQuote = async () => {
@@ -242,7 +235,7 @@ export default function Quote() {
         navigate('/cart');
     };
 
-    // ── SUCCESS SCREEN ────────────────────────────────────────────────────────────
+    // ── SUCCESS ───────────────────────────────────────────────────────────────────
     if (success) {
         return (
             <Layout>
@@ -254,13 +247,11 @@ export default function Quote() {
                         </div>
                         <h1 className="text-4xl font-bold text-white mb-3">¡Cotización Enviada!</h1>
                         <p className="text-blue-200 text-lg mb-2 font-medium">
-                            Enviamos el detalle a <strong className="text-white">{userData.email}</strong>
+                            Detalle enviado a <strong className="text-white">{userData.email}</strong>
                         </p>
                         <p className="text-slate-400 text-sm mb-10">
-                            Revisa tu bandeja de entrada (o spam). Nuestro equipo confirmará disponibilidad y coordinará la instalación contigo.
+                            Revisa tu bandeja (o spam). Nuestro equipo confirmará y coordinará la instalación contigo.
                         </p>
-
-                        {/* Payment methods reminder */}
                         <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-8">
                             <p className="text-blue-300 text-xs font-semibold uppercase tracking-wider mb-4">Aceptamos todos los medios de pago</p>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -272,7 +263,6 @@ export default function Quote() {
                                 ))}
                             </div>
                         </div>
-
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
                             <Link to="/" className="px-7 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-2xl transition-colors">
                                 Volver al Inicio
@@ -291,46 +281,50 @@ export default function Quote() {
         );
     }
 
-    // ── MAIN PAGE ─────────────────────────────────────────────────────────────────
+    // ── MAIN ──────────────────────────────────────────────────────────────────────
     return (
         <Layout>
-            <SEO title="Solicitar Cotización" description="Cotiza tus cortinas, persianas y domótica a medida. Presupuesto personalizado enviado a tu email." path="/quote" />
+            <SEO title="Cotización a Medida" description="Cotiza tus cortinas, persianas y automatización a medida. Presupuesto personalizado enviado a tu email al instante." path="/quote" />
 
-            {/* HERO */}
-            <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 py-14 px-4 relative overflow-hidden">
-                {/* Decorative circles */}
-                <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600/10 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-600/10 rounded-full translate-y-1/2 -translate-x-1/4 pointer-events-none" />
+            {/* ── HERO ─────────────────────────────────────────────────────────── */}
+            <div className="relative min-h-[480px] flex flex-col justify-end overflow-hidden">
+                {/* rotating photo bg */}
+                {HERO_PHOTOS.map((src, i) => (
+                    <div key={src} className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+                        style={{ backgroundImage: `url(${src})`, opacity: i === heroIdx ? 1 : 0 }} />
+                ))}
+                {/* gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/60 to-slate-900" />
 
-                <div className="container mx-auto max-w-5xl relative">
+                <div className="relative container mx-auto max-w-5xl px-4 pb-12 pt-20">
                     <div className="text-center mb-10">
                         <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold px-4 py-1.5 rounded-full mb-5 uppercase tracking-wider">
-                            <FileText className="w-3.5 h-3.5" /> Cotización personalizada
+                            <FileText className="w-3.5 h-3.5" /> Cotización personalizada · Sin costo
                         </div>
                         <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-4">
-                            Solicita tu Presupuesto<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">a Medida</span>
+                            Tu presupuesto<br />
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">exacto, en minutos</span>
                         </h1>
-                        <p className="text-slate-300 text-lg max-w-2xl mx-auto">
-                            Cortinas, persianas y automatización fabricadas según tus dimensiones exactas. Recibe el detalle en tu email al instante.
+                        <p className="text-slate-300 text-lg max-w-xl mx-auto">
+                            Cortinas y persianas fabricadas a tus medidas. Recibe el detalle en tu email al instante.
                         </p>
                     </div>
 
                     {/* Step indicator */}
-                    <div className="flex items-center justify-center gap-0 max-w-xs mx-auto mb-10">
+                    <div className="flex items-center justify-center gap-0 max-w-xs mx-auto mb-8">
                         {STEPS.map((s, idx) => (
                             <React.Fragment key={s.num}>
                                 <div className="flex flex-col items-center">
                                     <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all duration-300 ${
                                         formStep > s.num ? 'bg-green-500 border-green-500 text-white' :
-                                        formStep === s.num ? 'bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/30' :
-                                        'bg-transparent border-white/20 text-white/40'
+                                        formStep === s.num ? 'bg-blue-500 border-blue-400 text-white shadow-lg shadow-blue-500/40' :
+                                        'bg-white/5 border-white/20 text-white/40'
                                     }`}>
                                         {formStep > s.num ? '✓' : s.num}
                                     </div>
-                                    <span className={`text-xs mt-1.5 font-medium transition-colors duration-300 ${
-                                        formStep >= s.num ? 'text-blue-300' : 'text-white/30'
-                                    }`}>{s.label}</span>
+                                    <span className={`text-xs mt-1.5 font-medium transition-colors duration-300 ${formStep >= s.num ? 'text-blue-300' : 'text-white/30'}`}>
+                                        {s.label}{s.num === 2 && items.length > 0 ? ` (${items.length})` : ''}
+                                    </span>
                                 </div>
                                 {idx < STEPS.length - 1 && (
                                     <div className={`w-16 h-0.5 mb-5 mx-1 transition-colors duration-300 ${formStep > s.num ? 'bg-green-500' : 'bg-white/15'}`} />
@@ -339,214 +333,205 @@ export default function Quote() {
                         ))}
                     </div>
 
-                    {/* Payment methods banner */}
-                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                        <p className="text-center text-blue-400 text-xs font-semibold uppercase tracking-wider mb-3">Aceptamos todos los medios de pago</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            {PAYMENT_METHODS.map(m => (
-                                <div key={m.label} className="flex items-center gap-2.5 p-2.5 bg-white/5 rounded-xl">
-                                    <span className="text-blue-400 flex-shrink-0">{m.icon}</span>
-                                    <div>
-                                        <p className="text-white text-xs font-semibold">{m.label}</p>
-                                        <p className="text-slate-400 text-[10px]">{m.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                    {/* Trust bar */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[
+                            { Icon: Star,         label: 'Presupuesto gratis' },
+                            { Icon: Ruler,        label: 'Fabricación a medida' },
+                            { Icon: Shield,       label: 'Garantía incluida' },
+                            { Icon: Clock,        label: 'Respuesta en 24h' },
+                        ].map(({ Icon, label }) => (
+                            <div key={label} className="flex items-center gap-2 bg-white/8 backdrop-blur border border-white/10 rounded-xl px-3 py-2.5">
+                                <Icon className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                                <span className="text-white text-xs font-medium">{label}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* FORM BODY */}
+            {/* ── FORM BODY ─────────────────────────────────────────────────────── */}
             <div className="bg-slate-50 min-h-screen py-10 px-4">
                 <div className="container mx-auto max-w-5xl">
 
-                    {/* ── STEP 1: Personal data ──────────────────────────────── */}
+                    {/* ── STEP 1: Datos ──────────────────────────────────────────── */}
                     {formStep === 1 && (
-                        <div className="max-w-xl mx-auto">
-                            <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                                <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-                                            <User className="w-5 h-5 text-white" />
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-4xl mx-auto">
+                            <div className="lg:col-span-3">
+                                <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                                    <div className="bg-gradient-to-r from-blue-600 to-blue-800 p-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                                                <User className="w-5 h-5 text-white" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-white font-bold text-lg">Tus datos de contacto</h2>
+                                                <p className="text-blue-200 text-sm">Te enviamos la cotización por email</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 space-y-5">
+                                        {[
+                                            { key: 'name',    label: 'Nombre completo', req: true,  Icon: User,  type: 'text',  placeholder: 'Ej: María González' },
+                                            { key: 'email',   label: 'Email',           req: true,  Icon: Mail,  type: 'email', placeholder: 'tu@email.com' },
+                                            { key: 'phone',   label: 'Teléfono / WhatsApp', req: true, Icon: Phone, type: 'tel', placeholder: '+56 9 XXXX XXXX' },
+                                        ].map(f => (
+                                            <div key={f.key}>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                                    {f.label} {f.req && <span className="text-red-500">*</span>}
+                                                </label>
+                                                <div className="relative">
+                                                    <f.Icon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                                                    <input type={f.type} value={userData[f.key]}
+                                                        onChange={e => setUserData(p => ({ ...p, [f.key]: e.target.value }))}
+                                                        placeholder={f.placeholder}
+                                                        className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:outline-none transition-colors ${step1Errors[f.key] ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
+                                                    />
+                                                </div>
+                                                {step1Errors[f.key] && <p className="text-red-500 text-xs mt-1">{step1Errors[f.key]}</p>}
+                                                {f.key === 'email' && <p className="text-xs text-slate-400 mt-1">Te enviamos la cotización con el detalle de precios.</p>}
+                                            </div>
+                                        ))}
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                                Dirección / Comuna <span className="text-slate-400 font-normal">(opcional)</span>
+                                            </label>
+                                            <input type="text" value={userData.address}
+                                                onChange={e => setUserData(p => ({ ...p, address: e.target.value }))}
+                                                placeholder="Ej: Las Condes, Santiago"
+                                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none transition-colors"
+                                            />
                                         </div>
                                         <div>
-                                            <h2 className="text-white font-bold text-lg">Tus datos de contacto</h2>
-                                            <p className="text-blue-200 text-sm">Para enviarte la cotización personalizada</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="p-6 space-y-5">
-                                    {/* Name */}
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Nombre completo <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                            <input
-                                                type="text"
-                                                value={userData.name}
-                                                onChange={e => setUserData(p => ({ ...p, name: e.target.value }))}
-                                                placeholder="Ej: María González"
-                                                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:outline-none transition-colors ${step1Errors.name ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">
+                                                Notas adicionales <span className="text-slate-400 font-normal">(opcional)</span>
+                                            </label>
+                                            <textarea value={userData.notes}
+                                                onChange={e => setUserData(p => ({ ...p, notes: e.target.value }))}
+                                                rows={2} placeholder="Preferencia horaria, tipo de instalación..."
+                                                className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none resize-none transition-colors"
                                             />
                                         </div>
-                                        {step1Errors.name && <p className="text-red-500 text-xs mt-1">{step1Errors.name}</p>}
+                                        <button onClick={goToStep2}
+                                            className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/20">
+                                            Continuar — Seleccionar Productos <ChevronRight className="w-5 h-5" />
+                                        </button>
                                     </div>
-
-                                    {/* Email */}
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Email <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                            <input
-                                                type="email"
-                                                value={userData.email}
-                                                onChange={e => setUserData(p => ({ ...p, email: e.target.value }))}
-                                                placeholder="tu@email.com"
-                                                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:outline-none transition-colors ${step1Errors.email ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
-                                            />
-                                        </div>
-                                        {step1Errors.email && <p className="text-red-500 text-xs mt-1">{step1Errors.email}</p>}
-                                        <p className="text-xs text-slate-400 mt-1">Te enviaremos la cotización con el detalle de precios.</p>
-                                    </div>
-
-                                    {/* Phone */}
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Teléfono / WhatsApp <span className="text-red-500">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                            <input
-                                                type="tel"
-                                                value={userData.phone}
-                                                onChange={e => setUserData(p => ({ ...p, phone: e.target.value }))}
-                                                placeholder="+56 9 XXXX XXXX"
-                                                className={`w-full pl-10 pr-4 py-3 border-2 rounded-xl text-sm focus:outline-none transition-colors ${step1Errors.phone ? 'border-red-300 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'}`}
-                                            />
-                                        </div>
-                                        {step1Errors.phone && <p className="text-red-500 text-xs mt-1">{step1Errors.phone}</p>}
-                                    </div>
-
-                                    {/* Address (optional) */}
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Dirección / Comuna <span className="text-slate-400 font-normal">(opcional)</span>
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={userData.address}
-                                            onChange={e => setUserData(p => ({ ...p, address: e.target.value }))}
-                                            placeholder="Ej: Las Condes, Santiago"
-                                            className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none transition-colors"
-                                        />
-                                    </div>
-
-                                    {/* Notes (optional) */}
-                                    <div>
-                                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">
-                                            Notas adicionales <span className="text-slate-400 font-normal">(opcional)</span>
-                                        </label>
-                                        <textarea
-                                            value={userData.notes}
-                                            onChange={e => setUserData(p => ({ ...p, notes: e.target.value }))}
-                                            rows={2}
-                                            placeholder="Preferencia horaria, tipo de instalación, consultas..."
-                                            className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 focus:outline-none resize-none transition-colors"
-                                        />
-                                    </div>
-
-                                    <button
-                                        onClick={goToStep2}
-                                        className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/20">
-                                        Continuar — Seleccionar Productos <ChevronRight className="w-5 h-5" />
-                                    </button>
                                 </div>
                             </div>
 
-                            {/* Info box */}
-                            <div className="mt-6 bg-blue-50 border border-blue-100 rounded-2xl p-5">
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Info className="w-4 h-4 text-blue-600" />
-                                    <span className="font-semibold text-blue-800 text-sm">¿Cómo funciona?</span>
+                            {/* Sidebar step 1 */}
+                            <div className="lg:col-span-2 space-y-4">
+                                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <Info className="w-4 h-4 text-blue-600" />
+                                        </div>
+                                        <span className="font-bold text-slate-900 text-sm">¿Cómo funciona?</span>
+                                    </div>
+                                    <ol className="space-y-3">
+                                        {[
+                                            'Ingresa tus datos de contacto',
+                                            'Agrega los productos con medidas y color',
+                                            'Revisa el resumen y envía la cotización',
+                                            'Recibes el presupuesto en tu email',
+                                        ].map((t, i) => (
+                                            <li key={i} className="flex items-start gap-2.5">
+                                                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
+                                                <span className="text-sm text-slate-600">{t}</span>
+                                            </li>
+                                        ))}
+                                    </ol>
                                 </div>
-                                <ol className="space-y-2">
-                                    {[
-                                        'Ingresa tus datos de contacto',
-                                        'Agrega los productos con medidas y color',
-                                        'Revisa el resumen y envía la cotización',
-                                        'Recibes el presupuesto detallado por email',
-                                    ].map((t, i) => (
-                                        <li key={i} className="flex items-start gap-2.5">
-                                            <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">{i+1}</span>
-                                            <span className="text-sm text-blue-700">{t}</span>
-                                        </li>
-                                    ))}
-                                </ol>
+
+                                {waNumber && (
+                                    <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, quisiera cotizar algunos productos de TerraBlinds.')}`}
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="flex items-center gap-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-2xl p-4 transition-colors">
+                                        <div className="w-9 h-9 bg-green-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                            <WhatsAppIcon />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-green-900 text-sm">Cotizar por WhatsApp</p>
+                                            <p className="text-green-700 text-xs">Respuesta inmediata</p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-green-500 ml-auto" />
+                                    </a>
+                                )}
+
+                                <Link to="/agendar"
+                                    className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl p-4 transition-colors">
+                                    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                        <CalendarCheck className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-blue-900 text-sm">Medición gratis a domicilio</p>
+                                        <p className="text-blue-700 text-xs">Agenda una visita técnica</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-blue-500 ml-auto" />
+                                </Link>
                             </div>
                         </div>
                     )}
 
-                    {/* ── STEP 2: Products ──────────────────────────────────────── */}
+                    {/* ── STEP 2: Productos ──────────────────────────────────────── */}
                     {formStep === 2 && (
                         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                            {/* Left: product builder */}
+                            {/* Left builder */}
                             <div className="lg:col-span-3 space-y-4">
-                                {/* Back button */}
-                                <button onClick={() => setFormStep(1)} className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors">
-                                    <ChevronLeft className="w-4 h-4" /> Volver a mis datos
-                                </button>
-
-                                {/* Unit toggle */}
-                                <div className="flex items-center gap-3">
-                                    <span className="text-sm text-slate-600 font-medium">Unidad de medida:</span>
-                                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <button onClick={() => setFormStep(1)} className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors">
+                                        <ChevronLeft className="w-4 h-4" /> Volver a mis datos
+                                    </button>
+                                    <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-lg p-0.5 shadow-sm">
+                                        <span className="text-xs text-slate-500 pl-2 font-medium">Unidad:</span>
                                         {['cm', 'mm'].map(u => (
                                             <button key={u} onClick={() => setUnit(u)}
-                                                className={`px-4 py-1.5 rounded-md text-sm font-semibold transition-all ${unit === u ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
+                                                className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${unit === u ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
                                                 {u.toUpperCase()}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* Builder sub-steps */}
+                                {/* Sub-step pills */}
                                 {builderStep < 3 && (
-                                    <div className="flex items-center mb-1">
+                                    <div className="flex items-center bg-white border border-slate-100 rounded-xl shadow-sm p-3">
                                         {['Tipo', 'Medidas', 'Color & Cant.'].map((label, i) => (
                                             <React.Fragment key={i}>
                                                 <div className={`flex items-center gap-1.5 ${i <= builderStep ? 'text-blue-600' : 'text-slate-300'}`}>
                                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${i < builderStep ? 'bg-blue-600 border-blue-600 text-white' : i === builderStep ? 'border-blue-600 text-blue-600' : 'border-slate-300 text-slate-300'}`}>
                                                         {i < builderStep ? '✓' : i + 1}
                                                     </div>
-                                                    <span className="text-xs font-medium hidden sm:block">{label}</span>
+                                                    <span className="text-xs font-semibold hidden sm:block">{label}</span>
                                                 </div>
-                                                {i < 2 && <div className={`flex-1 h-0.5 mx-2 ${i < builderStep ? 'bg-blue-600' : 'bg-slate-200'}`} />}
+                                                {i < 2 && <div className={`flex-1 h-0.5 mx-2 rounded-full ${i < builderStep ? 'bg-blue-600' : 'bg-slate-200'}`} />}
                                             </React.Fragment>
                                         ))}
                                     </div>
                                 )}
 
-                                {/* Builder Step 0: Type */}
+                                {/* Builder Step 0: Product type grid */}
                                 {builderStep === 0 && (
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                                         <h2 className="font-bold text-slate-900 text-lg mb-4 flex items-center gap-2">
                                             <Package className="w-5 h-5 text-blue-600" /> ¿Qué producto necesitas?
                                         </h2>
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                                            {PRODUCT_TYPES.map(type => (
-                                                <button key={type.id} onClick={() => { setSelectedType(type); setSelectedProduct(null); setBuilderStep(type.hasMeasure ? 1 : 2); setBuilderError(null); }}
-                                                    className="group flex flex-col items-center p-3.5 rounded-xl border-2 border-slate-100 hover:border-blue-400 hover:bg-blue-50 transition-all text-center">
-                                                    <span className="text-2xl mb-1.5">{type.icon}</span>
-                                                    <span className="text-sm font-semibold text-slate-800 leading-tight">{type.label}</span>
-                                                    <span className="text-[10px] text-slate-400 mt-0.5 leading-tight">{type.desc}</span>
-                                                </button>
-                                            ))}
+                                            {PRODUCT_TYPES.map(type => {
+                                                const { Icon } = type;
+                                                return (
+                                                    <button key={type.id}
+                                                        onClick={() => { setSelectedType(type); setSelectedProduct(null); setBuilderStep(type.hasMeasure ? 1 : 2); setBuilderError(null); }}
+                                                        className="group flex flex-col items-center p-3.5 rounded-xl border-2 border-slate-100 hover:border-blue-400 hover:shadow-md transition-all text-center">
+                                                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${type.grad} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
+                                                            <Icon className={`w-5 h-5 ${type.ic}`} />
+                                                        </div>
+                                                        <span className="text-sm font-semibold text-slate-800 leading-tight">{type.label}</span>
+                                                        <span className="text-[10px] text-slate-400 mt-0.5 leading-tight">{type.desc}</span>
+                                                    </button>
+                                                );
+                                            })}
                                         </div>
                                     </div>
                                 )}
@@ -555,54 +540,49 @@ export default function Quote() {
                                 {builderStep === 1 && selectedType && (
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <span className="text-2xl">{selectedType.icon}</span>
+                                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${selectedType.grad} flex items-center justify-center`}>
+                                                <selectedType.Icon className={`w-5 h-5 ${selectedType.ic}`} />
+                                            </div>
                                             <div>
                                                 <h2 className="font-bold text-slate-900 text-lg">{selectedType.label}</h2>
-                                                <p className="text-sm text-slate-500">Medidas del vano (hueco de la ventana)</p>
+                                                <p className="text-sm text-slate-500">Medidas del vano (hueco de ventana)</p>
                                             </div>
                                         </div>
-
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                             <div className="space-y-4">
                                                 {[
-                                                    { key: 'width', label: 'Ancho', val: width, set: setWidth, placeholder: unit === 'mm' ? 'Ej: 1500' : 'Ej: 150' },
-                                                    { key: 'height', label: 'Alto', val: height, set: setHeight, placeholder: unit === 'mm' ? 'Ej: 2000' : 'Ej: 200' },
+                                                    { key: 'width',  label: 'Ancho', val: width,  set: setWidth,  placeholder: unit === 'mm' ? '1500' : '150' },
+                                                    { key: 'height', label: 'Alto',  val: height, set: setHeight, placeholder: unit === 'mm' ? '2000' : '200' },
                                                 ].map(f => (
                                                     <div key={f.key}>
                                                         <label className="block text-sm font-semibold text-slate-700 mb-1.5">{f.label} ({unit})</label>
                                                         <div className="relative">
-                                                            <input
-                                                                type="number" min="1"
-                                                                step={unit === 'mm' ? 1 : 0.1}
-                                                                value={f.val}
-                                                                onChange={e => f.set(e.target.value)}
+                                                            <input type="number" min="1" step={unit === 'mm' ? 1 : 0.1}
+                                                                value={f.val} onChange={e => f.set(e.target.value)}
                                                                 placeholder={f.placeholder}
                                                                 className="w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-base focus:border-blue-500 outline-none transition-colors font-mono pr-12"
                                                             />
                                                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 font-medium">{unit}</span>
                                                         </div>
-                                                        {f.val && unit === 'mm' && <p className="text-xs text-slate-400 mt-1">= {(parseFloat(f.val) / 10).toFixed(1)} cm</p>}
-                                                        {f.val && unit === 'cm' && <p className="text-xs text-slate-400 mt-1">= {(parseFloat(f.val) * 10).toFixed(0)} mm</p>}
+                                                        {f.val && unit === 'mm' && <p className="text-xs text-slate-400 mt-1">= {(parseFloat(f.val)/10).toFixed(1)} cm</p>}
+                                                        {f.val && unit === 'cm' && <p className="text-xs text-slate-400 mt-1">= {(parseFloat(f.val)*10).toFixed(0)} mm</p>}
                                                     </div>
                                                 ))}
-
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Cantidad</label>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Cantidad de vanos</label>
                                                     <div className="flex items-center gap-2">
-                                                        <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                                        <button type="button" onClick={() => setQuantity(q => Math.max(1, q-1))}
                                                             className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">−</button>
                                                         <input type="number" min="1" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)}
                                                             className="flex-1 text-center py-2.5 border-2 border-slate-200 rounded-xl text-base font-bold focus:border-blue-500 outline-none" />
-                                                        <button type="button" onClick={() => setQuantity(q => q + 1)}
+                                                        <button type="button" onClick={() => setQuantity(q => q+1)}
                                                             className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">+</button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <MeasureGuide unit={unit} />
                                         </div>
-
                                         {builderError && <div className="mt-3 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">{builderError}</div>}
-
                                         <div className="flex gap-3 mt-5">
                                             <button onClick={() => setBuilderStep(0)} className="flex items-center gap-1.5 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50">
                                                 <ChevronLeft className="w-4 h-4" /> Atrás
@@ -615,35 +595,32 @@ export default function Quote() {
                                     </div>
                                 )}
 
-                                {/* Builder Step 2: Color, model, notes */}
+                                {/* Builder Step 2: Color & model */}
                                 {builderStep === 2 && selectedType && (
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                                         <div className="flex items-center gap-3 mb-5">
-                                            <span className="text-2xl">{selectedType.icon}</span>
+                                            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${selectedType.grad} flex items-center justify-center`}>
+                                                <selectedType.Icon className={`w-5 h-5 ${selectedType.ic}`} />
+                                            </div>
                                             <div>
                                                 <h2 className="font-bold text-slate-900 text-lg">Color & Modelo</h2>
                                                 <p className="text-sm text-slate-500">{selectedType.label}</p>
                                             </div>
                                         </div>
-
                                         <div className="space-y-4">
                                             {!selectedType.hasMeasure && (
                                                 <div>
                                                     <label className="block text-sm font-semibold text-slate-700 mb-1.5">Cantidad</label>
                                                     <div className="flex items-center gap-2">
-                                                        <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                                                            className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">−</button>
-                                                        <input type="number" min="1" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)}
-                                                            className="flex-1 text-center py-2.5 border-2 border-slate-200 rounded-xl text-base font-bold focus:border-blue-500 outline-none" />
-                                                        <button type="button" onClick={() => setQuantity(q => q + 1)}
-                                                            className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">+</button>
+                                                        <button type="button" onClick={() => setQuantity(q => Math.max(1, q-1))} className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">−</button>
+                                                        <input type="number" min="1" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 1)} className="flex-1 text-center py-2.5 border-2 border-slate-200 rounded-xl text-base font-bold focus:border-blue-500 outline-none" />
+                                                        <button type="button" onClick={() => setQuantity(q => q+1)} className="w-10 h-10 rounded-xl border-2 border-slate-200 flex items-center justify-center text-lg font-bold text-slate-600 hover:bg-slate-50">+</button>
                                                     </div>
                                                 </div>
                                             )}
-
                                             {!loadingProducts && typeProducts.length > 0 && (
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Modelo / Tela (opcional)</label>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Modelo / Tela <span className="text-slate-400 font-normal">(opcional)</span></label>
                                                     <select value={selectedProduct?.id || ''}
                                                         onChange={e => setSelectedProduct(typeProducts.find(p => p.id === parseInt(e.target.value)) || null)}
                                                         className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 outline-none">
@@ -654,10 +631,9 @@ export default function Quote() {
                                                     </select>
                                                 </div>
                                             )}
-
                                             {selectedProduct?.colors?.length > 0 && (
                                                 <div>
-                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Color / Tela</label>
+                                                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Color disponible</label>
                                                     <div className="flex flex-wrap gap-2">
                                                         {selectedProduct.colors.filter(Boolean).map(c => (
                                                             <button key={c} type="button" onClick={() => setColor(c)}
@@ -668,21 +644,18 @@ export default function Quote() {
                                                     </div>
                                                 </div>
                                             )}
-
                                             <div>
                                                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">Color / acabado deseado</label>
                                                 <input value={color} onChange={e => setColor(e.target.value)}
                                                     placeholder="Ej: Blanco perla, Gris oscuro, Natural..."
                                                     className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 outline-none" />
                                             </div>
-
                                             <div>
-                                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Notas de este ítem (opcional)</label>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Notas de este ítem <span className="text-slate-400 font-normal">(opcional)</span></label>
                                                 <textarea value={itemNotes} onChange={e => setItemNotes(e.target.value)} rows={2}
-                                                    placeholder="Ej: Para habitación principal, colgado por dentro del vano..."
+                                                    placeholder="Ej: Habitación principal, colgado por dentro del vano..."
                                                     className="w-full px-3 py-2.5 border-2 border-slate-200 rounded-xl text-sm focus:border-blue-500 outline-none resize-none" />
                                             </div>
-
                                             {selectedProduct && (
                                                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between">
                                                     <span className="text-sm text-blue-700 font-medium">Precio estimado:</span>
@@ -690,9 +663,7 @@ export default function Quote() {
                                                 </div>
                                             )}
                                         </div>
-
                                         {builderError && <div className="mt-3 bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">{builderError}</div>}
-
                                         <div className="flex gap-3 mt-5">
                                             <button onClick={() => setBuilderStep(selectedType.hasMeasure ? 1 : 0)}
                                                 className="flex items-center gap-1.5 px-4 py-2.5 border-2 border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50">
@@ -711,7 +682,8 @@ export default function Quote() {
                                     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="font-bold text-slate-900">
-                                                Productos <span className="ml-1 bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{items.length}</span>
+                                                Productos agregados
+                                                <span className="ml-2 bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{items.length}</span>
                                             </h3>
                                             <button onClick={() => { setBuilderStep(0); setBuilderError(null); }}
                                                 className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800">
@@ -719,26 +691,32 @@ export default function Quote() {
                                             </button>
                                         </div>
                                         <div className="space-y-2.5">
-                                            {items.map(item => (
-                                                <div key={item.id} className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
-                                                    <span className="text-xl flex-shrink-0 mt-0.5">{item.typeIcon}</span>
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="font-semibold text-slate-900 text-sm">{item.productName}</p>
-                                                        <p className="text-xs text-slate-500 mt-0.5">
-                                                            {item.displayDims}
-                                                            {item.color && <span className="ml-2 text-blue-600">· {item.color}</span>}
-                                                            {item.quantity > 1 && <span className="ml-2">· ×{item.quantity}</span>}
-                                                        </p>
-                                                        {item.notes && <p className="text-xs text-slate-400 mt-0.5 italic">{item.notes}</p>}
+                                            {items.map(item => {
+                                                const TI = item.TypeIcon;
+                                                return (
+                                                    <div key={item.id} className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                                                        {TI && (
+                                                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${item.typeGrad || 'from-blue-600 to-blue-700'} flex items-center justify-center flex-shrink-0`}>
+                                                                <TI className="w-4 h-4 text-white" />
+                                                            </div>
+                                                        )}
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-slate-900 text-sm">{item.productName}</p>
+                                                            <p className="text-xs text-slate-500 mt-0.5">
+                                                                {item.displayDims}
+                                                                {item.color && <span className="ml-2 text-blue-600">· {item.color}</span>}
+                                                                {item.quantity > 1 && <span className="ml-2">· ×{item.quantity}</span>}
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                                            {item.price > 0 && <span className="text-sm font-bold text-slate-900">{fmtCLP(item.price)}</span>}
+                                                            <button onClick={() => removeItem(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-1">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-2 flex-shrink-0">
-                                                        {item.price > 0 && <span className="text-sm font-bold text-slate-900">{fmtCLP(item.price)}</span>}
-                                                        <button onClick={() => removeItem(item.id)} className="text-slate-300 hover:text-red-500 transition-colors p-1">
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            ))}
+                                                );
+                                            })}
                                         </div>
                                         {total > 0 && (
                                             <div className="mt-3 pt-3 border-t border-slate-200 flex justify-between items-center">
@@ -753,7 +731,6 @@ export default function Quote() {
                                     <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-sm">{builderError}</div>
                                 )}
 
-                                {/* Go to step 3 */}
                                 {items.length > 0 && (
                                     <button onClick={goToStep3}
                                         className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/20">
@@ -762,46 +739,101 @@ export default function Quote() {
                                 )}
                             </div>
 
-                            {/* Right: sticky info */}
-                            <div className="lg:col-span-2">
+                            {/* Right sidebar step 2 */}
+                            <div className="lg:col-span-2 space-y-4">
+                                {/* Client summary card */}
                                 <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 sticky top-24">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                    <div className="flex items-center gap-2 mb-3">
+                                        <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
                                             <User className="w-4 h-4 text-blue-600" />
                                         </div>
-                                        <div>
-                                            <p className="text-xs text-slate-400 font-medium">Cotización para</p>
-                                            <p className="font-semibold text-slate-900 text-sm">{userData.name || '—'}</p>
-                                        </div>
+                                        <p className="text-xs text-slate-400 font-medium">Cotización para</p>
                                     </div>
-                                    <div className="space-y-1.5 text-xs text-slate-500 mb-4 pb-4 border-b border-slate-100">
+                                    <p className="font-bold text-slate-900">{userData.name || '—'}</p>
+                                    <div className="text-xs text-slate-400 mt-1 space-y-0.5">
                                         <p>{userData.email}</p>
                                         <p>{userData.phone}</p>
                                         {userData.address && <p>{userData.address}</p>}
                                     </div>
-                                    <div className="text-xs text-slate-400 space-y-1.5">
-                                        <p className="font-semibold text-slate-600">Medios de pago:</p>
-                                        {PAYMENT_METHODS.map(m => (
-                                            <div key={m.label} className="flex items-center gap-2">
-                                                <span className="text-blue-500 w-3.5 h-3.5">{m.icon}</span>
-                                                <span>{m.label}</span>
+
+                                    {items.length > 0 && (
+                                        <div className="mt-4 pt-4 border-t border-slate-100">
+                                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Resumen</p>
+                                            <div className="space-y-1.5">
+                                                {items.map(item => {
+                                                    const TI = item.TypeIcon;
+                                                    return (
+                                                        <div key={item.id} className="flex items-center gap-2">
+                                                            {TI && (
+                                                                <div className={`w-5 h-5 rounded bg-gradient-to-br ${item.typeGrad || 'from-blue-600 to-blue-700'} flex items-center justify-center flex-shrink-0`}>
+                                                                    <TI className="w-3 h-3 text-white" />
+                                                                </div>
+                                                            )}
+                                                            <span className="text-xs text-slate-700 truncate flex-1">{item.productName}</span>
+                                                            {item.price > 0 && <span className="text-xs font-bold text-slate-900 flex-shrink-0">{fmtCLP(item.price)}</span>}
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-                                        ))}
+                                            {total > 0 && (
+                                                <div className="mt-3 pt-2 border-t border-slate-100 flex justify-between">
+                                                    <span className="text-xs text-slate-500 font-semibold">Total estimado</span>
+                                                    <span className="text-sm font-bold text-blue-700">{fmtCLP(total)}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <div className="mt-4 pt-4 border-t border-slate-100">
+                                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Medios de pago</p>
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            {PAYMENT_METHODS.map(m => (
+                                                <div key={m.label} className="flex items-center gap-1.5">
+                                                    <span className="text-blue-500 w-3.5 h-3.5">{m.icon}</span>
+                                                    <span className="text-xs text-slate-600">{m.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
+
+                                {waNumber && (
+                                    <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, quisiera cotizar productos de TerraBlinds.')}`}
+                                        target="_blank" rel="noopener noreferrer"
+                                        className="flex items-center gap-3 bg-green-50 hover:bg-green-100 border border-green-200 rounded-2xl p-4 transition-colors">
+                                        <div className="w-9 h-9 bg-green-500 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                            <WhatsAppIcon />
+                                        </div>
+                                        <div>
+                                            <p className="font-semibold text-green-900 text-sm">Cotizar por WhatsApp</p>
+                                            <p className="text-green-700 text-xs">¿Tienes dudas? Escríbenos</p>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-green-500 ml-auto" />
+                                    </a>
+                                )}
+
+                                <Link to="/agendar"
+                                    className="flex items-center gap-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl p-4 transition-colors">
+                                    <div className="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+                                        <CalendarCheck className="w-5 h-5" />
+                                    </div>
+                                    <div>
+                                        <p className="font-semibold text-blue-900 text-sm">Medición gratis</p>
+                                        <p className="text-blue-700 text-xs">Agenda visita a domicilio</p>
+                                    </div>
+                                    <ChevronRight className="w-4 h-4 text-blue-500 ml-auto" />
+                                </Link>
                             </div>
                         </div>
                     )}
 
-                    {/* ── STEP 3: Confirmation ──────────────────────────────────── */}
+                    {/* ── STEP 3: Confirmación ───────────────────────────────────── */}
                     {formStep === 3 && (
                         <div className="max-w-2xl mx-auto">
                             <button onClick={() => setFormStep(2)} className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-blue-600 transition-colors mb-6">
                                 <ChevronLeft className="w-4 h-4" /> Volver a productos
                             </button>
-
                             <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                                {/* Header */}
                                 <div className="bg-gradient-to-r from-slate-800 to-slate-900 p-6">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center">
@@ -813,34 +845,16 @@ export default function Quote() {
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="p-6 space-y-6">
-                                    {/* Customer summary */}
                                     <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4">
                                         <p className="text-xs font-bold uppercase text-blue-400 tracking-wider mb-3">Datos del cliente</p>
                                         <div className="grid grid-cols-2 gap-3 text-sm">
-                                            <div>
-                                                <p className="text-slate-400 text-xs">Nombre</p>
-                                                <p className="font-semibold text-slate-900">{userData.name}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-400 text-xs">Email</p>
-                                                <p className="font-semibold text-slate-900 break-all">{userData.email}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-400 text-xs">Teléfono</p>
-                                                <p className="font-semibold text-slate-900">{userData.phone}</p>
-                                            </div>
-                                            {userData.address && (
-                                                <div>
-                                                    <p className="text-slate-400 text-xs">Dirección</p>
-                                                    <p className="font-semibold text-slate-900">{userData.address}</p>
-                                                </div>
-                                            )}
+                                            <div><p className="text-slate-400 text-xs">Nombre</p><p className="font-semibold text-slate-900">{userData.name}</p></div>
+                                            <div><p className="text-slate-400 text-xs">Email</p><p className="font-semibold text-slate-900 break-all">{userData.email}</p></div>
+                                            <div><p className="text-slate-400 text-xs">Teléfono</p><p className="font-semibold text-slate-900">{userData.phone}</p></div>
+                                            {userData.address && <div><p className="text-slate-400 text-xs">Dirección</p><p className="font-semibold text-slate-900">{userData.address}</p></div>}
                                         </div>
                                     </div>
-
-                                    {/* Items summary */}
                                     <div>
                                         <p className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Productos solicitados</p>
                                         <div className="border border-slate-200 rounded-2xl overflow-hidden">
@@ -854,21 +868,31 @@ export default function Quote() {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-100">
-                                                    {items.map(item => (
-                                                        <tr key={item.id}>
-                                                            <td className="px-4 py-3 font-medium text-slate-900">
-                                                                <span className="mr-1.5">{item.typeIcon}</span>{item.productName}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">
-                                                                {item.displayDims}
-                                                                {item.color && <span className="ml-1 text-xs bg-slate-100 px-1.5 py-0.5 rounded">{item.color}</span>}
-                                                            </td>
-                                                            <td className="px-4 py-3 text-center">{item.quantity}</td>
-                                                            <td className="px-4 py-3 text-right font-bold text-slate-900">
-                                                                {item.price > 0 ? fmtCLP(item.price) : 'A consultar'}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                    {items.map(item => {
+                                                        const TI = item.TypeIcon;
+                                                        return (
+                                                            <tr key={item.id}>
+                                                                <td className="px-4 py-3 font-medium text-slate-900">
+                                                                    <div className="flex items-center gap-2">
+                                                                        {TI && (
+                                                                            <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${item.typeGrad || 'from-blue-600 to-blue-700'} flex items-center justify-center flex-shrink-0`}>
+                                                                                <TI className="w-3 h-3 text-white" />
+                                                                            </div>
+                                                                        )}
+                                                                        <span className="text-sm">{item.productName}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-slate-500 hidden sm:table-cell text-xs">
+                                                                    {item.displayDims}
+                                                                    {item.color && <span className="ml-1 bg-slate-100 px-1.5 py-0.5 rounded">{item.color}</span>}
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">{item.quantity}</td>
+                                                                <td className="px-4 py-3 text-right font-bold text-slate-900">
+                                                                    {item.price > 0 ? fmtCLP(item.price) : 'A consultar'}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    })}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -876,52 +900,35 @@ export default function Quote() {
                                             <span className="text-sm text-slate-500">Total estimado</span>
                                             <span className="text-2xl font-bold text-slate-900">{total > 0 ? fmtCLP(total) : 'Precio a confirmar'}</span>
                                         </div>
-                                        {total === 0 && (
-                                            <p className="text-xs text-slate-400 mt-1 px-1 italic">El precio final se confirmará tras revisión técnica.</p>
-                                        )}
+                                        {total === 0 && <p className="text-xs text-slate-400 mt-1 px-1 italic">El precio final se confirmará tras revisión técnica.</p>}
                                     </div>
-
-                                    {/* Payment methods */}
                                     <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
                                         <p className="text-xs font-bold uppercase text-slate-400 tracking-wider mb-3">Medios de pago aceptados</p>
                                         <div className="grid grid-cols-2 gap-2.5">
                                             {PAYMENT_METHODS.map(m => (
                                                 <div key={m.label} className="flex items-center gap-2 p-2.5 bg-white rounded-xl border border-slate-100">
                                                     <span className="text-blue-500">{m.icon}</span>
-                                                    <div>
-                                                        <p className="text-slate-800 text-xs font-semibold">{m.label}</p>
-                                                        <p className="text-slate-400 text-[10px]">{m.desc}</p>
-                                                    </div>
+                                                    <div><p className="text-slate-800 text-xs font-semibold">{m.label}</p><p className="text-slate-400 text-[10px]">{m.desc}</p></div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
-
                                     {error && <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-xl text-sm">{error}</div>}
-
-                                    {/* Action buttons */}
                                     <div className="space-y-3 pt-2">
-                                        <button
-                                            onClick={handleSendQuote}
-                                            disabled={loading}
+                                        <button onClick={handleSendQuote} disabled={loading}
                                             className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 disabled:from-slate-400 disabled:to-slate-500 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-600/20 text-base">
                                             {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white" /> : <Send className="w-5 h-5" />}
                                             {loading ? 'Enviando cotización...' : 'Enviar Cotización por Email'}
                                         </button>
-
                                         <div className="flex items-center gap-2">
                                             <div className="flex-grow h-px bg-slate-200" />
                                             <span className="text-xs text-slate-400 font-medium">o también puedes</span>
                                             <div className="flex-grow h-px bg-slate-200" />
                                         </div>
-
-                                        <button
-                                            type="button"
-                                            onClick={handleAddToCart}
+                                        <button type="button" onClick={handleAddToCart}
                                             className="w-full py-3 bg-slate-900 hover:bg-black text-white font-semibold rounded-2xl flex items-center justify-center gap-2 transition-colors text-sm">
                                             <ShoppingCart className="w-4 h-4" /> Ir al Carrito y Pagar ahora
                                         </button>
-
                                         {waNumber && (
                                             <a href={`https://wa.me/${waNumber}?text=${encodeURIComponent('Hola, quisiera cotizar algunos productos de TerraBlinds.')}`}
                                                 target="_blank" rel="noopener noreferrer"
@@ -930,15 +937,13 @@ export default function Quote() {
                                             </a>
                                         )}
                                     </div>
-
                                     <p className="text-xs text-slate-400 text-center">
-                                        Al enviar aceptas que TerraBlinds se ponga en contacto contigo para confirmar disponibilidad y coordinar la instalación.
+                                        Al enviar aceptas que TerraBlinds se ponga en contacto contigo para confirmar y coordinar la instalación.
                                     </p>
                                 </div>
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
         </Layout>
