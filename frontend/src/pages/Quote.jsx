@@ -47,11 +47,7 @@ const STEPS = [
     { num: 3, label: 'Confirmar' },
 ];
 
-const HERO_PHOTOS = [
-    '/assets/cotizador/hero-exterior.png',
-    '/assets/cotizador/hero-roller.png',
-    '/assets/cotizador/hero-comfort.png',
-];
+const HERO_PHOTO = '/assets/cotizador/hero-sala.png';
 
 const fmtCLP = n => '$' + Math.round(n).toLocaleString('es-CL');
 
@@ -84,7 +80,6 @@ export default function Quote() {
     const navigate = useNavigate();
 
     const [formStep, setFormStep] = useState(1);
-    const [heroIdx, setHeroIdx] = useState(0);
 
     // Step 1 data
     const [userData, setUserData] = useState({ name: '', email: '', phone: '', address: '', notes: '' });
@@ -120,9 +115,6 @@ export default function Quote() {
             });
             setProducts(data);
         }).catch(() => {}).finally(() => setLoadingProducts(false));
-
-        const timer = setInterval(() => setHeroIdx(i => (i + 1) % HERO_PHOTOS.length), 5000);
-        return () => clearInterval(timer);
     }, []);
 
     const toCm = (val) => unit === 'mm' ? parseFloat(val) / 10 : parseFloat(val);
@@ -287,31 +279,48 @@ export default function Quote() {
             <SEO title="Cotización a Medida" description="Cotiza tus cortinas, persianas y automatización a medida. Presupuesto personalizado enviado a tu email al instante." path="/quote" />
 
             {/* ── HERO ─────────────────────────────────────────────────────────── */}
-            <div className="relative min-h-[480px] flex flex-col justify-end overflow-hidden">
-                {/* rotating photo bg */}
-                {HERO_PHOTOS.map((src, i) => (
-                    <div key={src} className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
-                        style={{ backgroundImage: `url(${src})`, opacity: i === heroIdx ? 1 : 0 }} />
-                ))}
-                {/* gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/60 to-slate-900" />
+            <div className="relative overflow-hidden" style={{ height: '380px' }}>
+                {/* Fixed photo bg */}
+                <div className="absolute inset-0 bg-cover bg-center"
+                    style={{ backgroundImage: `url(${HERO_PHOTO})` }} />
+                {/* Subtle dark gradient only at top and bottom edges for legibility */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-transparent to-black/70" />
 
-                <div className="relative container mx-auto max-w-5xl px-4 pb-12 pt-20">
-                    <div className="text-center mb-10">
-                        <div className="inline-flex items-center gap-2 bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold px-4 py-1.5 rounded-full mb-5 uppercase tracking-wider">
-                            <FileText className="w-3.5 h-3.5" /> Cotización personalizada · Sin costo
-                        </div>
-                        <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-4">
-                            Tu presupuesto<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">exacto, en minutos</span>
-                        </h1>
-                        <p className="text-slate-300 text-lg max-w-xl mx-auto">
-                            Cortinas y persianas fabricadas a tus medidas. Recibe el detalle en tu email al instante.
-                        </p>
+                {/* Content centered vertically */}
+                <div className="relative h-full flex flex-col items-center justify-center px-4 text-center">
+                    <div className="inline-flex items-center gap-2 bg-blue-500/25 border border-blue-400/40 text-blue-200 text-xs font-semibold px-4 py-1.5 rounded-full mb-4 uppercase tracking-wider backdrop-blur-sm">
+                        <FileText className="w-3.5 h-3.5" /> Cotización personalizada · Sin costo
+                    </div>
+                    <h1 className="text-4xl sm:text-5xl font-bold text-white leading-tight mb-3 drop-shadow-lg">
+                        Tu presupuesto<br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-cyan-300">exacto, en minutos</span>
+                    </h1>
+                    <p className="text-white/85 text-base max-w-lg drop-shadow">
+                        Cortinas y persianas fabricadas a tus medidas. Recibe el detalle en tu email al instante.
+                    </p>
+                </div>
+            </div>
+
+            {/* ── TRUST BAR + STEPS (bajo la foto) ─────────────────────────────── */}
+            <div className="bg-slate-900 py-5 px-4">
+                <div className="container mx-auto max-w-5xl space-y-4">
+                    {/* Trust bar */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[
+                            { Icon: Star,   label: 'Presupuesto gratis' },
+                            { Icon: Ruler,  label: 'Fabricación a medida' },
+                            { Icon: Shield, label: 'Garantía incluida' },
+                            { Icon: Clock,  label: 'Respuesta en 24h' },
+                        ].map(({ Icon, label }) => (
+                            <div key={label} className="flex items-center gap-2 bg-white/8 border border-white/10 rounded-xl px-3 py-2.5">
+                                <Icon className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                                <span className="text-white text-xs font-medium">{label}</span>
+                            </div>
+                        ))}
                     </div>
 
                     {/* Step indicator */}
-                    <div className="flex items-center justify-center gap-0 max-w-xs mx-auto mb-8">
+                    <div className="flex items-center justify-center gap-0 max-w-xs mx-auto">
                         {STEPS.map((s, idx) => (
                             <React.Fragment key={s.num}>
                                 <div className="flex flex-col items-center">
@@ -330,21 +339,6 @@ export default function Quote() {
                                     <div className={`w-16 h-0.5 mb-5 mx-1 transition-colors duration-300 ${formStep > s.num ? 'bg-green-500' : 'bg-white/15'}`} />
                                 )}
                             </React.Fragment>
-                        ))}
-                    </div>
-
-                    {/* Trust bar */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {[
-                            { Icon: Star,         label: 'Presupuesto gratis' },
-                            { Icon: Ruler,        label: 'Fabricación a medida' },
-                            { Icon: Shield,       label: 'Garantía incluida' },
-                            { Icon: Clock,        label: 'Respuesta en 24h' },
-                        ].map(({ Icon, label }) => (
-                            <div key={label} className="flex items-center gap-2 bg-white/8 backdrop-blur border border-white/10 rounded-xl px-3 py-2.5">
-                                <Icon className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                                <span className="text-white text-xs font-medium">{label}</span>
-                            </div>
                         ))}
                     </div>
                 </div>
