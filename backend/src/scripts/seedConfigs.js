@@ -1,3 +1,10 @@
+require('dotenv').config();
+
+if (process.env.NODE_ENV === 'production') {
+    console.error('FATAL: seedConfigs.js no debe ejecutarse en produccion.');
+    process.exit(1);
+}
+
 const { Config, sequelize } = require('../models');
 
 const seedConfigs = async () => {
@@ -9,7 +16,6 @@ const seedConfigs = async () => {
             { key: 'flow_api_key', value: '', group: 'payment' },
             { key: 'flow_secret_key', value: '', group: 'payment' },
             { key: 'flow_api_url', value: 'https://www.flow.cl/api', group: 'payment' },
-            { key: 'resend_api_key', value: '', group: 'email' },
             { key: 'whatsapp_number', value: '56912345678', group: 'contact', isPublic: true },
 
             // Company Info

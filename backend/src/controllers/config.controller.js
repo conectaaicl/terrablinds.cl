@@ -1,7 +1,7 @@
 const { Config } = require('../models');
 
 // Sensitive keys that should be masked in admin view
-const SENSITIVE_KEYS = ['flow_secret_key', 'resend_api_key', 'groq_api_key'];
+const SENSITIVE_KEYS = ['flow_secret_key', 'groq_api_key'];
 
 // Keys allowed for public access
 const PUBLIC_KEYS = [
@@ -116,7 +116,7 @@ const PUBLIC_KEYS = [
 const ALLOWED_CONFIG_KEYS = [
     'flow_api_key', 'flow_secret_key', 'flow_api_url',
     'mercadopago_access_token', 'mercadopago_public_key',
-    'resend_api_key', 'admin_notification_email',
+    'admin_notification_email',
     'quote_payment_methods',
     'whatsapp_number', 'company_email', 'company_phone', 'company_address', 'logo_url',
     'favicon_url', 'brand_name', 'brand_slogan',

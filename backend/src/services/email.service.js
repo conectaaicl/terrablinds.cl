@@ -14,7 +14,7 @@ async function getConfig() {
 }
 
 async function sendEmail({ to, subject, html, template_name, variables }) {
-    if (!MAIL_API_KEY) throw new Error('Email service not configured: RESEND_API_KEY not set');
+    if (!MAIL_API_KEY) throw new Error('Email service not configured: MAILSAAS_API_KEY not set');
     const toStr = Array.isArray(to) ? to[0] : to;
     const body = { from: MAIL_FROM, to: toStr, subject, html };
     if (template_name) {
@@ -426,6 +426,48 @@ exports.resendQuoteEmail = async (quote) => {
         html: buildCustomerQuoteHtml(quote, items, companyEmail, frontendUrl),
     });
     console.log(`Quote email resent to ${quote.customer_email} for quote #${quote.id}`);
+};
+
+// ── Contacto web ─────────────────────────────────────────────────────────────
+
+const SUBJECT_MAP = {
+    cotizacion: 'Solicitar Cotización',
+    visita:     'Agendar Visita Técnica',
+    consulta:   'Consulta General',
+    postventa:  'Servicio Post-Venta',
+};
+
+exports.sendContactEmail = async ({ name, email, phone, subject, message }) => {
+    const { companyEmail, adminEmail } = await getConfig();
+    const subjectLabel = SUBJECT_MAP[subject] || subject || 'Mensaje';
+
+    const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <div style="background:#1e40af;color:white;padding:24px;text-align:center;border-radius:8px 8px 0 0;">
+            <h1 style="margin:0;">TerraBlinds</h1>
+            <p style="margin:8px 0 0;">Nuevo Mensaje de Contacto</p>
+        </div>
+        <div style="padding:24px;border:1px solid #e5e7eb;border-top:none;border-radius:0 0 8px 8px;">
+            <table style="width:100%;border-collapse:collapse;">
+                <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Nombre:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(name)}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Email:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(email)}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Teléfono:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(phone || '-')}</td></tr>
+                <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Asunto:</td><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(subjectLabel)}</td></tr>
+            </table>
+            <div style="margin-top:16px;padding:16px;background:#f3f4f6;border-radius:8px;">
+                <p style="font-weight:bold;margin:0 0 8px;">Mensaje:</p>
+                <p style="margin:0;white-space:pre-wrap;">${escapeHtml(message)}</p>
+            </div>
+            <p style="margin-top:16px;font-size:12px;color:#999;">Responder directamente a: ${escapeHtml(email)}</p>
+        </div>
+    </div>`;
+
+    await sendEmail({
+        to: [adminEmail],
+        subject: `[Contacto Web] ${subjectLabel} - ${name}`,
+        html,
+    });
+    console.log(`Contact form email sent to ${adminEmail} from ${email}`);
 };
 
 // ── Recuperación de contraseña ────────────────────────────────────────────────

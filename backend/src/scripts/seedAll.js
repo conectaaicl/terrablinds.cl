@@ -4,6 +4,11 @@ if (process.env.NODE_ENV === 'production') {
     console.error('FATAL: seedAll.js no puede ejecutarse en produccion. Usa las migraciones.');
     process.exit(1);
 }
+if (process.env.ALLOW_DESTRUCTIVE_SEED !== 'true') {
+    console.error('ERROR: Este script ejecuta sync({ force: true }) y BORRA TODOS LOS DATOS.');
+    console.error('Para confirmar, ejecuta con: ALLOW_DESTRUCTIVE_SEED=true node src/scripts/seedAll.js');
+    process.exit(1);
+}
 
 const { sequelize, Product, Config } = require('../models');
 
@@ -17,7 +22,6 @@ const seedData = async () => {
             { key: 'flow_api_key', value: '', type: 'string' },
             { key: 'flow_secret_key', value: '', type: 'string' },
             { key: 'flow_api_url', value: 'https://www.flow.cl/api', type: 'string' },
-            { key: 'resend_api_key', value: '', type: 'string' },
             { key: 'whatsapp_number', value: '', type: 'string' },
             { key: 'company_email', value: 'contacto@terrablinds.cl', type: 'string' },
             { key: 'company_phone', value: '', type: 'string' },
