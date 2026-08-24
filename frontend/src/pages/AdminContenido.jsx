@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import AdminLayout from '../components/AdminLayout';
-import { Save, Loader, CheckCircle, FileText } from 'lucide-react';
+import { Save, Loader, CheckCircle, FileText, Upload, X } from 'lucide-react';
 import api from '../api';
 
 const INPUT = "w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none";
@@ -24,8 +24,58 @@ const Field = ({ label, hint, children }) => (
     </div>
 );
 
+const ImageUpload = ({ label, hint, value, fieldName, onChange }) => {
+    const [uploading, setUploading] = useState(false);
+    const handleFile = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        setUploading(true);
+        const fd = new FormData();
+        fd.append('image', file);
+        try {
+            const r = await api.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+            onChange({ target: { name: fieldName, value: r.data.url } });
+        } catch { alert('Error al subir imagen.'); }
+        finally { setUploading(false); }
+    };
+    return (
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+            {hint && <p className="text-xs text-gray-400 mb-1.5">{hint}</p>}
+            <div className="flex gap-2 items-start">
+                {value ? (
+                    <div className="relative w-28 h-20 rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
+                        <img src={value} alt="" className="w-full h-full object-cover" />
+                        <button type="button" onClick={() => onChange({ target: { name: fieldName, value: '' } })}
+                            className="absolute top-1 right-1 bg-white/90 rounded-full p-0.5 shadow hover:bg-red-50">
+                            <X className="w-3 h-3 text-red-500" />
+                        </button>
+                    </div>
+                ) : (
+                    <label className="w-28 h-20 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-blue-400 transition-colors flex-shrink-0">
+                        {uploading ? <Loader className="w-5 h-5 animate-spin text-blue-500" /> : <Upload className="w-5 h-5 text-gray-400" />}
+                        <span className="text-[10px] text-gray-400 mt-1">{uploading ? 'Subiendo...' : 'Subir foto'}</span>
+                        <input type="file" accept="image/*" className="hidden" onChange={handleFile} disabled={uploading} />
+                    </label>
+                )}
+                <input className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    name={fieldName} value={value || ''} onChange={onChange} placeholder="O pega una URL de imagen" />
+            </div>
+        </div>
+    );
+};
+
 const DEFAULTS = {
     catalog_title: 'Catálogo de Productos',
+    catalog_hero1_image: '',
+    catalog_hero1_label: 'Cortinas Roller',
+    catalog_hero1_sub: 'Blackout · Screen · Duo',
+    catalog_hero2_image: '',
+    catalog_hero2_label: 'Exteriores',
+    catalog_hero2_sub: 'Toldos · Persianas',
+    catalog_hero3_image: '',
+    catalog_hero3_label: 'Decoración',
+    catalog_hero3_sub: 'Madera · Sheer',
     catalog_subtitle: 'Explora nuestra colección de cortinas y persianas diseñadas a medida para tus espacios.',
     faq_title: 'Preguntas Frecuentes',
     faq_subtitle: 'Todo lo que necesitas saber antes de cotizar.',
@@ -101,7 +151,7 @@ export default function AdminContenido() {
 
             <form onSubmit={save} className="space-y-5">
 
-                <Section title="Catálogo de Productos" desc="Encabezado de la página /catalog">
+                <Section title="Catálogo de Productos" desc="Encabezado y fotos del hero en /catalog">
                     <div className="space-y-4">
                         <Field label="Título">
                             <input className={INPUT} name="catalog_title" value={s.catalog_title || ''} onChange={onChange} />
@@ -109,6 +159,30 @@ export default function AdminContenido() {
                         <Field label="Subtítulo">
                             <textarea rows={2} className={TEXTAREA} name="catalog_subtitle" value={s.catalog_subtitle || ''} onChange={onChange} />
                         </Field>
+                        <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Fotos del hero (3 tarjetas)</p>
+                            <div className="space-y-4">
+                                {[1,2,3].map(n => (
+                                    <div key={n} className="p-3 border border-gray-100 rounded-xl bg-gray-50 space-y-2">
+                                        <p className="text-xs font-bold text-gray-600">Tarjeta {n}</p>
+                                        <ImageUpload
+                                            label="Foto"
+                                            fieldName={`catalog_hero${n}_image`}
+                                            value={s[`catalog_hero${n}_image`] || ''}
+                                            onChange={onChange}
+                                        />
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Field label="Título de tarjeta">
+                                                <input className={INPUT} name={`catalog_hero${n}_label`} value={s[`catalog_hero${n}_label`] || ''} onChange={onChange} />
+                                            </Field>
+                                            <Field label="Subtítulo">
+                                                <input className={INPUT} name={`catalog_hero${n}_sub`} value={s[`catalog_hero${n}_sub`] || ''} onChange={onChange} />
+                                            </Field>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </Section>
 

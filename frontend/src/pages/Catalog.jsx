@@ -6,7 +6,7 @@ import SEO from '../components/SEO';
 import { Search, SlidersHorizontal, Package, ArrowRight, Zap } from 'lucide-react';
 import api from '../api';
 
-const HERO_CARDS = [
+const DEFAULT_HERO = [
     { img: '/assets/hero-roller.png',   label: 'Cortinas Roller', sub: 'Blackout · Screen · Duo' },
     { img: '/assets/hero-exterior.png', label: 'Exteriores',       sub: 'Toldos · Persianas' },
     { img: '/assets/hero-comfort.png',  label: 'Decoración',       sub: 'Madera · Sheer' },
@@ -135,31 +135,36 @@ const Catalog = () => {
                         </div>
 
                         {/* Right — 3 photo cards */}
-                        <div className="hidden lg:grid grid-cols-2 grid-rows-2 gap-2.5" style={{ height: '300px' }}>
-                            {/* tall left card */}
-                            <div className="row-span-2 relative rounded-2xl overflow-hidden shadow-2xl">
-                                {HERO_CARDS[0].img
-                                    ? <img src={HERO_CARDS[0].img} alt={HERO_CARDS[0].label} className="w-full h-full object-cover" />
-                                    : <div className="w-full h-full bg-blue-900" />}
-                                <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent,rgba(3,9,18,0.85))' }} />
-                                <div className="absolute bottom-0 left-0 p-4">
-                                    <p className="text-white font-bold text-sm">{HERO_CARDS[0].label}</p>
-                                    <p className="text-blue-200 text-[10px]">{HERO_CARDS[0].sub}</p>
-                                </div>
-                            </div>
-                            {HERO_CARDS.slice(1).map((c, i) => (
-                                <div key={i} className="relative rounded-2xl overflow-hidden shadow-xl">
-                                    {c.img
-                                        ? <img src={c.img} alt={c.label} className="w-full h-full object-cover" />
-                                        : <div className="w-full h-full bg-blue-800" />}
-                                    <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent,rgba(3,9,18,0.8))' }} />
-                                    <div className="absolute bottom-0 left-0 p-3">
-                                        <p className="text-white font-bold text-xs">{c.label}</p>
-                                        <p className="text-blue-200 text-[9px]">{c.sub}</p>
+                        {(() => {
+                            const cards = DEFAULT_HERO.map((d, i) => ({
+                                img:   cfg[`catalog_hero${i+1}_image`]  || d.img,
+                                label: cfg[`catalog_hero${i+1}_label`]  || d.label,
+                                sub:   cfg[`catalog_hero${i+1}_sub`]    || d.sub,
+                            }));
+                            return (
+                                <div className="hidden lg:grid grid-cols-2 grid-rows-2 gap-2.5" style={{ height: '320px' }}>
+                                    {/* tall left card */}
+                                    <div className="row-span-2 relative rounded-2xl overflow-hidden shadow-2xl">
+                                        <img src={cards[0].img} alt={cards[0].label} className="w-full h-full object-cover object-center" />
+                                        <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent 40%,rgba(3,9,18,0.88))' }} />
+                                        <div className="absolute bottom-0 left-0 p-4">
+                                            <p className="text-white font-bold text-sm">{cards[0].label}</p>
+                                            <p className="text-blue-200 text-[10px]">{cards[0].sub}</p>
+                                        </div>
                                     </div>
+                                    {cards.slice(1).map((c, i) => (
+                                        <div key={i} className="relative rounded-2xl overflow-hidden shadow-xl">
+                                            <img src={c.img} alt={c.label} className="w-full h-full object-cover object-center" />
+                                            <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent 40%,rgba(3,9,18,0.82))' }} />
+                                            <div className="absolute bottom-0 left-0 p-3">
+                                                <p className="text-white font-bold text-xs">{c.label}</p>
+                                                <p className="text-blue-200 text-[9px]">{c.sub}</p>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>
