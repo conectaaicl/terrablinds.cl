@@ -7,9 +7,9 @@ import { Search, SlidersHorizontal, Package, ArrowRight, Zap } from 'lucide-reac
 import api from '../api';
 
 const DEFAULT_HERO = [
-    { img: '/assets/hero-roller.png',   label: 'Cortinas Roller', sub: 'Blackout · Screen · Duo' },
-    { img: '/assets/hero-exterior.png', label: 'Exteriores',       sub: 'Toldos · Persianas' },
-    { img: '/assets/hero-comfort.png',  label: 'Decoración',       sub: 'Madera · Sheer' },
+    { img: '/assets/catalog/catalog-hero1.png', label: 'Cortinas Roller',  sub: 'Blackout · Screen · Duo' },
+    { img: '/assets/catalog/catalog-hero2.png', label: 'Persianas Ext.',   sub: 'Aluminio · Exteriores' },
+    { img: '/assets/catalog/catalog-hero3.png', label: 'Toldos',           sub: 'Retráctiles · Terraza' },
 ];
 
 const COMPARADOR = [
