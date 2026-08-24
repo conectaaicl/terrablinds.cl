@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
-import { Shield, Lock, Truck, Wrench, ChevronRight, Phone, ShoppingCart, Zap, Building2, Home } from 'lucide-react';
+import { Shield, Lock, Wrench, ChevronRight, Phone, ShoppingCart, Zap, Building2, Home, Truck, CheckCircle2 } from 'lucide-react';
 import api from '../api';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-
-const DEFAULT_FEATURES = [
-    { icon: Shield, title: 'Seguridad Máxima', desc: 'Láminas de acero galvanizado de alta resistencia. Protege tu local o garage de robos e intrusiones.' },
-    { icon: Lock, title: 'Cierre Hermético', desc: 'Sistema de guías laterales y faldón inferior que garantiza cierre sin filtraciones de aire ni polvo.' },
-    { icon: Zap, title: 'Automatizable', desc: 'Instala un motor tubular y maneja la cortina con control remoto, app o botón. Sin esfuerzo.' },
-    { icon: Building2, title: 'Para Locales y Comercios', desc: 'Ideal para tiendas, bodegas, talleres, estacionamientos y cualquier apertura comercial grande.' },
-    { icon: Home, title: 'Para Garage Residencial', desc: 'Solución compacta y elegante para garajes de casas, con acabados modernos y colores a elección.' },
-    { icon: Wrench, title: 'Instalación Profesional', desc: 'Nuestros técnicos miden, fabrican e instalan con garantía. No pagas hasta que estás conforme.' },
-];
 
 const SPECS = [
     { label: 'Material', value: 'Acero galvanizado / Acero prepintado' },
@@ -23,6 +14,45 @@ const SPECS = [
     { label: 'Colores disponibles', value: 'Blanco, Gris, Beige, Grafito y RAL a pedido' },
     { label: 'Automatización', value: 'Opcional — motor tubular + control remoto' },
     { label: 'Garantía', value: '2 años en estructura, 1 año en motor' },
+];
+
+const MOTORS = [
+    {
+        img: '/assets/metalicas/motor_chain.jpg',
+        title: 'Motor lateral con cadena',
+        desc: 'Alternativa para cortinas metálicas motorizadas con sistema de transmisión lateral.',
+    },
+    {
+        img: '/assets/metalicas/motor_600.jpg',
+        title: 'Motor para trabajo exigente',
+        desc: 'Configuración orientada a cortinas de mayor tamaño según cálculo técnico del proyecto.',
+    },
+    {
+        img: '/assets/metalicas/motor_central.jpg',
+        title: 'Motor central',
+        desc: 'Solución compacta integrada al eje para determinadas configuraciones de cortina enrollable.',
+    },
+];
+
+const TIPOS = [
+    {
+        img: '/assets/metalicas/cortina_local.jpg',
+        title: 'Locales y accesos',
+        desc: 'Protección compacta para comercio, bodegas y accesos de servicio.',
+    },
+    {
+        img: '/assets/metalicas/cortinas_comerciales.jpg',
+        title: 'Proyectos comerciales',
+        desc: 'Soluciones para múltiples vanos y aperturas de mayor escala.',
+    },
+];
+
+const AUTO_CHECKS = [
+    'Evaluación según peso y dimensiones',
+    'Accionamiento eléctrico',
+    'Alternativas de control según proyecto',
+    'Instalación y puesta en marcha',
+    'Servicio técnico y mantenimiento',
 ];
 
 const fmtCLP = n => n > 0 ? `$${parseInt(n).toLocaleString('es-CL')}` : 'Consultar precio';
@@ -50,7 +80,7 @@ function ProductCard({ product, onAddToCart }) {
                 )}
                 {product.features?.length > 0 && (
                     <ul className="space-y-1 mb-4">
-                        {product.features.slice(0, 4).map((f, i) => (
+                        {product.features.slice(0, 3).map((f, i) => (
                             <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
                                 <span className="text-green-500 mt-0.5 flex-shrink-0">✓</span> {f}
                             </li>
@@ -110,13 +140,10 @@ export default function CortinasMetalicas() {
         });
     };
 
-    const features = DEFAULT_FEATURES.map((f, i) => ({
-        icon: f.icon,
-        title: cfg[`metalicas_feat${i + 1}_title`] || f.title,
-        desc: cfg[`metalicas_feat${i + 1}_desc`] || f.desc,
-    }));
-    const heroTitle = cfg.metalicas_title || 'Cortinas Enrollables Metálicas';
-    const heroSubtitle = cfg.metalicas_subtitle || 'Protección resistente para locales comerciales, bodegas y garajes. Fabricadas en acero galvanizado, con opción de automatización total.';
+    const heroTitle = cfg.metalicas_title || 'Protege tu negocio con cortinas metálicas';
+    const heroSubtitle = cfg.metalicas_subtitle || 'Cortinas enrollables de acero para locales comerciales, bodegas, galpones y garajes. Fabricación a medida, instalación profesional y distintas alternativas de motorización.';
+    const heroBg = cfg.metalicas_photo1 || '/assets/metalicas/cortinas_comerciales.jpg';
+    const whatsapp = cfg.whatsapp_number ? `https://wa.me/${cfg.whatsapp_number}` : 'https://wa.me/56998101891';
 
     return (
         <Layout>
@@ -126,95 +153,126 @@ export default function CortinasMetalicas() {
                 path="/cortinas-metalicas"
             />
 
-            {/* Hero */}
-            <div className="bg-gradient-to-br from-slate-800 via-slate-700 to-gray-700 text-white py-20 px-4 relative overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                    {/* Decorative lines suggesting metal slats */}
-                    {[...Array(8)].map((_, i) => (
-                        <div key={i} className="absolute left-0 right-0 border-b border-white"
-                            style={{ top: `${10 + i * 12}%`, opacity: 0.4 }} />
-                    ))}
-                </div>
-                <div className="container mx-auto max-w-5xl relative z-10">
-                    <div className="grid md:grid-cols-2 gap-10 items-center">
-                        <div>
-                            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-5">
-                                <Shield className="w-4 h-4" /> Seguridad Industrial
-                            </div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">{heroTitle}</h1>
-                            <p className="text-lg text-slate-200 mb-8 leading-relaxed">{heroSubtitle}</p>
-                            <div className="flex flex-wrap gap-4">
-                                <Link to="/quote"
-                                    className="flex items-center gap-2 bg-white text-slate-800 font-bold px-6 py-3 rounded-xl hover:bg-slate-100 transition-colors shadow-lg text-base">
-                                    Cotizar ahora <ChevronRight className="w-5 h-5" />
-                                </Link>
-                                <a href="#productos"
-                                    className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-                                    Ver productos
-                                </a>
-                            </div>
-                        </div>
-                        <div className="hidden md:flex justify-center">
-                            {/* Visual representation of metallic shutter */}
-                            <div className="relative w-64 h-72 bg-gradient-to-b from-slate-400 to-slate-600 rounded-xl shadow-2xl overflow-hidden border-2 border-slate-500">
-                                {[...Array(12)].map((_, i) => (
-                                    <div key={i} className="w-full border-b-2 border-slate-500/60 bg-gradient-to-r from-slate-300/20 to-slate-400/20"
-                                        style={{ height: '22px' }} />
-                                ))}
-                                <div className="absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-slate-800 to-transparent flex items-center justify-center">
-                                    <div className="w-32 h-3 bg-slate-400 rounded-full" />
-                                </div>
-                                <div className="absolute top-3 right-3 w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center shadow-lg">
-                                    <Lock className="w-4 h-4 text-white" />
-                                </div>
-                            </div>
+            {/* ── Hero con foto real ─────────────────────────────────── */}
+            <div
+                className="min-h-[580px] flex items-center text-white px-4"
+                style={{
+                    background: `linear-gradient(90deg,#041126f2 0%,#061630dc 45%,#06163055 75%), url('${heroBg}') center/cover no-repeat`,
+                }}
+            >
+                <div className="container mx-auto max-w-5xl py-20">
+                    <div className="max-w-2xl">
+                        <span className="text-blue-300 font-bold text-xs uppercase tracking-widest mb-3 block">
+                            Seguridad · Comercio · Industria
+                        </span>
+                        <h1 className="text-4xl md:text-5xl font-black mb-5 leading-tight">
+                            {heroTitle.split('cortinas metálicas').length > 1 ? (
+                                <>
+                                    {heroTitle.split('cortinas metálicas')[0]}
+                                    <span className="text-blue-400">cortinas metálicas</span>
+                                    {heroTitle.split('cortinas metálicas')[1]}
+                                </>
+                            ) : heroTitle}
+                        </h1>
+                        <p className="text-lg text-blue-100 mb-8 leading-relaxed">{heroSubtitle}</p>
+                        <div className="flex flex-wrap gap-3">
+                            <Link to="/quote"
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3.5 rounded-xl transition-colors shadow-lg text-sm">
+                                Cotiza tu cortina <ChevronRight className="w-4 h-4" />
+                            </Link>
+                            <a href="#motores"
+                                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-6 py-3.5 rounded-xl transition-colors text-sm">
+                                Ver automatización
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Features */}
-            <section className="bg-gray-50 py-14 px-4">
+            {/* ── Tipos de uso ───────────────────────────────────────── */}
+            <section className="py-16 px-4 bg-white">
                 <div className="container mx-auto max-w-5xl">
-                    <h2 className="text-2xl font-bold text-gray-900 text-center mb-2">¿Por qué elegir una cortina metálica?</h2>
-                    <p className="text-gray-500 text-center mb-8 text-sm">Seguridad, durabilidad y diseño en una sola solución</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
-                        {features.map(f => (
-                            <div key={f.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-                                <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mb-3">
-                                    <f.icon className="w-5 h-5 text-slate-700" />
+                    <h2 className="text-3xl font-bold text-gray-900 text-center mb-2">Soluciones para cada proyecto</h2>
+                    <p className="text-gray-500 text-center mb-10 text-sm">Seguridad, resistencia y operación adaptada al uso de cada espacio.</p>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        {TIPOS.map(t => (
+                            <div key={t.title}
+                                className="relative min-h-[300px] rounded-2xl overflow-hidden group cursor-default"
+                                style={{ background: `url('${t.img}') center/cover` }}
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/30 to-transparent" />
+                                <div className="absolute bottom-0 left-0 p-7 z-10">
+                                    <h3 className="text-2xl font-bold text-white mb-2">{t.title}</h3>
+                                    <p className="text-blue-100 text-sm leading-relaxed">{t.desc}</p>
                                 </div>
-                                <h3 className="font-semibold text-gray-900 text-sm mb-1">{f.title}</h3>
-                                <p className="text-xs text-gray-500 leading-relaxed">{f.desc}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* Automatización CTA Banner — prominent button */}
-            <section className="py-10 px-4 bg-amber-50 border-y border-amber-200">
-                <div className="container mx-auto max-w-4xl flex flex-col md:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-amber-400 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0">
-                            <Zap className="w-7 h-7 text-white" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-bold text-gray-900">¿Quieres automatizar tu cortina metálica?</h3>
-                            <p className="text-gray-600 text-sm mt-0.5">
-                                Agrega un motor tubular y maneja todo con control remoto o desde tu celular. ¡Sin esfuerzo!
-                            </p>
-                        </div>
+            {/* ── Motores ────────────────────────────────────────────── */}
+            <section id="motores" className="py-16 px-4 bg-gray-900 text-white">
+                <div className="container mx-auto max-w-5xl">
+                    <h2 className="text-3xl font-bold text-center mb-2">Automatización para cortinas metálicas</h2>
+                    <p className="text-center text-gray-400 mb-10 text-sm">
+                        La motorización se define según dimensiones, peso, frecuencia de uso y configuración de la cortina.
+                    </p>
+                    <div className="grid md:grid-cols-3 gap-6">
+                        {MOTORS.map(m => (
+                            <div key={m.title} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 transition-colors">
+                                <div className="h-52 bg-gray-800 overflow-hidden">
+                                    <img src={m.img} alt={m.title} className="w-full h-full object-contain p-4" />
+                                </div>
+                                <div className="p-5">
+                                    <h3 className="font-bold text-white mb-2">{m.title}</h3>
+                                    <p className="text-gray-400 text-sm leading-relaxed">{m.desc}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <Link to="/quote"
-                        className="flex-shrink-0 flex items-center gap-2 bg-amber-400 hover:bg-amber-500 text-gray-900 font-bold px-8 py-4 rounded-2xl transition-all shadow-xl hover:shadow-amber-300/50 hover:scale-105 text-base whitespace-nowrap">
-                        Cotiza acá <ChevronRight className="w-5 h-5" />
-                    </Link>
                 </div>
             </section>
 
-            {/* Technical specs */}
-            <section className="py-14 px-4">
+            {/* ── Automatización — foto + checklist ─────────────────── */}
+            <section className="py-16 px-4 bg-white">
+                <div className="container mx-auto max-w-5xl">
+                    <div className="grid md:grid-cols-2 gap-12 items-center">
+                        <div className="rounded-2xl overflow-hidden bg-gray-100 h-96">
+                            <img
+                                src="/assets/metalicas/motor_compact.jpg"
+                                alt="Motor compacto"
+                                className="w-full h-full object-contain p-6"
+                            />
+                        </div>
+                        <div>
+                            <span className="text-blue-600 font-bold text-xs uppercase tracking-widest mb-3 block">Automatiza tu acceso</span>
+                            <h2 className="text-3xl font-black text-gray-900 mb-4 leading-tight">
+                                Más comodidad.<br />
+                                <span className="text-blue-600">Más control.</span>
+                            </h2>
+                            <p className="text-gray-500 leading-relaxed mb-6">
+                                Podemos evaluar la automatización como parte del proyecto, seleccionando el sistema adecuado para las condiciones reales de instalación.
+                            </p>
+                            <ul className="space-y-3 mb-8">
+                                {AUTO_CHECKS.map(c => (
+                                    <li key={c} className="flex items-center gap-3">
+                                        <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                        <span className="text-gray-700 text-sm">{c}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <Link to="/quote"
+                                className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-7 py-3 rounded-xl transition-colors text-sm">
+                                Solicitar evaluación <ChevronRight className="w-4 h-4" />
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ── Specs técnicas ─────────────────────────────────────── */}
+            <section className="py-14 px-4 bg-gray-50">
                 <div className="container mx-auto max-w-5xl">
                     <div className="grid md:grid-cols-2 gap-10 items-start">
                         <div>
@@ -228,35 +286,37 @@ export default function CortinasMetalicas() {
                                 ))}
                             </div>
                         </div>
-                        <div className="space-y-4">
+                        <div>
                             <h2 className="text-2xl font-bold text-gray-900 mb-6">Tipos de Aplicación</h2>
-                            {[
-                                { icon: Building2, title: 'Locales Comerciales', desc: 'Tiendas, farmacias, ferreterías, supermercados de barrio — cualquier apertura que necesite cierre nocturno seguro.' },
-                                { icon: Truck, title: 'Bodegas y Galpones', desc: 'Para aperturas grandes en ambientes industriales. Estructura reforzada y alta resistencia a impactos.' },
-                                { icon: Home, title: 'Garajes Residenciales', desc: 'Cierre moderno y seguro para tu garage. Disponible en versión manual o motorizada.' },
-                            ].map(item => (
-                                <div key={item.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex gap-4">
-                                    <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                        <item.icon className="w-5 h-5 text-slate-700" />
+                            <div className="space-y-4">
+                                {[
+                                    { icon: Building2, title: 'Locales Comerciales', desc: 'Tiendas, farmacias, ferreterías — cualquier apertura que necesite cierre nocturno seguro.' },
+                                    { icon: Truck, title: 'Bodegas y Galpones', desc: 'Para aperturas grandes en ambientes industriales. Alta resistencia a impactos.' },
+                                    { icon: Home, title: 'Garajes Residenciales', desc: 'Cierre moderno y seguro para tu garage. Manual o motorizado.' },
+                                ].map(item => (
+                                    <div key={item.title} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm flex gap-4">
+                                        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                                            <item.icon className="w-5 h-5 text-slate-700" />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
+                                            <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h3 className="font-semibold text-gray-900 text-sm mb-1">{item.title}</h3>
-                                        <p className="text-xs text-gray-500 leading-relaxed">{item.desc}</p>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Photo Gallery */}
-            {[1,2,3,4].some(i => cfg[`metalicas_photo${i}`]) && (
-                <section className="py-14 px-4">
+            {/* ── Galería de admin (si hay fotos configuradas) ───────── */}
+            {[2,3,4].some(i => cfg[`metalicas_photo${i}`]) && (
+                <section className="py-14 px-4 bg-white">
                     <div className="container mx-auto max-w-5xl">
                         <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Galería</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {[1,2,3,4].filter(i => cfg[`metalicas_photo${i}`]).map(i => (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {[2,3,4].filter(i => cfg[`metalicas_photo${i}`]).map(i => (
                                 <div key={i} className="aspect-[4/3] rounded-xl overflow-hidden shadow-sm">
                                     <img src={cfg[`metalicas_photo${i}`]} alt={`Cortina Metálica ${i}`} className="w-full h-full object-cover" />
                                 </div>
@@ -266,54 +326,43 @@ export default function CortinasMetalicas() {
                 </section>
             )}
 
-            {/* Products */}
-            <section id="productos" className="py-14 px-4 bg-gray-50">
-                <div className="container mx-auto max-w-5xl">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Nuestras Cortinas Metálicas</h2>
-                    <p className="text-gray-500 mb-8 text-sm">Fabricadas a medida para cada apertura</p>
+            {/* ── Productos del catálogo ─────────────────────────────── */}
+            {(loading || products.length > 0) && (
+                <section id="productos" className="py-14 px-4 bg-gray-50">
+                    <div className="container mx-auto max-w-5xl">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">Nuestras Cortinas Metálicas</h2>
+                        <p className="text-gray-500 mb-8 text-sm">Fabricadas a medida para cada apertura</p>
+                        {loading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {[1, 2, 3].map(i => <div key={i} className="bg-gray-100 rounded-2xl h-64 animate-pulse" />)}
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {products.map(p => <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />)}
+                            </div>
+                        )}
+                    </div>
+                </section>
+            )}
 
-                    {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            {[1, 2, 3].map(i => (
-                                <div key={i} className="bg-gray-100 rounded-2xl h-64 animate-pulse" />
-                            ))}
+            {/* ── CTA final ─────────────────────────────────────────── */}
+            <section className="py-14 px-4">
+                <div className="container mx-auto max-w-4xl">
+                    <div className="bg-gradient-to-r from-gray-900 to-blue-900 rounded-2xl p-8 md:p-10 flex flex-col md:flex-row items-center gap-6 text-white">
+                        <div className="flex-1">
+                            <h2 className="text-2xl font-bold mb-2">¿Necesitas proteger un local, bodega o garaje?</h2>
+                            <p className="text-blue-200 text-sm">Cuéntanos las medidas y el tipo de uso. TerraBlinds te ayuda a definir la solución.</p>
                         </div>
-                    ) : products.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {products.map(p => (
-                                <ProductCard key={p.id} product={p} onAddToCart={handleAddToCart} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="text-center py-16 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                            <Shield className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                            <p className="text-gray-500 mb-4">Productos cargando pronto.</p>
+                        <div className="flex flex-col sm:flex-row gap-3 flex-shrink-0">
                             <Link to="/quote"
-                                className="inline-flex items-center gap-2 bg-slate-700 hover:bg-slate-800 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-                                Solicitar cotización personalizada <ChevronRight className="w-4 h-4" />
+                                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm whitespace-nowrap">
+                                Cotizar proyecto <ChevronRight className="w-4 h-4" />
                             </Link>
+                            <a href={whatsapp} target="_blank" rel="noopener noreferrer"
+                                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm whitespace-nowrap">
+                                <Phone className="w-4 h-4" /> WhatsApp
+                            </a>
                         </div>
-                    )}
-                </div>
-            </section>
-
-            {/* Final CTA */}
-            <section className="bg-gradient-to-r from-slate-700 to-gray-800 py-14 px-4 text-white text-center">
-                <div className="container mx-auto max-w-2xl">
-                    <h2 className="text-3xl font-bold mb-3">¿Listo para proteger tu local?</h2>
-                    <p className="text-slate-300 mb-8">
-                        Cotiza sin compromiso. Medimos, fabricamos e instalamos en toda la región.
-                        Respuesta en menos de 24 horas.
-                    </p>
-                    <div className="flex flex-wrap justify-center gap-4">
-                        <Link to="/quote"
-                            className="flex items-center gap-2 bg-white text-slate-800 font-bold px-8 py-4 rounded-2xl hover:bg-slate-100 transition-all shadow-xl hover:scale-105 text-base">
-                            Cotizar ahora <ChevronRight className="w-5 h-5" />
-                        </Link>
-                        <Link to="/contact"
-                            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold px-6 py-3 rounded-xl transition-colors">
-                            <Phone className="w-4 h-4" /> Llamar / Escribir
-                        </Link>
                     </div>
                 </div>
             </section>
