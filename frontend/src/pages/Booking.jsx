@@ -144,6 +144,11 @@ function StepBar({ step }) {
 /* ─── Main component ──────────────────────────────────────────────── */
 export default function Booking() {
     const [step, setStep] = useState(1);
+    const [cfg, setCfg] = useState({});
+
+    useEffect(() => {
+        api.get('/api/config/public').then(r => setCfg(r.data)).catch(() => {});
+    }, []);
 
     // AI
     const [aiMessage, setAiMessage] = useState('');
@@ -257,20 +262,20 @@ export default function Booking() {
                     <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-3">
                         <Calendar className="w-4 h-4" /> Agenda online · Respuesta inmediata
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Agenda tu servicio</h1>
-                    <p className="text-blue-200 text-sm mb-6">Elige servicio, fecha y hora. Confirmación automática por email.</p>
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">{cfg.booking_hero_title || 'Agenda tu servicio'}</h1>
+                    <p className="text-blue-200 text-sm mb-6">{cfg.booking_hero_subtitle || 'Elige servicio, fecha y hora. Confirmación automática por email.'}</p>
                     <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto bg-white/10 rounded-2xl p-4">
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-white">200+</p>
-                            <p className="text-[11px] text-blue-200 mt-0.5">Clientes</p>
+                            <p className="text-2xl font-bold text-white">{cfg.booking_stat1_num || '200+'}</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">{cfg.booking_stat1_label || 'Clientes'}</p>
                         </div>
                         <div className="text-center border-x border-white/20">
-                            <p className="text-2xl font-bold text-white">5 años</p>
-                            <p className="text-[11px] text-blue-200 mt-0.5">Experiencia</p>
+                            <p className="text-2xl font-bold text-white">{cfg.booking_stat2_num || '5 años'}</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">{cfg.booking_stat2_label || 'Experiencia'}</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-2xl font-bold text-white">100%</p>
-                            <p className="text-[11px] text-blue-200 mt-0.5">Garantía</p>
+                            <p className="text-2xl font-bold text-white">{cfg.booking_stat3_num || '100%'}</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">{cfg.booking_stat3_label || 'Garantía'}</p>
                         </div>
                     </div>
                 </div>
@@ -367,7 +372,7 @@ export default function Booking() {
                             <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                                 <Star className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                                 <p className="text-xs text-amber-800">
-                                    La visita técnica tiene un costo de <strong>$15.000 CLP</strong>, descontable del total si realizas la instalación con nosotros.
+                                    La visita técnica tiene un costo de <strong>${cfg.booking_visit_fee || '15.000 CLP'}</strong>, descontable del total si realizas la instalación con nosotros.
                                 </p>
                             </div>
 

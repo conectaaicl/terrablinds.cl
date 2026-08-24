@@ -36,6 +36,13 @@ const DEFAULTS = {
     contact_extra_text: '',
     booking_hero_title: 'Agenda tu Servicio',
     booking_hero_subtitle: 'Elige servicio, fecha y hora. Confirmación automática por email.',
+    booking_stat1_num: '200+',
+    booking_stat1_label: 'Clientes',
+    booking_stat2_num: '5 años',
+    booking_stat2_label: 'Experiencia',
+    booking_stat3_num: '100%',
+    booking_stat3_label: 'Garantía',
+    booking_visit_fee: '15.000 CLP',
     footer_schedule: 'Lun – Vie: 9:00 – 18:00 · Sáb: 10:00 – 14:00',
     footer_address: 'Santiago, Chile',
     whatsapp_number: '',
@@ -138,13 +145,39 @@ export default function AdminContenido() {
                     </div>
                 </Section>
 
-                <Section title="Página de Reservas" desc="Encabezado de la página /booking">
+                <Section title="Página de Reservas" desc="Encabezado, estadísticas y costo de visita en /agendar">
                     <div className="space-y-4">
-                        <Field label="Título">
+                        <Field label="Título del hero">
                             <input className={INPUT} name="booking_hero_title" value={s.booking_hero_title || ''} onChange={onChange} />
                         </Field>
-                        <Field label="Subtítulo">
+                        <Field label="Subtítulo del hero">
                             <textarea rows={2} className={TEXTAREA} name="booking_hero_subtitle" value={s.booking_hero_subtitle || ''} onChange={onChange} />
+                        </Field>
+                        <div className="pt-2 border-t border-gray-100">
+                            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Estadísticas del hero (3 columnas)</p>
+                            <div className="grid grid-cols-3 gap-3">
+                                <Field label="Stat 1 — Número" hint="Ej: 200+">
+                                    <input className={INPUT} name="booking_stat1_num" value={s.booking_stat1_num || ''} onChange={onChange} placeholder="200+" />
+                                </Field>
+                                <Field label="Stat 2 — Número" hint="Ej: 5 años">
+                                    <input className={INPUT} name="booking_stat2_num" value={s.booking_stat2_num || ''} onChange={onChange} placeholder="5 años" />
+                                </Field>
+                                <Field label="Stat 3 — Número" hint="Ej: 100%">
+                                    <input className={INPUT} name="booking_stat3_num" value={s.booking_stat3_num || ''} onChange={onChange} placeholder="100%" />
+                                </Field>
+                                <Field label="Stat 1 — Etiqueta">
+                                    <input className={INPUT} name="booking_stat1_label" value={s.booking_stat1_label || ''} onChange={onChange} placeholder="Clientes" />
+                                </Field>
+                                <Field label="Stat 2 — Etiqueta">
+                                    <input className={INPUT} name="booking_stat2_label" value={s.booking_stat2_label || ''} onChange={onChange} placeholder="Experiencia" />
+                                </Field>
+                                <Field label="Stat 3 — Etiqueta">
+                                    <input className={INPUT} name="booking_stat3_label" value={s.booking_stat3_label || ''} onChange={onChange} placeholder="Garantía" />
+                                </Field>
+                            </div>
+                        </div>
+                        <Field label="Costo de visita técnica" hint="Se muestra en el aviso amarillo al elegir servicio. Ej: 15.000 CLP">
+                            <input className={INPUT} name="booking_visit_fee" value={s.booking_visit_fee || ''} onChange={onChange} placeholder="15.000 CLP" />
                         </Field>
                     </div>
                 </Section>

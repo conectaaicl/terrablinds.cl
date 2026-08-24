@@ -104,6 +104,14 @@ const PUBLIC_KEYS = [
     'auto_feat6_title', 'auto_feat6_desc',
     'auto_photo1', 'auto_photo2', 'auto_photo3', 'auto_photo4',
     'quote_payment_methods',
+    // Catalog page
+    'catalog_title', 'catalog_subtitle',
+    // Booking page hero + stats + visit fee
+    'booking_hero_title', 'booking_hero_subtitle',
+    'booking_stat1_num', 'booking_stat1_label',
+    'booking_stat2_num', 'booking_stat2_label',
+    'booking_stat3_num', 'booking_stat3_label',
+    'booking_visit_fee',
     // OG image per SEO page
     'seo_og_image_home', 'seo_og_image_catalog', 'seo_og_image_quote',
     'seo_og_image_about', 'seo_og_image_contact', 'seo_og_image_software',
@@ -219,6 +227,10 @@ const ALLOWED_CONFIG_KEYS = [
     'footer_description', 'whatsapp_default_msg',
     // AdminContenido keys
     'catalog_title', 'catalog_subtitle',
+    'booking_stat1_num', 'booking_stat1_label',
+    'booking_stat2_num', 'booking_stat2_label',
+    'booking_stat3_num', 'booking_stat3_label',
+    'booking_visit_fee',
     'faq_title', 'faq_subtitle',
     'projects_title', 'projects_subtitle',
     'blog_title', 'blog_subtitle',

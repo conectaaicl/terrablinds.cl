@@ -49,7 +49,7 @@ export default function AdminSettings() {
     const [s, setS] = useState({
         flow_api_key: '', flow_secret_key: '', flow_api_url: 'https://www.flow.cl/api',
         mercadopago_access_token: '', mercadopago_public_key: '',
-        resend_api_key: '', admin_notification_email: '',
+        admin_notification_email: '',
         webhook_url: '',
         groq_api_key: '',
         quote_payment_methods: JSON.stringify(DEFAULT_PAYMENT_METHODS),
@@ -147,14 +147,14 @@ export default function AdminSettings() {
                 </Section>
 
                 {/* Email */}
-                <Section title="Email & Notificaciones — Resend" desc="Envío de cotizaciones, confirmaciones y notificaciones por email.">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Field label="Resend API Key" hint="Obtén tu clave gratuita en resend.com">
-                            <SecretInput name="resend_api_key" value={s.resend_api_key || ''} onChange={onChange} placeholder="re_••••••••••••••••" />
-                        </Field>
-                        <Field label="Email para notificaciones" hint="Recibirás un aviso aquí con cada nueva cotización.">
-                            <input type="email" className={INPUT} name="admin_notification_email" value={s.admin_notification_email || ''} onChange={onChange} placeholder="ventas@terrablinds.cl" />
-                        </Field>
+                <Section title="Email & Notificaciones — MailSaaS" desc="Transaccional via mail.conectaai.cl. La clave MAILSAAS_API_KEY se configura directamente en el servidor VPS.">
+                    <Field label="Email para notificaciones de admin" hint="Recibirás aquí cada nueva cotización, reserva y mensaje de contacto.">
+                        <input type="email" className={INPUT} name="admin_notification_email" value={s.admin_notification_email || ''} onChange={onChange} placeholder="ventas@terrablinds.cl" />
+                    </Field>
+                    <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                        <p className="text-xs text-blue-700">
+                            La clave de MailSaaS (<code className="bg-blue-100 px-1 rounded font-mono">MAILSAAS_API_KEY</code>) vive en el <code className="bg-blue-100 px-1 rounded font-mono">.env</code> del servidor y no se expone aquí por seguridad.
+                        </p>
                     </div>
                 </Section>
 
