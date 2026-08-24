@@ -88,6 +88,7 @@ const Layout = ({ children }) => {
                             { to: '/catalog', label: 'Catálogo' },
                             { to: '/projects', label: 'Proyectos' },
                             { to: '/about', label: 'Nosotros' },
+                            { to: '/blog', label: 'Blog' },
                         ].map(({ to, label }) => (
                             <Link key={to} to={to}
                                 className="relative px-3 py-2 rounded-lg text-white/75 hover:bg-white/10 hover:text-white transition-all duration-200 group">
@@ -204,6 +205,7 @@ const Layout = ({ children }) => {
                                     { to: '/servicio-tecnico', label: 'Serv. Técnico' },
                                     { to: '/agendar', label: 'Agendar Visita' },
                                     { to: '/contact', label: 'Contacto' },
+                                    { to: '/blog', label: 'Blog' },
                                     { to: '/register', label: 'Registrarse' },
                                 ].map(({ to, label }) => (
                                     <Link key={to} to={to}
