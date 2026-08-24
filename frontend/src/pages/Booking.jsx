@@ -251,14 +251,28 @@ export default function Booking() {
         <Layout>
             <SEO title="Agendar Servicio — TerraBlinds" description="Agenda una visita técnica, instalación o servicio de mantención. Elige fecha y hora disponible online." path="/agendar" />
 
-            {/* Hero mini */}
+            {/* Hero */}
             <div className="bg-gradient-to-br from-blue-700 to-blue-900 text-white py-10 px-4">
                 <div className="container mx-auto max-w-3xl text-center">
                     <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 text-sm font-medium mb-3">
                         <Calendar className="w-4 h-4" /> Agenda online · Respuesta inmediata
                     </div>
                     <h1 className="text-3xl md:text-4xl font-bold mb-2">Agenda tu servicio</h1>
-                    <p className="text-blue-200 text-sm">Elige servicio, fecha y hora. Confirmación automática por email.</p>
+                    <p className="text-blue-200 text-sm mb-6">Elige servicio, fecha y hora. Confirmación automática por email.</p>
+                    <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto bg-white/10 rounded-2xl p-4">
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">200+</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">Clientes</p>
+                        </div>
+                        <div className="text-center border-x border-white/20">
+                            <p className="text-2xl font-bold text-white">5 años</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">Experiencia</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-2xl font-bold text-white">100%</p>
+                            <p className="text-[11px] text-blue-200 mt-0.5">Garantía</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -321,38 +335,40 @@ export default function Booking() {
                                                 ${selected ? `${c.border} ${c.bg} shadow-md` : 'border-gray-200 bg-white hover:border-gray-300'}
                                             `}
                                         >
-                                            <div className="flex items-start gap-3">
+                                            <div className="flex items-start justify-between gap-2 mb-3">
                                                 <div className={`p-2.5 rounded-xl flex-shrink-0 ${selected ? c.icon : 'bg-gray-100 text-gray-500'}`}>
                                                     <svc.icon className="w-4 h-4" />
                                                 </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <p className="font-bold text-gray-900 text-sm leading-tight">{svc.label}</p>
-                                                        {selected && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />}
-                                                    </div>
-                                                    <p className="text-xs text-gray-500 mt-0.5 mb-2">{svc.subtitle}</p>
-                                                    <div className="flex items-center gap-2 flex-wrap">
-                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selected ? c.badge : 'bg-gray-100 text-gray-500'}`}>
-                                                            {svc.price > 0 ? fmtCLP(svc.price) : 'Sin costo'}
-                                                        </span>
-                                                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
-                                                            <Clock className="w-3 h-3" />{svc.duration}
-                                                        </span>
-                                                    </div>
-                                                </div>
+                                                {selected && <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />}
                                             </div>
-                                            {selected && (
-                                                <div className="mt-3 pt-3 border-t border-gray-200/60 space-y-1">
-                                                    {svc.perks.map(p => (
-                                                        <div key={p} className="flex items-center gap-1.5 text-xs text-gray-600">
-                                                            <span className="text-emerald-500">✓</span> {p}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                            <p className={`font-bold text-sm leading-tight mb-0.5 ${selected ? 'text-gray-900' : 'text-gray-900'}`}>{svc.label}</p>
+                                            <p className="text-xs text-gray-500 mb-3">{svc.subtitle}</p>
+                                            <div className="space-y-1 mb-3">
+                                                {svc.perks.map(p => (
+                                                    <div key={p} className={`flex items-center gap-1.5 text-xs ${selected ? 'text-gray-700' : 'text-gray-500'}`}>
+                                                        <span className="text-emerald-500 font-bold">✓</span> {p}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className={`flex items-center justify-between pt-2.5 border-t ${selected ? 'border-gray-200/80' : 'border-gray-100'}`}>
+                                                <span className={`text-base font-black ${selected ? 'text-gray-900' : 'text-gray-700'}`}>
+                                                    {svc.price > 0 ? fmtCLP(svc.price) : 'Sin costo'}
+                                                </span>
+                                                <span className={`text-[10px] flex items-center gap-1 ${selected ? 'text-gray-500' : 'text-gray-400'}`}>
+                                                    <Clock className="w-3 h-3" />{svc.duration}
+                                                </span>
+                                            </div>
                                         </button>
                                     );
                                 })}
+                            </div>
+
+                            {/* Descuento notice */}
+                            <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                                <Star className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                                <p className="text-xs text-amber-800">
+                                    La visita técnica tiene un costo de <strong>$15.000 CLP</strong>, descontable del total si realizas la instalación con nosotros.
+                                </p>
                             </div>
 
                             <button
