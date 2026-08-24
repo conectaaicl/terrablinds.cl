@@ -1,0 +1,43 @@
+{
+  "name": "TerraBlinds Admin",
+  "short_name": "TB Admin",
+  "description": "Panel de administración TerraBlinds - Cotizaciones, productos y reservas",
+  "start_url": "/admin",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#111827",
+  "background_color": "#111827",
+  "lang": "es-CL",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Cotizaciones",
+      "short_name": "Cotizar",
+      "description": "Ver cotizaciones pendientes",
+      "url": "/admin/quotes",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Agenda",
+      "short_name": "Agenda",
+      "description": "Agenda de servicios",
+      "url": "/admin/bookings",
+      "icons": [{ "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml" }]
+    }
+  ]
+}
