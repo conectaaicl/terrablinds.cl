@@ -48,12 +48,14 @@ const Home = () => {
     const [cfg, setCfg]           = useState({});
     const [projects, setProjects] = useState([]);
     const [reviews, setReviews]   = useState([]);
+    const [posts, setPosts]       = useState([]);
     const [lightbox, setLightbox] = useState(null);
 
     useEffect(() => {
         api.get('/api/config/public').then(r => setCfg(r.data)).catch(() => {});
         api.get('/api/projects').then(r => setProjects((r.data || []).slice(0, 6))).catch(() => {});
         api.get('/api/reviews/public').then(r => setReviews(Array.isArray(r.data) ? r.data.slice(0, 6) : [])).catch(() => {});
+        api.get('/api/blogs').then(r => setPosts(Array.isArray(r.data) ? r.data.slice(0, 3) : [])).catch(() => {});
     }, []);
 
     const stats = DEFAULT_STATS.map((d, i) => ({
@@ -71,7 +73,9 @@ const Home = () => {
     return (
         <Layout>
             <SEO
-                description="Cortinas roller, persianas y toldos a medida. Fabricación premium con instalación experta en todo Chile. Cotiza online gratis."
+                title={cfg.seo_title_home || undefined}
+                description={cfg.seo_desc_home || 'Cortinas roller, persianas y toldos a medida. Fabricación premium con instalación experta en todo Chile. Cotiza online gratis.'}
+                image={cfg.seo_og_image_home || undefined}
                 path="/"
             />
 
@@ -328,6 +332,71 @@ const Home = () => {
                                     </div>
                                 </motion.div>
                             ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+            {/* ── Blog / Consejos ─────────────────────────────────────────────── */}
+            {posts.length > 0 && (
+                <section className="py-20 bg-white">
+                    <div className="container mx-auto px-4 max-w-5xl">
+                        <motion.div {...fadeUp} className="flex justify-between items-end mb-12">
+                            <div>
+                                <span className="inline-block text-xs font-bold uppercase tracking-[0.2em] text-[#C8973A] mb-3 px-4 py-1.5 rounded-full border border-[#C8973A]/30 bg-[#C8973A]/10">
+                                    Blog
+                                </span>
+                                <h2 className="text-3xl md:text-4xl font-extrabold text-[#1A1614] mt-3 tracking-tight">
+                                    Consejos y tendencias
+                                </h2>
+                            </div>
+                            <Link to="/blog" className="hidden md:flex items-center gap-2 text-[#C8973A] hover:text-[#A87A2A] font-semibold text-sm transition-colors">
+                                Ver todos <ArrowRight className="w-4 h-4" />
+                            </Link>
+                        </motion.div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {posts.map((post, idx) => (
+                                <motion.div
+                                    key={post.id}
+                                    initial={fadeUp.initial}
+                                    whileInView={fadeUp.whileInView}
+                                    viewport={fadeUp.viewport}
+                                    transition={{ ...fadeUp.transition, delay: idx * 0.07 }}
+                                >
+                                    <Link to={`/blog/${post.slug}`}
+                                        className="group block rounded-2xl overflow-hidden bg-white border border-[#E8E2D8] hover:border-[#C8973A]/50 hover:shadow-2xl hover:shadow-[#C8973A]/10 transition-all duration-300 h-full">
+                                        <div className="h-48 overflow-hidden bg-[#F7F4EF]">
+                                            {post.cover_image ? (
+                                                <img src={post.cover_image} alt={post.title}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            ) : (
+                                                <div className="w-full h-full bg-gradient-to-br from-[#C8973A]/20 to-[#C8973A]/5 flex items-center justify-center">
+                                                    <span className="text-4xl">📝</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="p-5">
+                                            {post.published_at && (
+                                                <p className="text-xs text-[#C8973A] font-semibold mb-2">
+                                                    {new Date(post.published_at).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                                </p>
+                                            )}
+                                            <h3 className="font-extrabold text-[#1A1614] tracking-tight mb-2 line-clamp-2">{post.title}</h3>
+                                            {post.excerpt && (
+                                                <p className="text-sm text-[#7A6F65] leading-relaxed line-clamp-2 mb-3">{post.excerpt}</p>
+                                            )}
+                                            <span className="inline-flex items-center gap-1.5 text-[#C8973A] text-sm font-semibold group-hover:gap-2.5 transition-all duration-200">
+                                                Leer más <ArrowRight className="w-4 h-4" />
+                                            </span>
+                                        </div>
+                                    </Link>
+                                </motion.div>
+                            ))}
+                        </div>
+                        <div className="mt-8 text-center md:hidden">
+                            <Link to="/blog" className="inline-flex items-center gap-2 px-6 py-3 bg-[#C8973A] hover:bg-[#A87A2A] text-white rounded-xl font-semibold text-sm transition-colors">
+                                Ver todos los artículos <ArrowRight className="w-4 h-4" />
+                            </Link>
                         </div>
                     </div>
                 </section>

@@ -51,6 +51,8 @@ import AdminControlAcceso from './pages/AdminControlAcceso';
 import AdminReviews from './pages/AdminReviews';
 import AdminReferidos from './pages/AdminReferidos';
 import AdminSEO from './pages/AdminSEO';
+import Blog from './pages/Blog';
+import BlogPost from './pages/BlogPost';
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Growth Engine — lazy loaded for code-splitting
@@ -96,6 +98,8 @@ function App() {
           <Route path="/camaras" element={<Camaras />} />
           <Route path="/paneles-solares" element={<PanelesSolares />} />
           <Route path="/control-acceso" element={<ControlAcceso />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
 
           {/* Admin auth */}
           <Route path="/admin/login" element={<AdminLogin />} />

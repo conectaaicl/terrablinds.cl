@@ -3,7 +3,9 @@ const BASE_URL = 'https://terrablinds.cl';
 const DEFAULT_DESCRIPTION = 'Cortinas roller, persianas y toldos a medida. Fabricación premium con instalación experta en todo Chile. Cotiza online gratis.';
 
 const SEO = ({ title, description = DEFAULT_DESCRIPTION, path = '/', image, type = 'website', jsonLd }) => {
-    const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} - Cortinas y Persianas a Medida | Santiago, Chile`;
+    const fullTitle = title
+        ? (title.toLowerCase().includes('terrablinds') ? title : `${title} | ${SITE_NAME}`)
+        : `${SITE_NAME} - Cortinas y Persianas a Medida | Santiago, Chile`;
     const canonicalUrl = `${BASE_URL}${path}`;
 
     return (
