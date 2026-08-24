@@ -81,9 +81,12 @@ export default function AdminInicio() {
         feature2_title: '', feature2_text: '',
         feature3_title: '', feature3_text: '',
         feature4_title: '', feature4_text: '',
-        cat1_image: '', cat1_title: 'Cortinas Roller', cat1_link: '/catalog?category=Cortinas Roller',
-        cat2_image: '', cat2_title: 'Blackout', cat2_link: '/catalog?category=Blackout',
-        cat3_image: '', cat3_title: 'Persianas', cat3_link: '/catalog?category=Persianas',
+        cat1_image: '', cat1_title: 'Cortinas Roller',      cat1_link: '/catalog?category=Cortinas Roller',
+        cat2_image: '', cat2_title: 'Blackout',              cat2_link: '/catalog?category=Blackout',
+        cat3_image: '', cat3_title: 'Persianas',             cat3_link: '/catalog?category=Persianas',
+        cat4_image: '', cat4_title: 'Persianas Exteriores',  cat4_link: '/catalog?category=Exteriores',
+        cat5_image: '', cat5_title: 'Mallas de Seguridad',   cat5_link: '/catalog?category=Mallas',
+        cat6_image: '', cat6_title: 'Cierre de Terrazas',    cat6_link: '/catalog?category=Terrazas',
         home_projects_title: 'Proyectos Destacados', home_projects_subtitle: 'Trabajos reales en hogares y empresas de Chile.',
     });
     const [loading, setLoading] = useState(true);
@@ -210,23 +213,25 @@ export default function AdminInicio() {
                     </div>
                 </Section>
 
-                <Section title="Cards de Categorías (Inicio)" desc="Las 3 tarjetas de productos que aparecen en la página de inicio.">
-                    <div className="space-y-6">
-                        {[1, 2, 3].map(n => (
+                <Section title="Cards de Soluciones (Inicio)" desc="Las 6 tarjetas de productos de la sección 'Elige tu solución'. Si no hay foto se muestra un fondo oscuro.">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[1, 2, 3, 4, 5, 6].map(n => (
                             <div key={n} className="bg-gray-50 p-4 rounded-xl space-y-3">
-                                <p className="text-sm font-semibold text-gray-700">Categoría {n}</p>
+                                <p className="text-sm font-semibold text-gray-700">Tarjeta {n}</p>
                                 <ImageUploadField
                                     label="Foto"
-                                    hint="Recomendado: 800x600px"
+                                    hint="Recomendado: 800×600px, sin texto sobre la imagen"
                                     value={s[`cat${n}_image`]}
                                     fieldName={`cat${n}_image`}
                                     onChange={set}
                                 />
                                 <Field label="Título">
-                                    <input className={INPUT} value={s[`cat${n}_title`] || ''} onChange={e => set(`cat${n}_title`, e.target.value)} placeholder="Cortinas Roller" />
+                                    <input className={INPUT} value={s[`cat${n}_title`] || ''} onChange={e => set(`cat${n}_title`, e.target.value)}
+                                        placeholder={['Cortinas Roller','Blackout','Persianas','Persianas Exteriores','Mallas de Seguridad','Cierre de Terrazas'][n-1]} />
                                 </Field>
                                 <Field label="Enlace">
-                                    <input className={INPUT} value={s[`cat${n}_link`] || ''} onChange={e => set(`cat${n}_link`, e.target.value)} placeholder="/catalog?category=Cortinas Roller" />
+                                    <input className={INPUT} value={s[`cat${n}_link`] || ''} onChange={e => set(`cat${n}_link`, e.target.value)}
+                                        placeholder={['/catalog?category=Cortinas Roller','/catalog?category=Blackout','/catalog?category=Persianas','/catalog?category=Exteriores','/catalog?category=Mallas','/catalog?category=Terrazas'][n-1]} />
                                 </Field>
                             </div>
                         ))}

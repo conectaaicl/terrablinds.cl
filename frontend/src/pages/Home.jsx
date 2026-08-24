@@ -26,9 +26,9 @@ const SOLUTIONS = [
     { title: 'Cortinas Roller',      desc: 'Control de luz y privacidad con diseño minimalista.',       link: '/catalog?category=Roller',     cfgKey: 'cat1_image', grad: 'from-slate-700 to-slate-900' },
     { title: 'Persianas',            desc: 'Elegancia y control de luz en cada ambiente.',              link: '/catalog?category=Persianas',  cfgKey: 'cat2_image', grad: 'from-neutral-700 to-neutral-900' },
     { title: 'Toldos',               desc: 'Disfruta tus espacios al aire libre todo el año.',          link: '/catalog?category=Toldos',     cfgKey: 'cat3_image', grad: 'from-zinc-700 to-zinc-900' },
-    { title: 'Persianas Exteriores', desc: 'Protección solar y térmica. Mayor eficiencia energética.',  link: '/catalog?category=Exteriores', cfgKey: null,         grad: 'from-stone-700 to-stone-900' },
-    { title: 'Mallas de Seguridad',  desc: 'Protección confiable para niños, mascotas y terrazas.',    link: '/catalog?category=Mallas',     cfgKey: null,         grad: 'from-gray-800 to-gray-950' },
-    { title: 'Cierre de Terrazas',   desc: 'Amplía y protege tus espacios durante todo el año.',       link: '/catalog?category=Terrazas',   cfgKey: null,         grad: 'from-amber-900 to-stone-900' },
+    { title: 'Persianas Exteriores', desc: 'Protección solar y térmica. Mayor eficiencia energética.',  link: '/catalog?category=Exteriores', cfgKey: 'cat4_image', grad: 'from-stone-700 to-stone-900' },
+    { title: 'Mallas de Seguridad',  desc: 'Protección confiable para niños, mascotas y terrazas.',    link: '/catalog?category=Mallas',     cfgKey: 'cat5_image', grad: 'from-gray-800 to-gray-950' },
+    { title: 'Cierre de Terrazas',   desc: 'Amplía y protege tus espacios durante todo el año.',       link: '/catalog?category=Terrazas',   cfgKey: 'cat6_image', grad: 'from-amber-900 to-stone-900' },
 ];
 
 const DEFAULT_STATS = [
