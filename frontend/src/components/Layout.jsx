@@ -74,17 +74,17 @@ const Layout = ({ children }) => {
 
                     {/* Logo */}
                     <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-                        {logoUrl ? (
-                            <div className="flex flex-col items-start leading-none">
-                                <img src={logoUrl} alt={brandName} className="h-10 md:h-12 w-auto object-contain rounded-lg" />
-                                <span className="hidden sm:block text-[8px] font-bold tracking-[0.14em] text-white/45 uppercase mt-1">CORTINAS · TOLDOS · PERSIANAS</span>
-                            </div>
-                        ) : (
-                            <div className="flex flex-col leading-none">
-                                <span className="text-lg md:text-xl font-bold text-white tracking-tight">{brandName}</span>
-                                <span className="hidden sm:block text-[8px] font-bold tracking-[0.14em] text-white/45 uppercase mt-0.5">CORTINAS · TOLDOS · PERSIANAS</span>
-                            </div>
+                        {logoUrl && (
+                            <img src={logoUrl} alt={brandName} className="h-10 md:h-11 w-auto object-contain rounded-lg" />
                         )}
+                        <div className="flex flex-col leading-none">
+                            <span className="text-[19px] md:text-[21px] font-extrabold" style={{ letterSpacing: '-0.025em' }}>
+                                <span className="text-white">Terra</span><span style={{ color: '#3b82f6' }}>Blinds</span>
+                            </span>
+                            <span className="text-[8px] font-bold tracking-[0.13em] text-white/55 uppercase mt-0.5">
+                                CORTINAS · TOLDOS · PERSIANAS
+                            </span>
+                        </div>
                     </Link>
 
                     {/* Desktop nav */}
