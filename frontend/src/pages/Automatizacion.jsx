@@ -12,7 +12,7 @@ const DEFAULT_FEATURES = [
     { icon: Wifi, title: 'Integración inteligente', desc: 'Compatible con nuestro sistema de domótica TerraBlinds — Alexa, Google Home y Apple HomeKit.' },
     { icon: Zap, title: 'Instalación rápida', desc: 'El motor tubular se instala en el tubo existente de tu cortina. En la mayoría de los casos, 1 hora de trabajo.' },
     { icon: Settings, title: 'Límites programables', desc: 'Configura los puntos de apertura y cierre exactos. Memoria de posición y modo de emergencia manual.' },
-    { icon: Shield, title: 'Motor silencioso', desc: 'Tecnología DC de baja vibración. No molesta ni en habitaciones ni en locales. Garantía de 2 años.' },
+    { icon: Shield, title: 'Motor silencioso', desc: 'Tecnología DC de baja vibración. No molesta ni en habitaciones ni en locales. Garantía de 48 meses.' },
 ];
 
 const MOTOR_TYPES = [

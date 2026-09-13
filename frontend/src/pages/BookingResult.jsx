@@ -6,18 +6,22 @@ import api from '../api';
 export default function BookingResult() {
     const [params] = useSearchParams();
     const token = params.get('token');
+    const freeId = params.get('free') === '1' ? params.get('id') : null;
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
     useEffect(() => {
-        if (!token) { setError('Parámetro de pago no encontrado.'); setLoading(false); return; }
+        if (!token && !freeId) { setError('Parámetro de pago no encontrado.'); setLoading(false); return; }
 
         // Poll up to 10 times (30 seconds) waiting for webhook to arrive
         let attempts = 0;
         const poll = async () => {
             try {
-                const res = await api.get(`/api/bookings/resultado?token=${token}`);
+                const url = freeId
+                    ? `/api/bookings/resultado?free=1&id=${freeId}`
+                    : `/api/bookings/resultado?token=${token}`;
+                const res = await api.get(url);
                 const booking = res.data;
                 if (booking.status === 'pending_payment' && attempts < 10) {
                     attempts++;

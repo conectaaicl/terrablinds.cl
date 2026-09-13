@@ -1,4 +1,4 @@
-const { Quote, Config, Opportunity } = require('../models');
+const { Quote, Config, Opportunity, Contact } = require('../models');
 const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail, resendQuoteEmail } = require('../services/email.service');
 const axios = require('axios');
 
@@ -7,15 +7,36 @@ async function fireWebhook(quote) {
         const cfg = await Config.findOne({ where: { key: 'webhook_url' } });
         const url = cfg?.value;
         if (!url || !url.startsWith('http')) return;
+        const items = Array.isArray(quote.items) ? quote.items : [];
+        const itemLines = items.map(i => {
+            const name = i.productName || i.product || 'Producto';
+            const dims = (i.width && i.height) ? ` ${i.width}x${i.height}cm` : '';
+            const qty  = i.quantity > 1 ? ` x${i.quantity}` : '';
+            return `${name}${dims}${qty}`;
+        }).join(' | ');
+        const total = parseFloat(quote.total_amount || 0);
+        const totalStr = total > 0 ? `$${total.toLocaleString('es-CL')}` : 'A confirmar';
+        const phone = quote.customer_phone || '';
+        const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g, '')}` : null;
+        const msgContent = [
+            itemLines || `Cotización #${quote.id}`,
+            `Total estimado: ${totalStr}`,
+            `Email: ${quote.customer_email}`,
+            phone ? `Tel: ${phone}` : null,
+            waLink ? `WhatsApp: ${waLink}` : null,
+        ].filter(Boolean).join(' | ');
+        // Nested structure matching n8n workflow field mappings
         await axios.post(url, {
             event: 'new_quote',
             quote_id: quote.id,
+            contact: { name: quote.customer_name, email: quote.customer_email, phone: phone || null },
+            message: { content: msgContent },
+            channel: 'web',
+            phone: phone || null,
             customer_name: quote.customer_name,
             customer_email: quote.customer_email,
-            customer_phone: quote.customer_phone,
             total_amount: quote.total_amount,
             items: quote.items,
-            created_at: quote.created_at,
         }, { timeout: 5000 });
         console.log(`Webhook fired for quote #${quote.id}`);
     } catch (err) {
@@ -229,4 +250,79 @@ exports.updateQuoteStatus = async (req, res) => {
         console.error('Error updating quote:', error.message);
         res.status(500).json({ error: 'Error updating quote' });
     }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cotización rápida — formulario de un paso, sin email ni medidas
+// Guarda en contacts + dispara webhook n8n. Sin dependencia con quotes table.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.createQuoteRapida = async (req, res, next) => {
+    try {
+        const { nombre, telefono, producto, comuna, ventanas, comentario } = req.body;
+
+        if (!nombre || nombre.trim().length < 2)
+            return res.status(400).json({ error: 'Nombre requerido' });
+        if (!telefono || telefono.replace(/[^0-9]/g, '').length < 8)
+            return res.status(400).json({ error: 'WhatsApp / teléfono requerido' });
+        if (!producto)
+            return res.status(400).json({ error: 'Tipo de producto requerido' });
+
+        const nameClean  = nombre.trim();
+        const phoneRaw   = telefono.trim();
+        let phoneNorm    = phoneRaw.replace(/[^0-9]/g, '');
+        if (phoneNorm.length === 9) phoneNorm = '56' + phoneNorm;
+
+        const resumen = [
+            `Producto: ${producto}`,
+            ventanas   ? `Ventanas: ${ventanas}` : null,
+            comuna     ? `Comuna: ${comuna}`      : null,
+            comentario ? `Nota: ${comentario}`    : null,
+        ].filter(Boolean).join(' | ');
+
+        // Save to contacts (email nullable — no migration needed)
+        const existing = phoneNorm
+            ? await Contact.findOne({ where: { phone_normalized: phoneNorm } })
+            : null;
+        if (existing) {
+            await existing.update({ name: nameClean, notes: resumen });
+        } else {
+            await Contact.create({
+                name:             nameClean,
+                phone:            phoneRaw,
+                phone_normalized: phoneNorm || null,
+                notes:            resumen,
+            });
+        }
+
+        // Fire n8n webhook (fire-and-forget)
+        (async () => {
+            try {
+                const cfg = await Config.findOne({ where: { key: 'webhook_url' } });
+                const url = cfg?.value;
+                if (!url || !url.startsWith('http')) return;
+                const waLink = phoneNorm ? `https://wa.me/${phoneNorm}` : null;
+                const msgContent = [
+                    `Producto: ${producto}`,
+                    ventanas   ? `Ventanas: ${ventanas}` : null,
+                    comuna     ? `Comuna: ${comuna}`      : null,
+                    comentario ? `Nota: ${comentario}`    : null,
+                    `Tel: ${phoneRaw}`,
+                    waLink ? `WhatsApp: ${waLink}` : null,
+                ].filter(Boolean).join(' | ');
+                await axios.post(url, {
+                    event:         'new_quote',
+                    contact:       { name: nameClean, email: null, phone: phoneRaw },
+                    message:       { content: msgContent },
+                    channel:       'cotizacion',
+                    phone:         phoneRaw,
+                    customer_name: nameClean,
+                }, { timeout: 8000 });
+                console.log(`[QuoteRapida] Webhook fired: ${nameClean} / ${phoneRaw}`);
+            } catch (e) {
+                console.warn(`[QuoteRapida] Webhook error: ${e.message}`);
+            }
+        })();
+
+        res.json({ success: true });
+    } catch (err) { next(err); }
 };

@@ -79,7 +79,7 @@ async function notifySocial(event, product) {
                     : null,
             category: p.category || '',
             imageUrl: imageUrl || null,
-            url: `https://terrablinds.cl/productos/${p.slug || p.id}`,
+            url: `https://terrablinds.cl/product/${p.id}`,
         },
     };
 

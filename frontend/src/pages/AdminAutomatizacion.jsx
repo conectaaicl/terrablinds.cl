@@ -78,7 +78,7 @@ const DEFAULTS = {
     auto_feat5_title: 'Límites programables',
     auto_feat5_desc: 'Configura los puntos de apertura y cierre exactos. Memoria de posición y modo de emergencia manual.',
     auto_feat6_title: 'Motor silencioso',
-    auto_feat6_desc: 'Tecnología DC de baja vibración. Garantía de 2 años.',
+    auto_feat6_desc: 'Tecnología DC de baja vibración. Garantía de 48 meses.',
 };
 
 export default function AdminAutomatizacion() {

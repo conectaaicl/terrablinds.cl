@@ -13,22 +13,22 @@ const SPECS = [
     { label: 'Altura máxima', value: 'Hasta 4 metros (bajo consulta para más)' },
     { label: 'Colores disponibles', value: 'Blanco, Gris, Beige, Grafito y RAL a pedido' },
     { label: 'Automatización', value: 'Opcional — motor tubular + control remoto' },
-    { label: 'Garantía', value: '2 años en estructura, 1 año en motor' },
+    { label: 'Garantía', value: '48 meses en estructura, 24 meses en motor' },
 ];
 
 const MOTORS = [
     {
-        img: '/assets/metalicas/motor_chain.jpg',
+        img: '/assets/metalicas/motor_chain.webp',
         title: 'Motor lateral con cadena',
         desc: 'Alternativa para cortinas metálicas motorizadas con sistema de transmisión lateral.',
     },
     {
-        img: '/assets/metalicas/motor_600.jpg',
+        img: '/assets/metalicas/motor_600.webp',
         title: 'Motor para trabajo exigente',
         desc: 'Configuración orientada a cortinas de mayor tamaño según cálculo técnico del proyecto.',
     },
     {
-        img: '/assets/metalicas/motor_central.jpg',
+        img: '/assets/metalicas/motor_central.webp',
         title: 'Motor central',
         desc: 'Solución compacta integrada al eje para determinadas configuraciones de cortina enrollable.',
     },
@@ -36,12 +36,12 @@ const MOTORS = [
 
 const TIPOS = [
     {
-        img: '/assets/metalicas/cortina_local.jpg',
+        img: '/assets/metalicas/cortina_local.webp',
         title: 'Locales y accesos',
         desc: 'Protección compacta para comercio, bodegas y accesos de servicio.',
     },
     {
-        img: '/assets/metalicas/cortinas_comerciales.jpg',
+        img: '/assets/metalicas/cortinas_comerciales.webp',
         title: 'Proyectos comerciales',
         desc: 'Soluciones para múltiples vanos y aperturas de mayor escala.',
     },
@@ -142,7 +142,7 @@ export default function CortinasMetalicas() {
 
     const heroTitle = cfg.metalicas_title || 'Protege tu negocio con cortinas metálicas';
     const heroSubtitle = cfg.metalicas_subtitle || 'Cortinas enrollables de acero para locales comerciales, bodegas, galpones y garajes. Fabricación a medida, instalación profesional y distintas alternativas de motorización.';
-    const heroBg = cfg.metalicas_photo1 || '/assets/metalicas/cortinas_comerciales.jpg';
+    const heroBg = cfg.metalicas_photo1 || '/assets/metalicas/cortinas_comerciales.webp';
     const whatsapp = cfg.whatsapp_number ? `https://wa.me/${cfg.whatsapp_number}` : 'https://wa.me/56998101891';
 
     return (
@@ -240,7 +240,7 @@ export default function CortinasMetalicas() {
                     <div className="grid md:grid-cols-2 gap-12 items-center">
                         <div className="rounded-2xl overflow-hidden bg-gray-100 h-96">
                             <img
-                                src="/assets/metalicas/motor_compact.jpg"
+                                src="/assets/metalicas/motor_compact.webp"
                                 alt="Motor compacto"
                                 className="w-full h-full object-contain p-6"
                             />

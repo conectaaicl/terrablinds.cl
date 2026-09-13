@@ -13,6 +13,7 @@ const quoteCreateLimiter = rateLimit({
 
 // Public route - create quote (rate limited)
 router.post('/', quoteCreateLimiter, quoteController.createQuote);
+router.post('/rapida', quoteCreateLimiter, quoteController.createQuoteRapida);
 
 // Admin-only routes
 router.get('/', protect, restrictTo('admin'), quoteController.getAllQuotes);

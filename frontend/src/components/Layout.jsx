@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useSiteConfig } from '../context/SiteConfigContext';
 import VisitCounter from './VisitCounter';
 import ChatWidget from './ChatWidget';
+import BotWidget from './BotWidget';
 
 // SVG oficial WhatsApp
 const WhatsAppIcon = ({ className }) => (
@@ -45,7 +46,18 @@ const Layout = ({ children }) => {
     const { cartCount } = useCart();
     const location = useLocation();
 
-    React.useEffect(() => { setIsMenuOpen(false); }, [location.pathname]);
+    React.useEffect(() => {
+        setIsMenuOpen(false);
+        // Track page view per route change
+        const page = location.pathname;
+        const key = "tb_tracked_" + page;
+        if (!sessionStorage.getItem(key)) {
+            import("../api").then(mod => {
+                mod.default.post("/api/stats/visit", { page }).catch(() => {});
+            });
+            sessionStorage.setItem(key, "1");
+        }
+    }, [location.pathname]);
 
     React.useEffect(() => {
         if (!siteConfig._loaded) return;
@@ -54,9 +66,6 @@ const Layout = ({ children }) => {
             link.rel = 'icon';
             link.href = siteConfig.favicon_url;
             document.head.appendChild(link);
-        }
-        if (siteConfig.brand_name) {
-            document.title = siteConfig.brand_name + ' - Cortinas y Persianas a Medida';
         }
     }, [siteConfig._loaded]);
 
@@ -345,7 +354,7 @@ const Layout = ({ children }) => {
                     href={`https://wa.me/${waNumber}?text=${encodeURIComponent(siteConfig.whatsapp_default_msg || 'Hola TerraBlinds, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="fixed bottom-24 right-5 z-40 bg-green-500 hover:bg-green-600 text-white p-3.5 rounded-full shadow-lg transition-transform hover:scale-110 flex items-center justify-center"
+                    className="fixed bottom-24 right-5 z-40 wa-fab text-white p-3.5 rounded-full shadow-lg flex items-center justify-center"
                     title="Chatea con nosotros en WhatsApp"
                 >
                     <WhatsAppIcon className="w-7 h-7" />
@@ -354,6 +363,7 @@ const Layout = ({ children }) => {
 
             {/* AI Chat Widget */}
             <ChatWidget logoUrl={logoUrl} />
+            <BotWidget />
         </div>
     );
 };

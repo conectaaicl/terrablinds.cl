@@ -20,12 +20,12 @@ const DEFAULT_FEATURES = [
 ];
 
 const STATIC_COMPONENTS = [
-    { img: '/assets/paneles/kit-solar.jpg', tag: 'Sistema completo', title: 'Kit Solar', desc: 'Conjunto de paneles, inversor, almacenamiento y accesorios para una solución integrada.' },
+    { img: '/assets/paneles/kit-solar.webp', tag: 'Sistema completo', title: 'Kit Solar', desc: 'Conjunto de paneles, inversor, almacenamiento y accesorios para una solución integrada.' },
     { img: '/assets/paneles/inversor-felicity.webp', tag: 'Conversión', title: 'Inversores', desc: 'Equipos que gestionan la conversión eléctrica y el funcionamiento del sistema.' },
-    { img: '/assets/paneles/inversor-epever.jpg', tag: 'Gestión de energía', title: 'Inversor / Cargador', desc: 'Para sistemas que requieren generación, respaldo y carga de baterías.' },
-    { img: '/assets/paneles/bateria-ritar-12v.jpg', tag: 'Almacenamiento', title: 'Baterías de respaldo', desc: 'Almacenamiento para disponer de energía cuando el sistema lo requiera.' },
-    { img: '/assets/paneles/bateria-litio-ritar.png', tag: 'Litio', title: 'Baterías de Litio', desc: 'Mayor densidad y gestión energética para proyectos exigentes.' },
-    { img: '/assets/paneles/paneles-suelo.jpg', tag: 'Generación', title: 'Paneles Fotovoltaicos', desc: 'Capturan la radiación solar y la convierten en energía eléctrica.' },
+    { img: '/assets/paneles/inversor-epever.webp', tag: 'Gestión de energía', title: 'Inversor / Cargador', desc: 'Para sistemas que requieren generación, respaldo y carga de baterías.' },
+    { img: '/assets/paneles/bateria-ritar-12v.webp', tag: 'Almacenamiento', title: 'Baterías de respaldo', desc: 'Almacenamiento para disponer de energía cuando el sistema lo requiera.' },
+    { img: '/assets/paneles/bateria-litio-ritar.webp', tag: 'Litio', title: 'Baterías de Litio', desc: 'Mayor densidad y gestión energética para proyectos exigentes.' },
+    { img: '/assets/paneles/paneles-suelo.webp', tag: 'Generación', title: 'Paneles Fotovoltaicos', desc: 'Capturan la radiación solar y la convierten en energía eléctrica.' },
 ];
 
 const USE_CASES = [

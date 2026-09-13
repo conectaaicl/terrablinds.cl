@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
-import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight, Zap, MessageCircle, RefreshCw, Activity, AlertTriangle, XCircle, CheckCircle, Info } from 'lucide-react';
+import { Package, ShoppingCart, Users, Clock, TrendingUp, DollarSign, ArrowRight, Zap, MessageCircle, RefreshCw, Activity, AlertTriangle, XCircle, CheckCircle, Info, Eye } from 'lucide-react';
 import api from '../api';
 
 const DEFAULT_LOGO = '/uploads/image-1773550576065-529383678.jpeg';
@@ -161,6 +161,10 @@ const GrowthWidget = ({ health, leadStats, dashboard, loading }) => {
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState({ totalQuotes: 0, newLeads: 0, activeProducts: 0, pendingQuotes: 0, totalRevenue: 0, conversionRate: 0 });
+    const [visits, setVisits] = useState(0);
+    const [todayVisits, setTodayVisits] = useState(0);
+    const [weekVisits, setWeekVisits] = useState(0);
+    const [yesterdayVisits, setYesterdayVisits] = useState(0);
     const [allQuotes, setAllQuotes] = useState([]);
     const [recentQuotes, setRecentQuotes] = useState([]);
     const [systemStatus, setSystemStatus] = useState({ backend: null, db: null });
@@ -175,6 +179,7 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchAll(); checkSystemStatus(); fetchGE();
         api.get('/api/config/public').then(r => { if (r.data.logo_url) setLogoUrl(r.data.logo_url); }).catch(() => {});
+        api.get('/api/stats/visits').then(r => { setVisits(r.data.visits || 0); setTodayVisits(r.data.today || 0); setWeekVisits(r.data.week || 0); setYesterdayVisits(r.data.yesterday || 0); }).catch(() => {});
     }, []);
 
     const fetchGE = async () => {
@@ -289,7 +294,10 @@ const AdminDashboard = () => {
             ) : (
                 <div className="space-y-6">
                     {/* KPI Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-3">
+                        <StatCard title="Visitas Hoy" value={todayVisits.toLocaleString('es-CL')} icon={Eye} color="text-teal-600" bg="bg-teal-50" subtitle={`Esta semana: ${weekVisits.toLocaleString('es-CL')}`} />
+                        <StatCard title="Visitas Ayer" value={yesterdayVisits.toLocaleString('es-CL')} icon={Eye} color="text-indigo-600" bg="bg-indigo-50" subtitle={`Semana: ${weekVisits.toLocaleString('es-CL')}`} />
+                        <StatCard title="Visitas Total" value={visits.toLocaleString('es-CL')} icon={Eye} color="text-cyan-600" bg="bg-cyan-50" subtitle="Histórico acumulado" />
                         <StatCard title="Total Cotizaciones" value={stats.totalQuotes} icon={ShoppingCart} color="text-blue-600" bg="bg-blue-50" onClick={() => navigate('/admin/quotes')} subtitle="Histórico completo" />
                         <StatCard title="Nuevos Leads" value={stats.newLeads} icon={Users} color="text-green-600" bg="bg-green-50" onClick={() => navigate('/admin/quotes')} subtitle="Últimos 7 días" />
                         <StatCard title="Productos Activos" value={stats.activeProducts} icon={Package} color="text-purple-600" bg="bg-purple-50" onClick={() => navigate('/admin/products')} subtitle="En catálogo" />
@@ -339,6 +347,27 @@ const AdminDashboard = () => {
                         dashboard={geDashboard}
                         loading={geLoading}
                     />
+
+                    {/* Google Analytics — Looker Studio */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                            <TrendingUp className="w-5 h-5 text-blue-500" />
+                            <h2 className="font-bold text-gray-900 text-base">Analytics Web — Google</h2>
+                            <span className="ml-auto text-xs text-gray-400">Datos de los últimos 28 días</span>
+                        </div>
+                        <div className="w-full" style={{height: "640px"}}>
+                            <iframe
+                                src="https://datastudio.google.com/embed/reporting/208d47f5-22b3-4337-bff6-185b5be4d163/page/6UQ8F"
+                                width="100%"
+                                height="640"
+                                frameBorder="0"
+                                style={{border: 0}}
+                                allowFullScreen
+                                sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+                                title="TerraBlinds Analytics"
+                            />
+                        </div>
+                    </div>
 
                     {/* Estado por categoría */}
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
@@ -415,5 +444,123 @@ const AdminDashboard = () => {
         </AdminLayout>
     );
 };
+
+// ── GA4 Analytics Panel ──────────────────────────────────────────────────────
+function GA4Panel() {
+    const [data, setData] = React.useState(null);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState(null);
+
+    React.useEffect(() => {
+        const token = localStorage.getItem('token');
+        fetch('/api/analytics/summary', {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+            .then(r => r.json())
+            .then(d => { setData(d); setLoading(false); })
+            .catch(e => { setError(e.message); setLoading(false); });
+    }, []);
+
+    const fmtNum = n => (n || 0).toLocaleString('es-CL');
+    const pct = (a, b) => b ? ((a - b) / b * 100).toFixed(0) : null;
+
+    return (
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-blue-500" />
+                <h2 className="font-bold text-gray-900 text-base">Analytics Web — Google</h2>
+                <span className="ml-auto text-xs text-gray-400">GA4 en tiempo real</span>
+            </div>
+
+            {loading && (
+                <div className="flex items-center justify-center py-16">
+                    <div className="w-7 h-7 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+            )}
+
+            {!loading && (data?.configured === false || error) && (
+                <div className="p-8 text-center">
+                    <div className="text-4xl mb-3">📊</div>
+                    <p className="font-bold text-gray-800 mb-2">GA4 no configurado</p>
+                    <p className="text-gray-500 text-sm mb-5 max-w-md mx-auto">
+                        Para ver las métricas aquí necesitas conectar una Service Account de Google Cloud al backend.
+                    </p>
+                    <div className="bg-gray-50 rounded-xl p-4 text-left text-xs text-gray-600 space-y-1.5 max-w-lg mx-auto font-mono">
+                        <p className="font-bold text-gray-800 font-sans text-sm mb-2">Pasos (5 min):</p>
+                        <p>1. Crea Service Account en console.cloud.google.com</p>
+                        <p>2. Descarga la clave JSON</p>
+                        <p>3. En GA4 → Admin → Administración del acceso → agrega el email de la Service Account como Viewer</p>
+                        <p>4. En el backend .env agrega:</p>
+                        <p className="pl-4 text-blue-600">GA4_PROPERTY_ID={"<id numérico de GA4>"}</p>
+                        <p className="pl-4 text-blue-600">GA4_SERVICE_ACCOUNT_JSON={"'<json completo>'"}</p>
+                        <p>5. Reconstruye el backend</p>
+                    </div>
+                </div>
+            )}
+
+            {!loading && data?.configured && (
+                <div className="p-6 space-y-6">
+                    {/* Metric cards */}
+                    <div className="grid grid-cols-3 gap-4">
+                        {[
+                            { label: 'Hoy', d: data.today, color: 'blue' },
+                            { label: 'Últimos 7 días', d: data.week, color: 'indigo' },
+                            { label: 'Últimos 30 días', d: data.month, color: 'violet' },
+                        ].map(({ label, d, color }) => (
+                            <div key={label} className={`rounded-xl border border-${color}-100 bg-${color}-50/40 p-4`}>
+                                <p className={`text-xs font-bold text-${color}-500 uppercase tracking-wider mb-3`}>{label}</p>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-sm text-gray-500">Usuarios</span>
+                                        <span className="text-xl font-black text-gray-900">{fmtNum(d.users)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-sm text-gray-500">Sesiones</span>
+                                        <span className="text-lg font-bold text-gray-700">{fmtNum(d.sessions)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-sm text-gray-500">Páginas vistas</span>
+                                        <span className="text-lg font-bold text-gray-700">{fmtNum(d.pageviews)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Top pages */}
+                    {data.topPages?.length > 0 && (
+                        <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Top páginas — últimos 7 días</p>
+                            <div className="space-y-2">
+                                {data.topPages.map((p, i) => {
+                                    const max = data.topPages[0].views || 1;
+                                    return (
+                                        <div key={p.path} className="flex items-center gap-3">
+                                            <span className="text-xs text-gray-400 w-4 text-right font-mono">{i + 1}</span>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex justify-between items-center mb-0.5">
+                                                    <span className="text-sm text-gray-700 truncate font-medium">{p.path}</span>
+                                                    <span className="text-sm font-bold text-gray-900 ml-2 shrink-0">{fmtNum(p.views)}</span>
+                                                </div>
+                                                <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-blue-500 rounded-full"
+                                                        style={{ width: `${(p.views / max) * 100}%` }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <span className="text-xs text-gray-400 w-16 text-right shrink-0">{fmtNum(p.users)} users</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+}
+
 
 export default AdminDashboard;

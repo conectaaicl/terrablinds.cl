@@ -43,6 +43,36 @@ function notifyBookingTelegram(booking, serviceLabel) {
 }
 const TIME_SLOTS = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
+async function fireBookingWebhook(booking, serviceLabel) {
+    try {
+        const cfg = await Config.findOne({ where: { key: 'webhook_url' } });
+        const url = cfg?.value;
+        if (!url || !url.startsWith('http')) return;
+        const phone = booking.client_phone || '';
+        const waLink = phone ? `https://wa.me/${phone.replace(/[^0-9]/g, '')}` : null;
+        const msgContent = [
+            `Servicio: ${serviceLabel}`,
+            `Fecha: ${booking.date} ${booking.time_slot}hrs`,
+            booking.client_address ? `Dirección: ${booking.client_address}` : null,
+            booking.notes ? `Notas: ${booking.notes}` : null,
+            `Email: ${booking.client_email}`,
+            phone ? `Tel: ${phone}` : null,
+            waLink ? `WhatsApp: ${waLink}` : null,
+        ].filter(Boolean).join(' | ');
+        axios.post(url, {
+            event: 'new_booking',
+            booking_id: booking.id,
+            contact: { name: booking.client_name, email: booking.client_email, phone: phone || null },
+            message: { content: msgContent },
+            channel: 'agendar',
+            phone: phone || null,
+        }, { timeout: 8000 }).catch(e => console.warn(`Booking webhook failed: ${e.message}`));
+        console.log(`Booking webhook fired for booking #${booking.id}`);
+    } catch (err) {
+        console.warn(`Booking webhook error: ${err.message}`);
+    }
+}
+
 const signParams = (params, secret) => {
     const keys = Object.keys(params).sort();
     let toSign = '';
@@ -149,6 +179,7 @@ exports.createBooking = async (req, res, next) => {
 
             // After commit: HTTP side-effects (Telegram + email) stay outside the transaction
             notifyBookingTelegram(booking, SERVICE_LABELS[service_type]);
+            fireBookingWebhook(booking, SERVICE_LABELS[service_type]);
             emailService.sendBookingConfirmation(booking).catch(e => {
                 console.error('Booking confirmation email error:', e.message);
             });
@@ -170,8 +201,9 @@ exports.createBooking = async (req, res, next) => {
             status:          'pending_payment',
         });
 
-        // Telegram notification (non-blocking)
+        // Telegram + n8n webhook notification (non-blocking)
         notifyBookingTelegram(booking, SERVICE_LABELS[service_type]);
+        fireBookingWebhook(booking, SERVICE_LABELS[service_type]);
 
         const { apiKey, secretKey, apiUrl } = await getFlowConfig();
         if (!apiKey || !secretKey) {
@@ -289,14 +321,24 @@ exports.confirmPayment = async (req, res) => {
     }
 };
 
-// GET /api/bookings/resultado?token=FLOW_TOKEN
+// GET /api/bookings/resultado?token=FLOW_TOKEN  OR  ?free=1&id=BOOKING_ID
 exports.getPaymentResult = async (req, res, next) => {
     try {
-        const { token } = req.query;
-        if (!token) return res.status(400).json({ error: 'Token requerido' });
+        const { token, id, free } = req.query;
 
-        const booking = await Booking.findOne({ where: { flow_token: token } });
-        if (!booking) return res.status(404).json({ error: 'Reserva no encontrada' });
+        let booking;
+        if (free === '1' && id) {
+            const bId = parseInt(id, 10);
+            if (!bId) return res.status(400).json({ error: 'ID inválido' });
+            booking = await Booking.findOne({
+                where: { id: bId, amount: 0, status: 'confirmed' },
+            });
+            if (!booking) return res.status(404).json({ error: 'Reserva no encontrada' });
+        } else {
+            if (!token) return res.status(400).json({ error: 'Token requerido' });
+            booking = await Booking.findOne({ where: { flow_token: token } });
+            if (!booking) return res.status(404).json({ error: 'Reserva no encontrada' });
+        }
 
         res.json({
             status: booking.status,

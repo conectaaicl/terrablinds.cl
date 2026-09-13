@@ -92,12 +92,12 @@ exports.chat = async (req, res) => {
         }
 
         const payload = JSON.stringify({
-            model: 'llama-3.1-8b-instant',
+            model: 'openai/gpt-oss-20b',
             messages: [
                 { role: 'system', content: systemPrompt },
                 ...recentMessages,
             ],
-            max_tokens: 300,
+            max_tokens: 600,
             temperature: 0.65,
             stream: false,
         });
@@ -137,7 +137,8 @@ exports.chat = async (req, res) => {
             throw new Error(`Groq error: ${data.error.message || JSON.stringify(data.error)}`);
         }
 
-        const reply = data.choices?.[0]?.message?.content?.trim();
+        let reply = data.choices?.[0]?.message?.content?.trim();
+        if (reply) reply = reply.replace(/<think>[\s\S]*?<\/think>/gi, '').replace(/<think>[\s\S]*/gi, '').trim();
         if (!reply) throw new Error('Empty response from Groq');
 
         // Growth Engine: fire-and-forget when the frontend has captured contact info.

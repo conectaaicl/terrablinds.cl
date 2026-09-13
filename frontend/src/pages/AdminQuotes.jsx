@@ -3,7 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import { Search, Eye, X, ChevronDown, MessageCircle, Mail, RefreshCw, Phone, Printer, RotateCcw, Trash2 } from 'lucide-react';
 import api from '../api';
 
-const LOGO_URL = '/logoterrablinds.png';
+const LOGO_URL = '/logoterrablinds.webp';
 const fmt = n => Math.round(Number(n) || 0).toLocaleString('es-CL');
 const p2  = n => String(n).padStart(2, '0');
 
@@ -129,7 +129,7 @@ table.ft td{border:1px solid #ccc;padding:4px 6px;vertical-align:top}
   </tr>
   <tr><td colspan="2" class="sh">TÉRMINOS Y CONDICIONES GENERALES</td></tr>
   <tr><td colspan="2" style="padding:8px 12px;font-size:10px;line-height:1.8">
-    1.- Garantía de 3 años en Mecanismos y Cadenas.<br>
+    1.- Garantía de 48 meses en Mecanismos y Cadenas.<br>
     2.- Los valores de esta cotización pueden variar una vez rectificadas las medidas en terreno.<br>
     3.- Contamos con todo método de pago: efectivo, transferencia, tarjeta de débito y crédito.<br>
     4.- Los productos son fabricados a medida; una vez confeccionados no se realiza devolución del dinero.<br>

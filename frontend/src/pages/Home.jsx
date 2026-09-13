@@ -6,6 +6,11 @@ import Hero from '../components/Hero';
 import SEO from '../components/SEO';
 import { Shield, X, ArrowRight, ExternalLink, Star, Wifi, Smartphone, Sun, ChevronRight, Zap } from 'lucide-react';
 import api from '../api';
+import { ConversionHero } from '../components/ConversionHero';
+import { FeaturedProducts } from '../components/FeaturedProducts';
+import { Testimonials, StatsCounter } from '../components/SocialProof';
+import BeforeAfter from '../components/BeforeAfter';
+import { TrustBar, ProcessSteps } from '../components/TrustBar';
 
 const fadeUp = {
     initial:     { opacity: 0, y: 28 },
@@ -19,7 +24,7 @@ const BENEFITS = [
     { icon: '☀', label: 'PROTECCIÓN UV',            sub: 'Cuida tu salud' },
     { icon: '⬡', label: 'ALTA DURABILIDAD',         sub: 'Materiales premium' },
     { icon: '⚙', label: 'INSTALACIÓN PROFESIONAL',  sub: 'Equipos especializados' },
-    { icon: '◇', label: 'GARANTÍA',                 sub: '2 años en productos' },
+    { icon: '◇', label: 'GARANTÍA',                 sub: '48 meses en productos' },
 ];
 
 const SOLUTIONS = [
@@ -74,13 +79,26 @@ const Home = () => {
         <Layout>
             <SEO
                 title={cfg.seo_title_home || undefined}
-                description={cfg.seo_desc_home || 'Cortinas roller, persianas y toldos a medida. Fabricación premium con instalación experta en todo Chile. Cotiza online gratis.'}
+                description={cfg.seo_desc_home || 'Cortinas roller a medida en Santiago. Fabricación e instalación incluida. Roller sunscreen, blackout y motorizado desde $32.000. Cotiza gratis por WhatsApp.'}
                 image={cfg.seo_og_image_home || undefined}
                 path="/"
             />
 
-            {/* ── Hero carousel (intacto) ────────────────────────────────────── */}
+            {/* ── Hero agresivo de conversión ───────────────────────────────── */}
+            <ConversionHero />
+
+            {/* ── Barra de confianza (Google reviews, hogares, garantía) ──── */}
+            <TrustBar />
+
+            {/* ── Hero carousel (intacto) ─────────────────────────────────── */}
             <Hero />
+
+            {/* ── Featured Products ─────────────────────────────────────────── */}
+            <FeaturedProducts />
+
+
+            {/* ── Proceso 3 pasos (estilo Rolzzo) ───────────────────────────────── */}
+            <ProcessSteps />
 
             {/* ── Barra de beneficios ────────────────────────────────────────── */}
             <div className="bg-[#0d0b08] border-t border-white/5 py-5 px-4">
@@ -461,6 +479,66 @@ const Home = () => {
                     </div>
                 </div>
             )}
+            {/* ── Stats animados ────────────────────────────────────── */}
+            <StatsCounter />
+
+            {/* ── Antes / Después ──────────────────────────────────────── */}
+            <section className="bg-gray-50 py-16">
+              <div className="mx-auto max-w-5xl px-4">
+                <div className="mb-10 text-center">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-[#6C5CE7]">Transformación real</p>
+                  <h2 className="mt-2 text-3xl font-bold text-[#0B1220]">Mira cómo cambia un ambiente con la cortina correcta</h2>
+                  <p className="mt-3 text-gray-500 max-w-xl mx-auto text-sm">Arrastra el control para comparar. El mismo espacio se ve completamente diferente con una cortina roller a medida.</p>
+                </div>
+                <BeforeAfter
+                  before="/assets/catalog/catalog-hero2.webp"
+                  after="/assets/catalog/catalog-hero1.webp"
+                  beforeLabel="Sin cortina"
+                  afterLabel="Con TerraBlinds"
+                />
+                <div className="mt-6 flex flex-wrap justify-center gap-6 text-sm text-gray-600">
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#6C5CE7] inline-block"></span>Control total de la luz</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#6C5CE7] inline-block"></span>Mayor privacidad</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#6C5CE7] inline-block"></span>Estilo a medida</span>
+                  <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-[#6C5CE7] inline-block"></span>Aislación térmica</span>
+                </div>
+              </div>
+            </section>
+
+                        {/* ── Precios referenciales ───────────────────────────────────── */}
+            <section className="bg-white py-16">
+              <div className="mx-auto max-w-5xl px-4">
+                <div className="mb-10 text-center">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-[#6C5CE7]">Precios referenciales</p>
+                  <h2 className="mt-2 text-3xl font-bold text-[#0B1220]">¿Cuánto cuesta instalar cortinas roller en Santiago?</h2>
+                  <p className="mt-3 text-gray-500 max-w-2xl mx-auto text-sm">Valores incluyen fabricación a medida e instalación. El precio final depende del tamaño y tipo de tela.</p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { tipo: 'Roller Screen', desde: '$35.000', hasta: '$120.000', desc: 'Filtra luz · Vista al exterior · Reduce calor' },
+                    { tipo: 'Roller Blackout', desde: '$40.000', hasta: '$135.000', desc: 'Oscurecimiento total · Aislación térmica' },
+                    { tipo: 'Roller Duo', desde: '$55.000', hasta: '$180.000', desc: 'Doble tela · Luz de día · Oscuro de noche' },
+                    { tipo: 'Motorizado', desde: '$120.000', hasta: '$350.000', desc: 'App · Alexa · Google Home · Timer' },
+                  ].map((p) => (
+                    <div key={p.tipo} className="rounded-2xl border border-gray-100 bg-gray-50 p-6 text-center hover:shadow-md transition-shadow">
+                      <p className="text-sm font-semibold text-[#6C5CE7] uppercase tracking-wide mb-2">{p.tipo}</p>
+                      <p className="text-2xl font-bold text-[#0B1220]">desde {p.desde}</p>
+                      <p className="text-xs text-gray-400 mb-3">hasta {p.hasta}</p>
+                      <p className="text-xs text-gray-500 leading-relaxed">{p.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-8 text-center">
+                  <a href="/quote" className="inline-block rounded-xl bg-[#0d2a5e] px-8 py-3 text-white font-semibold hover:bg-[#1a3a7a] transition-colors">
+                    Cotizar gratis — respuesta en menos de 24 hrs
+                  </a>
+                </div>
+              </div>
+            </section>
+
+            {/* ── Testimonios ─────────────────────────────────────────────── */}
+            <Testimonials />
+
         </Layout>
     );
 };

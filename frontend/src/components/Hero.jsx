@@ -70,9 +70,9 @@ export default function Hero() {
                     <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-amber-200/90 mb-4 border border-amber-400/40 px-4 py-1.5 rounded-full bg-amber-900/20">
                         {config.hero_badge}
                     </span>
-                    <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
+                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
                         {config.hero_title}
-                    </h1>
+                    </h2>
                     <p className="text-base sm:text-xl text-gray-200/90 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow px-2">
                         {config.hero_subtitle}
                     </p>
@@ -101,9 +101,9 @@ export default function Hero() {
                     <span className="inline-block text-xs font-bold uppercase tracking-[0.25em] text-amber-200/90 mb-4 border border-amber-400/40 px-4 py-1.5 rounded-full bg-amber-900/20">
                         {config.hero_badge}
                     </span>
-                    <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
+                    <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-5 max-w-4xl leading-[1.1] drop-shadow-xl">
                         {config.hero_title}
-                    </h1>
+                    </h2>
                     <p className="text-base sm:text-xl text-gray-200/90 mb-8 sm:mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow px-2">
                         {config.hero_subtitle}
                     </p>
@@ -193,9 +193,9 @@ export default function Hero() {
                     {config.hero_badge}
                 </span>
 
-                <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-5 max-w-4xl leading-[1.1] drop-shadow-xl px-2">
+                <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-4 sm:mb-5 max-w-4xl leading-[1.1] drop-shadow-xl px-2">
                     {config.hero_title}
-                </h1>
+                </h2>
 
                 <p className="text-base sm:text-lg md:text-xl text-gray-200/90 mb-7 sm:mb-10 max-w-2xl leading-relaxed drop-shadow px-2">
                     {config.hero_subtitle}

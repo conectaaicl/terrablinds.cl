@@ -296,7 +296,7 @@ export default function Domotica() {
                         {/* Card 2: Interruptor (foto real) */}
                         <div className="bg-slate-800/60 border border-white/8 rounded-2xl overflow-hidden hover:border-blue-500/30 transition-colors flex flex-col">
                             <div className="aspect-video overflow-hidden bg-slate-700">
-                                <img src="/assets/domotica/interruptor-terrablinds.jpg" alt="Interruptor inteligente TerraBlinds" className="w-full h-full object-cover" />
+                                <img src="/assets/domotica/interruptor-terrablinds.webp" alt="Interruptor inteligente TerraBlinds" className="w-full h-full object-cover" />
                             </div>
                             <div className="p-4 flex-1">
                                 <h3 className="font-bold text-white mb-2">Interruptores inteligentes</h3>

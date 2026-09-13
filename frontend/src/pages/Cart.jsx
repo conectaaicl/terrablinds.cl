@@ -53,28 +53,25 @@ const Cart = () => {
         }
     };
 
-    const handlePayment = async (method = 'flow') => {
+    const handleWhatsApp = async () => {
         if (!formData.name || !formData.email || !formData.phone) {
-            setError('Complete su nombre, email y teléfono antes de pagar.');
+            setError('Complete su nombre, email y teléfono antes de continuar.');
             return;
         }
         setLoading(true);
         setError(null);
         try {
-            const quoteRes = await api.post('/api/quotes', buildPayload());
-            const endpoint = method === 'mp' ? '/api/payment/mercadopago/create' : '/api/payment/create';
-            const payRes = await api.post(endpoint, { quoteId: quoteRes.data.id });
-            if (payRes.data.redirectUrl) {
-                clearCart();
-                window.location.href = payRes.data.redirectUrl;
-            } else {
-                setError('Error al iniciar el pago.');
-            }
-        } catch (err) {
-            setError(err.response?.data?.error || 'Error al procesar el pago.');
+            await api.post('/api/quotes', buildPayload()).catch(() => {});
         } finally {
             setLoading(false);
         }
+        const lines = cartItems.map(item => {
+            const dims = item.displayDetails || `${item.width} × ${item.height} cm`;
+            const color = item.color ? ` — ${item.color}` : '';
+            return `• ${item.productName || item.name} (${dims}${color})`;
+        });
+        const msg = `Hola, quiero coordinar mi pedido de TerraBlinds:\n\n${lines.join('\n')}\n\nTotal estimado: $${cartTotal.toLocaleString('es-CL')}\n\nNombre: ${formData.name}\nTeléfono: ${formData.phone}${formData.notes ? '\nNotas: ' + formData.notes : ''}`;
+        window.open(`https://wa.me/56998101891?text=${encodeURIComponent(msg)}`, '_blank');
     };
 
     if (success) {
@@ -123,7 +120,7 @@ const Cart = () => {
                         <div className="w-8 h-px bg-gray-200 hidden sm:block" />
                         <StepBadge n="2" label="Tus datos" active={cartItems.length > 0} />
                         <div className="w-8 h-px bg-gray-200 hidden sm:block" />
-                        <StepBadge n="3" label="Pago" active={cartItems.length > 0} />
+                        <StepBadge n="3" label="WhatsApp" active={cartItems.length > 0} />
                     </div>
                 </div>
             </div>
@@ -268,24 +265,28 @@ const Cart = () => {
                                         {/* Divider */}
                                         <div className="relative flex items-center py-1">
                                             <div className="flex-grow border-t border-gray-100" />
-                                            <span className="flex-shrink mx-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">o paga ahora</span>
+                                            <span className="flex-shrink mx-3 text-[11px] text-gray-400 font-semibold uppercase tracking-wider">o hablar directo</span>
                                             <div className="flex-grow border-t border-gray-100" />
                                         </div>
 
-                                        {/* Payment buttons */}
-                                        <button type="button" onClick={() => handlePayment('flow')} disabled={loading}
-                                            className="w-full py-2.5 bg-gray-900 hover:bg-black disabled:bg-gray-300 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm">
-                                            <CreditCard className="w-4 h-4" /> WebPay / Flow
-                                        </button>
-                                        <button type="button" onClick={() => handlePayment('mp')} disabled={loading}
-                                            className="w-full py-2.5 disabled:bg-gray-300 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm"
-                                            style={{ backgroundColor: loading ? undefined : '#009ee3' }}>
-                                            <CreditCard className="w-4 h-4" /> Mercado Pago
+                                        {/* WhatsApp button */}
+                                        <button type="button" onClick={handleWhatsApp} disabled={loading}
+                                            className="w-full py-3 font-bold rounded-xl flex items-center justify-center gap-2 transition-colors text-sm text-white disabled:bg-gray-300 wa-pulse">
+                                            {loading ? (
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                                            ) : (
+                                                <>
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                                    </svg>
+                                                    Coordinar por WhatsApp
+                                                </>
+                                            )}
                                         </button>
 
                                         <div className="flex items-center gap-2 justify-center pt-2">
                                             <Shield className="w-3 h-3 text-gray-300" />
-                                            <p className="text-[11px] text-gray-400">Pagos 100% seguros · Confirmación por email</p>
+                                            <p className="text-[11px] text-gray-400">Te respondemos en minutos · Cotización incluida</p>
                                         </div>
                                     </form>
                                 </div>

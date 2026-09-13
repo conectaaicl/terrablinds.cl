@@ -1,37 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import SEO from '../components/SEO';
-import { Search, SlidersHorizontal, Package, ArrowRight, Zap } from 'lucide-react';
+import { Search, Package, ArrowRight, Zap, X, ArrowUpDown, Check } from 'lucide-react';
 import api from '../api';
 
 const DEFAULT_HERO = [
-    { img: '/assets/catalog/catalog-hero1.png', label: 'Cortinas Roller',  sub: 'Blackout · Screen · Duo' },
-    { img: '/assets/catalog/catalog-hero2.png', label: 'Persianas Ext.',   sub: 'Aluminio · Exteriores' },
-    { img: '/assets/catalog/catalog-hero3.png', label: 'Toldos',           sub: 'Retráctiles · Terraza' },
+    { img: '/assets/catalog/catalog-hero1.webp', label: 'Cortinas Roller',  sub: 'Blackout · Screen · Duo' },
+    { img: '/assets/catalog/catalog-hero2.webp', label: 'Persianas Ext.',   sub: 'Aluminio · Exteriores' },
+    { img: '/assets/catalog/catalog-hero3.webp', label: 'Toldos',           sub: 'Retráctiles · Terraza' },
 ];
 
 const COMPARADOR = [
     {
         name: 'Blackout',
-        color: '#0b2a55',
         badge: 'Oscuridad total',
         items: ['Bloquea 100% la luz', 'Ideal dormitorios y home theater', 'Alta privacidad', 'Aislante térmico'],
     },
     {
         name: 'Screen',
-        color: '#083a72',
         badge: 'Vista exterior',
         items: ['Filtra UV sin perder vista', 'Ahorra energía AC', 'Reduce deslumbramiento', 'Colores naturales interiores'],
     },
     {
         name: 'Duo / Zebra',
-        color: '#0c4a8f',
         badge: 'Lo mejor de ambos',
         items: ['Control de luz preciso', 'Estética moderna premium', 'Privacidad graduable', 'Ideal living y oficinas'],
     },
 ];
+
+const SORTS = [
+    { key: 'destacados', label: 'Destacados' },
+    { key: 'precio-asc', label: 'Menor precio' },
+    { key: 'precio-desc', label: 'Mayor precio' },
+    { key: 'nombre', label: 'Nombre A-Z' },
+];
+
+const priceOf = (p) => parseFloat(p.base_price_m2 || 0);
 
 const Catalog = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -39,10 +45,21 @@ const Catalog = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cfg, setCfg] = useState({});
-    const [search, setSearch] = useState('');
-    const [filters, setFilters] = useState({
-        category: searchParams.get('category') || 'all',
-    });
+    const [sortOpen, setSortOpen] = useState(false);
+
+    // URL is the single source of truth, so a filtered view can be shared or bookmarked.
+    const category = searchParams.get('category') || 'all';
+    const subcategory = searchParams.get('sub') || 'all';
+    const search = searchParams.get('q') || '';
+    const sort = searchParams.get('sort') || 'destacados';
+
+    const setParam = (key, value, resets = []) => {
+        const next = new URLSearchParams(searchParams);
+        if (!value || value === 'all' || value === '') next.delete(key);
+        else next.set(key, value);
+        resets.forEach(r => next.delete(r));
+        setSearchParams(next, { replace: true });
+    };
 
     useEffect(() => {
         api.get('/api/config/public').then(res => {
@@ -50,16 +67,16 @@ const Catalog = () => {
             setCfg(d);
         }).catch(() => {});
 
-        const fetchProducts = async () => {
+        (async () => {
             try {
                 setLoading(true);
                 setError(null);
                 const res = await api.get('/api/products');
+                const baseUrl = import.meta.env.VITE_API_URL;
                 const data = res.data.map(p => {
                     if (typeof p.images === 'string') try { p.images = JSON.parse(p.images); } catch (e) { p.images = []; }
                     if (typeof p.features === 'string') try { p.features = JSON.parse(p.features); } catch (e) { p.features = []; }
                     if (Array.isArray(p.images)) {
-                        const baseUrl = import.meta.env.VITE_API_URL;
                         p.images = p.images.map(img => img.startsWith('http') ? img : `${baseUrl}${img}`);
                     }
                     return p;
@@ -70,25 +87,57 @@ const Catalog = () => {
             } finally {
                 setLoading(false);
             }
-        };
-        fetchProducts();
+        })();
     }, []);
 
-    const handleFilterChange = (key, value) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-        if (key === 'category') {
-            value === 'all' ? setSearchParams({}) : setSearchParams({ category: value });
+    const categories = useMemo(
+        () => [...new Set(products.map(p => p.category).filter(Boolean))].sort(),
+        [products]
+    );
+
+    const subcategories = useMemo(() => {
+        if (category === 'all') return [];
+        return [...new Set(
+            products.filter(p => p.category === category).map(p => p.subcategory).filter(Boolean)
+        )].sort();
+    }, [products, category]);
+
+    const countFor = (cat) => products.filter(p => p.category === cat).length;
+
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        let list = products.filter(p => {
+            if (category !== 'all' && p.category !== category) return false;
+            if (subcategory !== 'all' && p.subcategory !== subcategory) return false;
+            if (q) {
+                const haystack = `${p.name} ${p.short_description || ''} ${p.category || ''}`.toLowerCase();
+                if (!haystack.includes(q)) return false;
+            }
+            return true;
+        });
+
+        if (sort === 'nombre') {
+            list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'es'));
+        } else if (sort === 'precio-asc' || sort === 'precio-desc') {
+            // Products without a price sit at the end either way, never above priced ones.
+            const dir = sort === 'precio-asc' ? 1 : -1;
+            list = [...list].sort((a, b) => {
+                const pa = priceOf(a), pb = priceOf(b);
+                if (!pa && !pb) return 0;
+                if (!pa) return 1;
+                if (!pb) return -1;
+                return (pa - pb) * dir;
+            });
+        } else {
+            // Destacados: los que tienen foto primero — una tarjeta con imagen vende más.
+            list = [...list].sort((a, b) => (b.images?.length ? 1 : 0) - (a.images?.length ? 1 : 0));
         }
-    };
+        return list;
+    }, [products, category, subcategory, search, sort]);
 
-    const categories = [...new Set(products.map(p => p.category))].sort();
-
-    const filteredProducts = products.filter(product => {
-        if (filters.category !== 'all' && product.category !== filters.category) return false;
-        if (search && !product.name.toLowerCase().includes(search.toLowerCase()) &&
-            !(product.short_description || '').toLowerCase().includes(search.toLowerCase())) return false;
-        return true;
-    });
+    const hasFilters = category !== 'all' || subcategory !== 'all' || search !== '' || sort !== 'destacados';
+    const clearAll = () => setSearchParams({}, { replace: true });
+    const sortLabel = SORTS.find(s => s.key === sort)?.label || 'Destacados';
 
     return (
         <Layout>
@@ -102,7 +151,6 @@ const Catalog = () => {
             <div style={{ background: 'linear-gradient(135deg,#06101f,#0b2a55)' }} className="text-white py-16 px-4">
                 <div className="container mx-auto max-w-6xl">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                        {/* Left */}
                         <div>
                             <span className="inline-block text-[10px] font-bold tracking-[0.15em] uppercase text-blue-300 border border-blue-400/30 bg-blue-500/10 px-4 py-1.5 rounded-full mb-5">
                                 Fabricación a medida · Santiago y todo Chile
@@ -113,17 +161,6 @@ const Catalog = () => {
                             <p className="text-blue-100/80 text-lg leading-relaxed mb-8 max-w-lg">
                                 {cfg.catalog_subtitle || 'Cortinas roller, blackout, screen, duo, persianas, toldos y más. Todo fabricado a medida para tus espacios.'}
                             </p>
-                            <div className="relative max-w-sm mb-6">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/60" />
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={e => setSearch(e.target.value)}
-                                    placeholder="Buscar producto..."
-                                    className="w-full pl-11 pr-4 py-3 rounded-xl text-sm text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
-                                />
-                            </div>
                             <div className="flex gap-3 flex-wrap">
                                 <Link to="/quote" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-sm transition-colors">
                                     Cotizar ahora <ArrowRight className="w-4 h-4" />
@@ -134,16 +171,14 @@ const Catalog = () => {
                             </div>
                         </div>
 
-                        {/* Right — 3 photo cards */}
                         {(() => {
                             const cards = DEFAULT_HERO.map((d, i) => ({
-                                img:   cfg[`catalog_hero${i+1}_image`]  || d.img,
-                                label: cfg[`catalog_hero${i+1}_label`]  || d.label,
-                                sub:   cfg[`catalog_hero${i+1}_sub`]    || d.sub,
+                                img:   cfg[`catalog_hero${i + 1}_image`] || d.img,
+                                label: cfg[`catalog_hero${i + 1}_label`] || d.label,
+                                sub:   cfg[`catalog_hero${i + 1}_sub`]   || d.sub,
                             }));
                             return (
                                 <div className="hidden lg:grid grid-cols-2 grid-rows-2 gap-2.5" style={{ height: '320px' }}>
-                                    {/* tall left card */}
                                     <div className="row-span-2 relative rounded-2xl overflow-hidden shadow-2xl">
                                         <img src={cards[0].img} alt={cards[0].label} className="w-full h-full object-cover object-center" />
                                         <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent 40%,rgba(3,9,18,0.88))' }} />
@@ -169,18 +204,76 @@ const Catalog = () => {
                 </div>
             </div>
 
-            {/* ── Filter bar (sticky) ── */}
+            {/* ── Toolbar: búsqueda + categorías + orden, todo pegado arriba ── */}
             <div className="sticky top-[73px] z-40 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
                 <div className="container mx-auto px-4">
-                    <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-none">
-                        <div className="flex items-center gap-1.5 text-[10px] text-gray-400 mr-1 shrink-0">
-                            <SlidersHorizontal className="w-3.5 h-3.5" />
-                            <span className="font-bold uppercase tracking-wider">Filtrar:</span>
+                    {/* fila 1: buscar + orden */}
+                    <div className="flex items-center gap-3 pt-3">
+                        <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={e => setParam('q', e.target.value)}
+                                placeholder="Buscar cortina, persiana, toldo..."
+                                aria-label="Buscar productos"
+                                className="w-full pl-10 pr-9 py-2.5 rounded-xl text-sm bg-gray-50 border border-gray-200 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition"
+                            />
+                            {search && (
+                                <button
+                                    onClick={() => setParam('q', '')}
+                                    aria-label="Limpiar búsqueda"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+                                >
+                                    <X className="w-4 h-4" />
+                                </button>
+                            )}
                         </div>
+
+                        <div className="relative shrink-0">
+                            <button
+                                onClick={() => setSortOpen(o => !o)}
+                                aria-expanded={sortOpen}
+                                aria-haspopup="listbox"
+                                className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:text-blue-700 transition"
+                            >
+                                <ArrowUpDown className="w-4 h-4" />
+                                <span className="hidden sm:inline">{sortLabel}</span>
+                            </button>
+                            {sortOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
+                                    <ul
+                                        role="listbox"
+                                        className="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-gray-200 shadow-lg overflow-hidden z-20 py-1"
+                                    >
+                                        {SORTS.map(s => (
+                                            <li key={s.key}>
+                                                <button
+                                                    role="option"
+                                                    aria-selected={sort === s.key}
+                                                    onClick={() => { setParam('sort', s.key); setSortOpen(false); }}
+                                                    className={`w-full text-left px-4 py-2 text-sm flex items-center justify-between transition-colors ${
+                                                        sort === s.key ? 'text-blue-700 font-bold bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
+                                                    }`}
+                                                >
+                                                    {s.label}
+                                                    {sort === s.key && <Check className="w-3.5 h-3.5" />}
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* fila 2: categorías */}
+                    <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-none">
                         <button
-                            onClick={() => handleFilterChange('category', 'all')}
+                            onClick={() => setParam('category', 'all', ['sub'])}
                             className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                                filters.category === 'all'
+                                category === 'all'
                                     ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                     : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
                             }`}
@@ -190,21 +283,54 @@ const Catalog = () => {
                         {categories.map(cat => (
                             <button
                                 key={cat}
-                                onClick={() => handleFilterChange('category', cat)}
+                                onClick={() => setParam('category', cat, ['sub'])}
                                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                                    filters.category === cat
+                                    category === cat
                                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600'
                                 }`}
                             >
-                                {cat} ({products.filter(p => p.category === cat).length})
+                                {cat} ({countFor(cat)})
                             </button>
                         ))}
+                        {hasFilters && (
+                            <button
+                                onClick={clearAll}
+                                className="shrink-0 ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            >
+                                <X className="w-3 h-3" /> Limpiar
+                            </button>
+                        )}
                     </div>
+
+                    {/* fila 3: subcategorías, solo si la categoría elegida las tiene */}
+                    {subcategories.length > 0 && (
+                        <div className="flex items-center gap-2 pb-3 overflow-x-auto scrollbar-none">
+                            <button
+                                onClick={() => setParam('sub', 'all')}
+                                className={`shrink-0 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                                    subcategory === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                }`}
+                            >
+                                Todas
+                            </button>
+                            {subcategories.map(sub => (
+                                <button
+                                    key={sub}
+                                    onClick={() => setParam('sub', sub)}
+                                    className={`shrink-0 px-3 py-1 rounded-lg text-[11px] font-semibold transition-all ${
+                                        subcategory === sub ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                                    }`}
+                                >
+                                    {sub}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            {/* ── Products grid ── */}
+            {/* ── Grilla ── */}
             <div className="bg-gray-50 min-h-screen">
                 <div className="container mx-auto px-4 py-10">
                     {loading ? (
@@ -225,29 +351,48 @@ const Catalog = () => {
                             <Package className="w-10 h-10 text-red-300 mx-auto mb-3" />
                             <p className="text-red-500 font-semibold">{error}</p>
                         </div>
-                    ) : filteredProducts.length > 0 ? (
+                    ) : filtered.length > 0 ? (
                         <>
-                            <p className="text-gray-400 text-sm mb-6">
-                                {filteredProducts.length} producto{filteredProducts.length !== 1 ? 's' : ''}
-                                {search && <span> para "<strong className="text-gray-600">{search}</strong>"</span>}
-                            </p>
+                            <div className="flex items-baseline justify-between mb-6 gap-4 flex-wrap">
+                                <p className="text-gray-500 text-sm">
+                                    <strong className="text-gray-900 font-bold">{filtered.length}</strong>{' '}
+                                    producto{filtered.length !== 1 ? 's' : ''}
+                                    {category !== 'all' && <> en <strong className="text-gray-700">{category}</strong></>}
+                                    {search && <> para “<strong className="text-gray-700">{search}</strong>”</>}
+                                </p>
+                                <p className="text-gray-400 text-xs">Orden: {sortLabel}</p>
+                            </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {filteredProducts.map(product => (
+                                {filtered.map(product => (
                                     <ProductCard key={product.id} product={product} />
                                 ))}
                             </div>
                         </>
                     ) : (
-                        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200">
+                        <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-gray-200 px-6">
                             <Package className="w-10 h-10 text-gray-200 mx-auto mb-3" />
-                            <p className="text-gray-500 font-semibold mb-1">Sin resultados</p>
-                            <p className="text-gray-400 text-sm">Prueba con otro filtro o término de búsqueda.</p>
+                            <p className="text-gray-700 font-bold mb-1">
+                                {search ? <>Nada coincide con “{search}”</> : 'Sin productos en este filtro'}
+                            </p>
+                            <p className="text-gray-400 text-sm mb-6">
+                                Fabricamos a medida: si no lo ves aquí, igual podemos hacerlo.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                                {hasFilters && (
+                                    <button onClick={clearAll} className="px-5 py-2.5 rounded-xl text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">
+                                        Ver todo el catálogo
+                                    </button>
+                                )}
+                                <Link to="/quote" className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                                    Pedir cotización a medida
+                                </Link>
+                            </div>
                         </div>
                     )}
                 </div>
             </div>
 
-            {/* ── Comparador Screen / Blackout / Duo ── */}
+            {/* ── Comparador ── */}
             <section style={{ background: 'linear-gradient(135deg,#06101f,#0a2851)' }} className="py-20 px-4 text-white">
                 <div className="container mx-auto max-w-5xl">
                     <div className="text-center mb-10">
@@ -286,8 +431,8 @@ const Catalog = () => {
                 </div>
             </section>
 
-            {/* ── Bottom CTA ── */}
-            {!loading && filteredProducts.length > 0 && (
+            {/* ── CTA final ── */}
+            {!loading && filtered.length > 0 && (
                 <div className="bg-gray-50 px-4 pb-16">
                     <div className="container mx-auto max-w-4xl">
                         <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 text-white text-center">
