@@ -28,14 +28,13 @@ router.post('/visit', async (req, res) => {
 // GET /api/stats/visits — total + today + yesterday
 router.get('/visits', async (req, res) => {
     try {
+        // "Hoy" en hora de Chile: pasar NOW() a esa zona y quedarse con la fecha.
+        // Comparar date con date; la versión anterior mezclaba timestamp e integer y reventaba.
         const [rows] = await sequelize.query(`
             SELECT
-                COUNT(*) FILTER (WHERE visited_at >= NOW() AT TIME ZONE 'America/Santiago' - INTERVAL '0' DAY
-                                   AND visited_at <  NOW() AT TIME ZONE 'America/Santiago' + INTERVAL '1' DAY)
-                    AS today_approx,
-                COUNT(*) FILTER (WHERE DATE(visited_at AT TIME ZONE 'America/Santiago') = CURRENT_DATE AT TIME ZONE 'America/Santiago')
+                COUNT(*) FILTER (WHERE (visited_at AT TIME ZONE 'America/Santiago')::date = (NOW() AT TIME ZONE 'America/Santiago')::date)
                     AS today,
-                COUNT(*) FILTER (WHERE DATE(visited_at AT TIME ZONE 'America/Santiago') = (CURRENT_DATE AT TIME ZONE 'America/Santiago') - 1)
+                COUNT(*) FILTER (WHERE (visited_at AT TIME ZONE 'America/Santiago')::date = (NOW() AT TIME ZONE 'America/Santiago')::date - 1)
                     AS yesterday,
                 COUNT(*) FILTER (WHERE visited_at >= NOW() - INTERVAL '7 days')
                     AS week,
@@ -54,8 +53,9 @@ router.get('/visits', async (req, res) => {
             total_table: parseInt(rows[0]?.total_table) || 0,
         });
     } catch (error) {
+        console.error('[stats] /visits query failed, returning legacy total only:', error.message);
         const record = await Config.findOne({ where: { key: 'visit_count' } }).catch(() => null);
-        res.json({ visits: parseInt(record?.value) || 0, today: 0, yesterday: 0, week: 0 });
+        res.json({ visits: parseInt(record?.value) || 0, today: 0, yesterday: 0, week: 0, degraded: true });
     }
 });
 

@@ -82,8 +82,34 @@ export const COMUNAS = [
     intro: 'Peñalolén combina sectores residenciales consolidados y nuevos condominios. Llevamos nuestra oferta completa a toda la comuna sin costo de traslado.',
     destacados: ['Sin costo de visita técnica', 'Roller, venecianas y toldos disponibles', 'Cobertura en condominios cerrados', 'Presupuesto en 24 horas'],
   },
+  {
+    slug: 'colina',
+    nombre: 'Colina',
+    nombreDisplay: 'Colina y Chicureo',
+    descripcion: 'Cortinas roller, persianas exteriores y toldos en Colina y Chicureo. Instalación en casas y condominios de la zona norte de Santiago.',
+    keywords: 'cortinas roller Colina, cortinas Chicureo, persianas Chicureo, toldos Colina, cortinas condominios Chicureo',
+    intro: 'Chicureo y Colina concentran casas amplias con ventanales grandes y terrazas muy expuestas al sol. Trabajamos con telas screen de alto factor de protección y persianas exteriores que soportan la radiación directa.',
+    destacados: ['Cobertura en condominios de Chicureo, Piedra Roja y Las Brisas', 'Screen de alta protección UV para ventanales grandes', 'Persianas exteriores y toldos para terrazas', 'Visita técnica sin costo de traslado'],
+  },
 ];
 
 export function getComunaBySlug(slug) {
   return COMUNAS.find(c => c.slug === slug) || null;
+}
+
+function norm(s) {
+  return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+export function findComunas(text) {
+  const t = norm(text);
+  return COMUNAS.filter(c => {
+    const names = [c.nombre, c.nombreDisplay].filter(Boolean).map(norm);
+    if (c.slug === 'colina') names.push('chicureo');
+    return names.some(n => t.includes(n));
+  });
+}
+
+export function displayName(c) {
+  return c.nombreDisplay || c.nombre;
 }

@@ -3,12 +3,19 @@ const router = express.Router();
 const Product = require('../models/product');
 const Blog = require('../models/blog');
 const { Config } = require('../models');
+const { COMUNAS, getComunaBySlug, displayName, findComunas } = require('../data/comunas');
 const { protect, restrictTo } = require('../middleware/auth.middleware');
 
 const SITE_NAME = 'TerraBlinds';
 const BASE_URL = process.env.SITE_URL || 'https://terrablinds.cl';
 
 // Static page meta definitions
+// Servicios secundarios (no-cortinas): se dejan accesibles a humanos pero fuera
+// del índice, para que Google concentre autoridad en cortinas/persianas/toldos.
+const NOINDEX_PATHS = new Set([
+    '/cortinas-metalicas', '/camaras', '/control-acceso', '/automatizacion', '/paneles-solares',
+]);
+
 const STATIC_PAGES = {
     '/': {
         title: 'Cortinas Roller a Medida con Instalación en Santiago | TerraBlinds',
@@ -68,6 +75,7 @@ const STATIC_PAGES = {
     '/cortinas/la-florida': { title: 'Cortinas Roller en La Florida — TerraBlinds', description: 'Cortinas roller y persianas en La Florida. Fabricación a medida e instalación profesional garantizada.', priority: '0.7', changefreq: 'monthly' },
     '/cortinas/san-miguel': { title: 'Cortinas Roller en San Miguel — TerraBlinds', description: 'Cortinas roller, persianas y toldos en San Miguel. Instalación en hogares y locales comerciales.', priority: '0.7', changefreq: 'monthly' },
     '/cortinas/penalolen': { title: 'Cortinas Roller en Peñalolén — TerraBlinds', description: 'Cortinas roller, persianas y toldos en Peñalolén. Visita técnica gratuita y presupuesto personalizado.', priority: '0.7', changefreq: 'monthly' },
+    '/cortinas/colina': { title: 'Cortinas Roller en Colina y Chicureo — TerraBlinds', description: 'Cortinas roller, persianas exteriores y toldos en Colina y Chicureo. Instalación en casas y condominios de la zona norte de Santiago.', priority: '0.8', changefreq: 'monthly' },
     '/automatizacion': {
         title: 'Automatización de Persianas y Toldos | TerraBlinds',
         description: 'Automatización inteligente para persianas, toldos y cortinas. Integración con Alexa, Google Home y sistemas domóticos. Santiago.',
@@ -206,6 +214,7 @@ router.get('/sitemap.xml', async (req, res) => {
 
         // Static pages
         for (const [path, meta] of Object.entries(STATIC_PAGES)) {
+            if (NOINDEX_PATHS.has(path)) continue;
             xml += '  <url>\n';
             xml += `    <loc>${BASE_URL}${path}</loc>\n`;
             if (meta.lastmod) xml += `    <lastmod>${meta.lastmod}</lastmod>\n`;
@@ -217,10 +226,13 @@ router.get('/sitemap.xml', async (req, res) => {
         // Blog posts
         const blogs = await Blog.findAll({
             where: { is_published: true },
-            attributes: ['slug', 'updated_at', 'published_at'],
+            attributes: ['slug', 'title', 'updated_at', 'published_at'],
             order: [['published_at', 'DESC']]
         });
         for (const blog of blogs) {
+            // No listar posts que canonicalizan a una landing de comuna:
+            // Search Console marca las URLs no-canonicas incluidas en sitemap.
+            if (findComunas(blog.title).length) continue;
             const lastmod = blog.updated_at
                 ? new Date(blog.updated_at).toISOString().split('T')[0]
                 : (blog.published_at ? new Date(blog.published_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]);
@@ -313,8 +325,139 @@ function renderContactBlock() {
     </section>`;
 }
 
+
+
+
+// Enlaza la PRIMERA mención de cada comuna dentro del cuerpo de un post.
+// Case-sensitive a propósito: "la reina de las cortinas" o "subir la colina"
+// no deben convertirse en enlaces. Solo una vez por comuna: más sería spam.
+function linkFirstMentions(escapedText) {
+    let out = escapedText;
+    for (const com of COMUNAS) {
+        const names = [com.nombreDisplay, com.nombre].filter(Boolean);
+        if (com.slug === 'colina') names.push('Chicureo');
+        for (const n of [...new Set(names)]) {
+            const idx = out.indexOf(n);
+            if (idx === -1) continue;
+            const before = out.slice(0, idx);
+            const opens = (before.match(/<a /g) || []).length;
+            const closes = (before.match(/<\/a>/g) || []).length;
+            if (opens > closes) continue;
+            out = before
+                + `<a href="${BASE_URL}/cortinas/${com.slug}" style="color:#1d4ed8;font-weight:600;">${n}</a>`
+                + out.slice(idx + n.length);
+            break;
+        }
+    }
+    return out;
+}
+
+function renderPostComunaLinks(title) {
+    let found = findComunas(title);
+    if (!found.length) found = COMUNAS.filter(x => ['las-condes', 'providencia', 'vitacura', 'nunoa'].includes(x.slug));
+    return `<section style="margin-top:32px;padding-top:20px;border-top:1px solid #e2e8f0;">
+        <h2 style="font-size:20px;color:#1e293b;">Instalamos en tu comuna</h2>
+        <p style="font-size:15px;color:#475569;line-height:1.9;margin:8px 0 0;">
+            ${found.map(x => `<a href="${BASE_URL}/cortinas/${x.slug}" style="color:#1d4ed8;text-decoration:none;">Cortinas en ${escapeHtml(displayName(x))}</a>`).join(' · ')}
+            · <a href="${BASE_URL}/la-serena" style="color:#1d4ed8;text-decoration:none;">La Serena y Coquimbo</a>
+        </p>
+    </section>`;
+}
+
+function renderComunaGuides(posts) {
+    if (!posts || !posts.length) return '';
+    return `<section style="margin-top:36px;">
+        <h2 style="font-size:22px;color:#1e293b;">Guías y consejos</h2>
+        <ul style="list-style:none;padding:0;margin:12px 0 0;">
+            ${posts.map(p => `<li style="margin-bottom:10px;"><a href="${BASE_URL}/blog/${escapeHtml(p.slug)}" style="font-size:16px;color:#1d4ed8;text-decoration:none;font-weight:600;">${escapeHtml(p.title)}</a></li>`).join('')}
+        </ul>
+    </section>`;
+}
+
+
+const INSTALACIONES = [
+    { src: '/uploads/roller-duo-zebra.webp',       alt: 'Cortina roller duo zebra instalada en living',      label: 'Roller duo zebra' },
+    { src: '/uploads/cierre-terraza-cristal.webp', alt: 'Cierre de terraza en cristal con vista panoramica', label: 'Cierre de terraza en cristal' },
+    { src: '/uploads/persianas-interior.webp',     alt: 'Minipersiana de aluminio en cocina',                label: 'Minipersiana de aluminio' },
+    { src: '/uploads/toldo-terraza.webp',          alt: 'Toldo retractil sobre terraza de madera',           label: 'Toldo retractil' },
+    { src: '/uploads/persiana-exterior-real.png',  alt: 'Persiana exterior de aluminio instalada',           label: 'Persiana exterior' },
+    { src: '/uploads/malla-seguridad-balcon.webp', alt: 'Malla de seguridad transparente en balcon',         label: 'Malla de seguridad' },
+];
+
+function renderInstalaciones(nombre) {
+    return `<section style="margin-top:36px;">
+        <h2 style="font-size:22px;color:#1e293b;">Asi quedan nuestras instalaciones</h2>
+        <p style="font-size:15px;color:#475569;margin:6px 0 16px;">Fotos de proyectos terminados. Lo mismo que instalamos en ${escapeHtml(nombre)}.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            ${INSTALACIONES.map(f => `<figure style="margin:0;">
+                <img src="${BASE_URL}${f.src}" alt="${escapeHtml(f.alt)}" loading="lazy" width="400" height="300" style="width:100%;height:auto;border-radius:10px;display:block;" />
+                <figcaption style="font-size:13px;color:#475569;margin-top:6px;">${escapeHtml(f.label)}</figcaption>
+            </figure>`).join('')}
+        </div>
+    </section>`;
+}
+
+function renderComunaFaq(nombre) {
+    const faqs = [
+        { q: `¿Hacen visita técnica en ${nombre}?`, a: `Sí. Un técnico va a tu domicilio en ${nombre} a tomar las medidas exactas de cada ventana, sin costo y sin compromiso. Con esas medidas te entregamos el presupuesto final en el momento.` },
+        { q: `¿Cuánto demora la instalación en ${nombre}?`, a: `Fabricamos a medida en 5 a 7 días hábiles. La instalación en ${nombre} se coordina a tu horario y un proyecto estándar de casa o departamento queda listo en una sola jornada.` },
+        { q: `¿Qué cortina conviene para ${nombre}?`, a: `Depende de la orientación y el uso de cada espacio. En dormitorios recomendamos blackout; en living y oficinas, screen o duo para controlar la luz sin perder la vista. En la visita técnica te asesoramos ventana por ventana.` },
+        { q: `¿Instalan en edificios y condominios de ${nombre}?`, a: `Sí. Trabajamos en departamentos, casas, condominios cerrados y locales comerciales. Coordinamos el ingreso con la administración cuando el edificio lo requiere.` },
+    ];
+    return `<section style="margin-top:36px;">
+        <h2 style="font-size:22px;color:#1e293b;">Preguntas frecuentes sobre cortinas en ${escapeHtml(nombre)}</h2>
+        ${faqs.map(f => `<div style="margin-bottom:18px;">
+            <h3 style="font-size:17px;color:#1e293b;margin:0 0 6px;">${escapeHtml(f.q)}</h3>
+            <p style="margin:0;font-size:15px;color:#475569;line-height:1.55;">${escapeHtml(f.a)}</p>
+        </div>`).join('')}
+    </section>`;
+}
+
+function renderOtrasComunas(currentSlug) {
+    const otras = COMUNAS.filter(x => x.slug !== currentSlug);
+    return `<section style="margin-top:36px;">
+        <h2 style="font-size:22px;color:#1e293b;">También instalamos en</h2>
+        <p style="font-size:15px;color:#475569;line-height:1.9;margin:10px 0 0;">
+            ${otras.map(x => `<a href="${BASE_URL}/cortinas/${x.slug}" style="color:#1d4ed8;text-decoration:none;">${escapeHtml(displayName(x))}</a>`).join(' · ')}
+            · <a href="${BASE_URL}/la-serena" style="color:#1d4ed8;text-decoration:none;">La Serena y Coquimbo</a>
+        </p>
+    </section>`;
+}
+
+
+// In-memory prerender cache. A crawler fetching the whole sitemap in a burst
+// would otherwise hit PostgreSQL 3-6 times per URL; content changes rarely.
+// 404s are never cached so a freshly published product is visible at once.
+const PRERENDER_TTL_MS = 10 * 60 * 1000;
+const PRERENDER_MAX_ENTRIES = 500;
+const prerenderCache = new Map();
+
+function cacheGet(key) {
+    const hit = prerenderCache.get(key);
+    if (!hit) return null;
+    if (Date.now() > hit.expires) { prerenderCache.delete(key); return null; }
+    return hit.html;
+}
+
+function cacheSet(key, html) {
+    if (prerenderCache.size >= PRERENDER_MAX_ENTRIES) {
+        const oldest = prerenderCache.keys().next().value;
+        prerenderCache.delete(oldest);
+    }
+    prerenderCache.set(key, { html, expires: Date.now() + PRERENDER_TTL_MS });
+}
+
 router.get('/prerender', async (req, res) => {
     const requestedPath = req.query.path || '/';
+    let canonicalOverride = null;
+
+    const cached = cacheGet(requestedPath);
+    if (cached) {
+        res.set('Content-Type', 'text/html');
+        res.set('Cache-Control', 'public, max-age=3600');
+        res.set('X-Prerender-Cache', 'HIT');
+        return res.send(cached);
+    }
 
     let title, description, ogImage, jsonLd, bodyContent = '';
     let notFound = false;
@@ -357,10 +500,16 @@ router.get('/prerender', async (req, res) => {
             if (post && post.is_published) {
                 title = `${post.title} | ${SITE_NAME}`;
                 description = (post.excerpt || post.title || '').substring(0, 160);
+                // Anti-canibalización: si el post nombra una comuna, su versión
+                // comercial es la landing /cortinas/<slug>. Canonicalizamos hacia
+                // ella para consolidar señales en la página que sí convierte.
+                const _comuna = findComunas(post.title)[0];
+                if (_comuna) canonicalOverride = `${BASE_URL}/cortinas/${_comuna.slug}`;
+                if (!ogImage) ogImage = `${BASE_URL}/uploads/roller-duo-zebra.webp`;
                 const raw = String(post.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
                 bodyContent = `<article style="margin-top:28px;">
-                    <p style="font-size:16px;color:#334155;line-height:1.75;">${escapeHtml(raw.substring(0, 3000))}</p>
-                </article>` + renderContactBlock();
+                    <p style="font-size:16px;color:#334155;line-height:1.75;">${linkFirstMentions(escapeHtml(raw.substring(0, 3000)))}</p>
+                </article>` + renderPostComunaLinks(post.title) + renderContactBlock();
                 jsonLd = {
                     '@context': 'https://schema.org', '@type': 'Article',
                     headline: post.title, description: description,
@@ -410,15 +559,60 @@ router.get('/prerender', async (req, res) => {
             } catch (_) {
                 bodyContent = renderContactBlock();
             }
-        } else if (comunaMatch) {
-            const comunaName = comunaMatch[1].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        } else if (comunaMatch && getComunaBySlug(comunaMatch[1])) {
+            const comuna = getComunaBySlug(comunaMatch[1]);
+            const nombre = displayName(comuna);
+            let products = [];
+            try {
+                products = await Product.findAll({
+                    where: { is_active: true },
+                    attributes: ['id', 'name', 'short_description', 'description'],
+                    order: [['id', 'ASC']], limit: 12,
+                });
+            } catch (_) { /* sin productos, la página igual sale */ }
+
+            const intro = comuna ? comuna.intro : `Instalamos cortinas roller, blackout, screen, duo y persianas a medida en ${nombre}.`;
+            const contexto = comuna && comuna.contexto ? `<p style="font-size:16px;color:#334155;line-height:1.7;margin-top:14px;">${escapeHtml(comuna.contexto)}</p>` : '';
+            const destacados = comuna && comuna.destacados && comuna.destacados.length
+                ? `<ul style="font-size:15px;color:#475569;line-height:1.9;margin:16px 0 0;padding-left:22px;">${comuna.destacados.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>`
+                : '';
+
+            let guias = [];
+            try {
+                const all = await Blog.findAll({ where: { is_published: true }, attributes: ['slug', 'title'], order: [['published_at', 'DESC']] });
+                const mine = all.filter(p => findComunas(p.title).some(x => x.slug === comunaMatch[1]));
+                // Sin guía propia: las 3 más generales para no dejar la sección vacía
+                guias = mine.length ? mine : all.filter(p => !findComunas(p.title).length).slice(0, 3);
+            } catch (_) { /* opcional */ }
+
+            if (!ogImage) ogImage = `${BASE_URL}/uploads/roller-duo-zebra.webp`;
             bodyContent = `<section style="margin-top:28px;">
-                <p style="font-size:16px;color:#334155;line-height:1.7;">
-                    Instalamos cortinas roller, blackout, screen, duo y persianas a medida en ${escapeHtml(comunaName)}.
-                    Coordinamos una visita tecnica gratuita en ${escapeHtml(comunaName)} para tomar las medidas exactas de
-                    cada ventana, fabricamos a medida y realizamos la instalacion completa.
-                </p>
-            </section>` + renderServices() + renderContactBlock();
+                <p style="font-size:16px;color:#334155;line-height:1.7;">${escapeHtml(intro)}</p>
+                ${contexto}
+                <h2 style="font-size:22px;color:#1e293b;margin-top:28px;">Por qué elegirnos en ${escapeHtml(nombre)}</h2>
+                ${destacados}
+            </section>` + renderProductList(products) + renderInstalaciones(nombre) + renderComunaGuides(guias) + renderComunaFaq(nombre) + renderOtrasComunas(comunaMatch[1]) + renderContactBlock();
+
+            jsonLd = [
+                {
+                    "@context": "https://schema.org", "@type": "LocalBusiness",
+                    name: "TerraBlinds", url: `${BASE_URL}${requestedPath}`, telephone: "+56998101891", priceRange: "$$",
+                    description: comuna ? comuna.descripcion : description,
+                    address: { "@type": "PostalAddress", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
+                    areaServed: { "@type": "City", name: nombre, containedInPlace: { "@type": "AdministrativeArea", name: "Region Metropolitana" } },
+                    hasOfferCatalog: {
+                        "@type": "OfferCatalog", name: `Cortinas y Persianas a Medida en ${nombre}`,
+                        itemListElement: SERVICES.map(s => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s, areaServed: nombre } }))
+                    }
+                },
+                {
+                    "@context": "https://schema.org", "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                        { "@type": "ListItem", position: 2, name: `Cortinas en ${nombre}`, item: `${BASE_URL}${requestedPath}` },
+                    ]
+                }
+            ];
         } else if (requestedPath === '/la-serena') {
             try {
                 const products = await Product.findAll({
@@ -461,8 +655,11 @@ router.get('/prerender', async (req, res) => {
         jsonLd = null;
     }
 
-    const canonicalUrl = `${BASE_URL}${requestedPath}`;
-    const ogImageTag = ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />\n    <meta name="twitter:image" content="${escapeHtml(ogImage)}" />` : '';
+    // Fallback global de imagen para compartir (WhatsApp/Facebook no ejecutan JS,
+    // leen esto del prerender). Antes casi todas las páginas se compartían sin foto.
+    if (!ogImage) ogImage = `${BASE_URL}/assets/la-serena/hero.webp`;
+    const canonicalUrl = canonicalOverride || `${BASE_URL}${requestedPath}`;
+    const ogImageTag = ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="630" />\n    <meta name="twitter:image" content="${escapeHtml(ogImage)}" />` : '';
 
     if (!jsonLd && !notFound) {
         if (requestedPath === '/') {
@@ -493,7 +690,7 @@ router.get('/prerender', async (req, res) => {
         }
     }
     const jsonLdTag = jsonLd ? `<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>` : '';
-    const robotsTag = notFound ? '<meta name="robots" content="noindex" />' : '';
+    const robotsTag = (notFound || NOINDEX_PATHS.has(requestedPath)) ? '<meta name="robots" content="noindex, follow" />' : '';
 
     const html = `<!doctype html>
 <html lang="es-CL">
@@ -540,8 +737,10 @@ router.get('/prerender', async (req, res) => {
 </body>
 </html>`;
 
+    if (!notFound) cacheSet(requestedPath, html);
     res.set('Content-Type', 'text/html');
     res.set('Cache-Control', notFound ? 'no-store' : 'public, max-age=3600');
+    res.set('X-Prerender-Cache', 'MISS');
     res.status(notFound ? 404 : 200).send(html);
 });
 

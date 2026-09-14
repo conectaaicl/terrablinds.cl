@@ -219,6 +219,38 @@ exports.deleteQuote = async (req, res) => {
     }
 };
 
+
+// A completed installation is the only moment a review request makes sense.
+// n8n waits 24h and sends the WhatsApp; the review URL lives in Config so it
+// can be filled from the admin without a deploy. Fire-and-forget.
+async function fireReviewRequest(quote) {
+    try {
+        const [urlCfg, reviewCfg] = await Promise.all([
+            Config.findOne({ where: { key: 'review_webhook_url' } }),
+            Config.findOne({ where: { key: 'google_review_url' } }),
+        ]);
+        const hook = urlCfg?.value;
+        const reviewUrl = reviewCfg?.value;
+        if (!hook || !hook.startsWith('http')) return;
+        if (!reviewUrl || !reviewUrl.startsWith('http')) {
+            console.warn('[review-loop] google_review_url no configurada; no se envía solicitud de reseña');
+            return;
+        }
+        const phone = String(quote.customer_phone || '').replace(/[^0-9]/g, '');
+        if (!phone) return;
+        axios.post(hook, {
+            event: 'quote_completed',
+            quote_id: quote.id,
+            name: quote.customer_name,
+            phone,
+            review_url: reviewUrl,
+        }, { timeout: 5000 }).catch(err => console.warn('[review-loop] webhook falló:', err.message));
+        console.log(`[review-loop] solicitud de reseña programada para quote ${quote.id}`);
+    } catch (err) {
+        console.warn('[review-loop] error no bloqueante:', err.message);
+    }
+}
+
 // Update quote status (admin only)
 exports.updateQuoteStatus = async (req, res) => {
     try {
@@ -238,7 +270,12 @@ exports.updateQuoteStatus = async (req, res) => {
             return res.status(404).json({ error: 'Quote not found' });
         }
 
+        const previous = quote.status;
         await quote.update({ status });
+
+        if (status === 'completed' && previous !== 'completed') {
+            fireReviewRequest(quote);
+        }
 
         // Send status update email to client (non-blocking)
         sendStatusUpdateEmail(quote, status).catch(err => {

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { ArrowLeft, Calendar, User, BookOpen } from 'lucide-react';
 import api from '../api';
+import { COMUNAS, findComunas, displayName } from '../data/comunas';
 
 const fmtDate = d => d
     ? new Date(d).toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -11,6 +12,8 @@ const fmtDate = d => d
 
 export default function BlogPost() {
     const { slug } = useParams();
+    const navigate = useNavigate();
+    const bodyRef = useRef(null);
     const [post, setPost]     = useState(null);
     const [loading, setLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
@@ -22,6 +25,47 @@ export default function BlogPost() {
             .catch(err => { if (err?.response?.status === 404) setNotFound(true); })
             .finally(() => setLoading(false));
     }, [slug]);
+
+
+    // Primera mención de cada comuna en el cuerpo -> enlace a su página.
+    // Se hace sobre nodos de texto para no romper el HTML del post ni
+    // enlazar dentro de títulos o de enlaces que ya existen.
+    useEffect(() => {
+        const root = bodyRef.current;
+        if (!post?.content || !root) return;
+        for (const com of COMUNAS) {
+            const names = [com.nombreDisplay, com.nombre].filter(Boolean);
+            if (com.slug === 'colina') names.push('Chicureo');
+            let linked = false;
+            for (const n of [...new Set(names)]) {
+                if (linked) break;
+                const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                    acceptNode: node => node.parentElement?.closest('a, h1, h2, h3, h4') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+                });
+                let node;
+                while ((node = walker.nextNode())) {
+                    const idx = node.nodeValue.indexOf(n);
+                    if (idx === -1) continue;
+                    const target = node.splitText(idx);
+                    target.splitText(n.length);
+                    const a = document.createElement('a');
+                    a.href = `/cortinas/${com.slug}`;
+                    a.textContent = n;
+                    a.dataset.comuna = com.slug;
+                    target.parentNode.replaceChild(a, target);
+                    linked = true;
+                    break;
+                }
+            }
+        }
+    }, [post]);
+
+    const onBodyClick = (e) => {
+        const a = e.target.closest?.('a[data-comuna]');
+        if (!a) return;
+        e.preventDefault();
+        navigate(a.getAttribute('href'));
+    };
 
     if (loading) {
         return (
@@ -55,6 +99,7 @@ export default function BlogPost() {
                 description={post.meta_description || post.excerpt || ''}
                 image={post.cover_image || undefined}
                 path={`/blog/${slug}`}
+                canonical={(() => { const cm = findComunas(post.title)[0]; return cm ? `https://terrablinds.cl/cortinas/${cm.slug}` : undefined; })()}
                 type="article"
             />
 
@@ -102,6 +147,8 @@ export default function BlogPost() {
                     {/* Body */}
                     {post.content && (
                         <div
+                            ref={bodyRef}
+                            onClick={onBodyClick}
                             className="prose prose-stone max-w-none
                                 prose-headings:font-extrabold prose-headings:text-[#1A1614] prose-headings:tracking-tight
                                 prose-p:text-[#4A3F35] prose-p:leading-relaxed
@@ -112,6 +159,29 @@ export default function BlogPost() {
                             dangerouslySetInnerHTML={{ __html: post.content }}
                         />
                     )}
+
+                    {/* Comunas relacionadas */}
+                    {(() => {
+                        let found = findComunas(post.title);
+                        if (!found.length) found = COMUNAS.filter(x => ['las-condes', 'providencia', 'vitacura', 'nunoa'].includes(x.slug));
+                        return (
+                            <div className="mt-10 pt-6 border-t border-[#E8E2D8]">
+                                <p className="text-xs font-bold uppercase tracking-wider text-[#7A6F65] mb-3">Instalamos en tu comuna</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {found.map(x => (
+                                        <Link key={x.slug} to={`/cortinas/${x.slug}`}
+                                            className="px-3.5 py-1.5 rounded-full text-sm font-semibold bg-[#F5F0E8] text-[#1A1614] hover:bg-[#C8973A] hover:text-white transition-colors">
+                                            {displayName(x)}
+                                        </Link>
+                                    ))}
+                                    <Link to="/la-serena"
+                                        className="px-3.5 py-1.5 rounded-full text-sm font-semibold bg-[#F5F0E8] text-[#1A1614] hover:bg-[#C8973A] hover:text-white transition-colors">
+                                        La Serena y Coquimbo
+                                    </Link>
+                                </div>
+                            </div>
+                        );
+                    })()}
 
                     {/* Footer */}
                     <div className="mt-12 pt-8 border-t border-[#E8E2D8] flex items-center justify-between flex-wrap gap-4">
