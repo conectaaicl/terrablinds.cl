@@ -131,8 +131,8 @@ const STATIC_PAGES = {
         changefreq: 'monthly'
     },
     '/la-serena': {
-        title: 'Cortinas Roller en La Serena | TerraBlinds',
-        description: 'Cortinas roller, blackout, screen y persianas exteriores a medida para La Serena y Coquimbo. Proteccion solar real para el clima del Norte Chico. Cotiza sin compromiso.',
+        title: 'Cortinas Roller, Persianas y Toldos en La Serena y Coquimbo | TerraBlinds',
+        description: 'Cortinas roller, blackout, screen, duo, persianas y toldos a medida en La Serena y Coquimbo. Visita a domicilio para medir y cotizar. Proteccion solar real para el Norte Chico.',
         priority: '0.9',
         changefreq: 'monthly',
         lastmod: '2026-09-09'
@@ -450,6 +450,7 @@ function cacheSet(key, html) {
 router.get('/prerender', async (req, res) => {
     const requestedPath = req.query.path || '/';
     let canonicalOverride = null;
+    let h1 = null;
 
     const cached = cacheGet(requestedPath);
     if (cached) {
@@ -614,27 +615,122 @@ router.get('/prerender', async (req, res) => {
                 }
             ];
         } else if (requestedPath === '/la-serena') {
+            h1 = 'Cortinas Roller, Persianas y Toldos en La Serena y Coquimbo';
+            let products = [];
             try {
-                const products = await Product.findAll({
+                products = await Product.findAll({
                     where: { is_active: true },
                     attributes: ['id', 'name', 'short_description', 'description'],
                     order: [['id', 'ASC']], limit: 10,
                 });
-                bodyContent = `<section style="margin-top:28px;">
-                    <p style="font-size:16px;color:#334155;line-height:1.7;">
-                        TerraBlinds fabrica e instala cortinas roller, blackout, screen, duo y persianas exteriores
-                        a medida en La Serena y Coquimbo. El clima del Norte Chico exige proteccion solar real:
-                        radiacion alta durante gran parte del ano, brisa marina y amplitud termica entre el dia y la noche.
-                    </p>
-                    <p style="font-size:16px;color:#334155;line-height:1.7;margin-top:14px;">
-                        Coordinamos una visita tecnica gratuita en tu domicilio de La Serena o Coquimbo para tomar
-                        las medidas exactas de cada ventana. Fabricamos a medida y realizamos la instalacion completa,
-                        sin costos ocultos.
-                    </p>
-                </section>` + renderProductList(products) + renderServices() + renderContactBlock();
-            } catch (_) {
-                bodyContent = renderServices() + renderContactBlock();
-            }
+            } catch (_) { /* la página sale igual sin productos */ }
+
+            // FAQ real y visible; el mismo set alimenta el schema FAQPage (sin cloaking).
+            const lsFaqs = [
+                { q: '¿Atienden en La Serena y Coquimbo?', a: 'Sí. Coordinamos una visita a domicilio en La Serena y Coquimbo para tomar las medidas y cotizar, sin costo ni compromiso.' },
+                { q: '¿Las cortinas son realmente a medida?', a: 'Sí. Cada cortina se confecciona según las medidas exactas de tu ventana; no trabajamos con medidas estándar que después no calzan.' },
+                { q: '¿Qué cortina conviene para el sol fuerte del norte?', a: 'Para living y espacios con vista, el roller screen filtra el sol sin oscurecer. Para dormitorios, el blackout entrega oscuridad total. En la visita te recomendamos la tela según la orientación de cada ventana.' },
+                { q: '¿Puedo controlar las cortinas desde el celular?', a: 'Sí. Cualquier cortina roller puede motorizarse y controlarse por app o por voz con un controlador WiFi.' },
+                { q: '¿Cómo pido una cotización?', a: 'Por WhatsApp o con el formulario del sitio. Coordinamos la visita a domicilio y te entregamos el presupuesto con las medidas reales.' },
+            ];
+            const lsFaqHtml = lsFaqs.map(f => `<div style="margin-bottom:16px;">
+                <h3 style="font-size:17px;color:#1e293b;margin:0 0 6px;">${escapeHtml(f.q)}</h3>
+                <p style="margin:0;font-size:15px;color:#475569;line-height:1.55;">${escapeHtml(f.a)}</p>
+            </div>`).join('');
+
+            bodyContent = `<section style="margin-top:28px;">
+                <h2 style="font-size:22px;color:#1e293b;">Protección solar a medida para el Norte Chico</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    La Serena y Coquimbo tienen uno de los climas más luminosos de Chile: sol durante gran parte del año,
+                    radiación intensa y la brisa marina característica de la costa. Una buena protección solar reduce el ingreso
+                    de luz directa, ayuda a proteger muebles y pisos de la decoloración por rayos UV y puede ayudar a reducir la
+                    carga térmica y el uso de climatización en determinadas condiciones. Elegir la tela y el nivel de apertura
+                    correctos para cada orientación de ventana hace una diferencia real en confort.
+                </p>
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Tipos de cortinas que ofrecemos</h2>
+                <h3 style="font-size:17px;color:#1e293b;margin:16px 0 4px;">Roller Screen — filtra el sol sin perder la vista</h3>
+                <p style="margin:0;font-size:15px;color:#475569;line-height:1.6;">La tela screen bloquea buena parte de la radiación y el deslumbramiento, pero deja pasar luz natural y mantiene la vista al exterior. La favorita para living, comedores y oficinas. <a href="${BASE_URL}/product/10" style="color:#1d4ed8;">Ver Roller Screen</a>.</p>
+                <h3 style="font-size:17px;color:#1e293b;margin:16px 0 4px;">Roller Blackout — oscuridad total</h3>
+                <p style="margin:0;font-size:15px;color:#475569;line-height:1.6;">No deja pasar la luz, ideal para dormitorios y salas con TV donde buscas oscuridad completa y mayor privacidad. <a href="${BASE_URL}/product/8" style="color:#1d4ed8;">Ver Roller Blackout</a>.</p>
+                <h3 style="font-size:17px;color:#1e293b;margin:16px 0 4px;">Roller Duo / Dual — luz y privacidad graduables</h3>
+                <p style="margin:0;font-size:15px;color:#475569;line-height:1.6;">Combina franjas traslúcidas y opacas que se deslizan entre sí, para regular luz y privacidad con un solo movimiento. <a href="${BASE_URL}/product/5" style="color:#1d4ed8;">Ver Roller Duo</a>.</p>
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Persianas y toldos para exterior</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    Cuando la protección tiene que empezar antes de que el sol llegue al vidrio, trabajamos con soluciones de exterior:
+                    <a href="${BASE_URL}/product/11" style="color:#1d4ed8;">persianas de aluminio</a> que bloquean el calor desde afuera, y
+                    <a href="${BASE_URL}/catalog?category=Toldos" style="color:#1d4ed8;">toldos retráctiles y verticales</a> para terrazas y balcones.
+                    Si prefieres un acabado más clásico en interior, también hay minipersianas de aluminio y persianas de madera.
+                </p>
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Motorización y control desde el celular</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    Cualquiera de nuestras cortinas roller puede motorizarse. Con un
+                    <a href="${BASE_URL}/product/4" style="color:#1d4ed8;">controlador WiFi</a> subes y bajas las cortinas desde el celular
+                    o las integras a tu sistema de domótica, especialmente cómodo en ventanales grandes o de difícil acceso.
+                </p>
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Cómo trabajamos: visita, medición y cotización</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    Nos escribes por WhatsApp o completas el formulario contándonos qué necesitas. Coordinamos una visita a domicilio
+                    en La Serena o Coquimbo para medir cada ventana y conversar sobre telas, colores y sistemas. Con esas medidas te
+                    entregamos un presupuesto claro, sin costos ocultos. Coordinamos la fabricación a medida y realizamos la instalación.
+                    Puedes leer también la <a href="${BASE_URL}/blog/diferencia-cortinas-blackout-screen" style="color:#1d4ed8;">diferencia entre blackout y screen</a>
+                    o cómo <a href="${BASE_URL}/blog/persianas-exterior-terraza-balcon-chile-2025" style="color:#1d4ed8;">proteger tu terraza del sol</a>.
+                </p>
+            </section>` + renderProductList(products) + `
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Cobertura en La Serena y Coquimbo</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    Hoy atendemos La Serena y Coquimbo con visita a domicilio para medir, cotizar e instalar. Si estás en otra
+                    localidad de la Región de Coquimbo, escríbenos y confirmamos si podemos llegar a tu dirección.
+                </p>
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Preguntas frecuentes</h2>
+                ${lsFaqHtml}
+            </section>
+            <section style="margin-top:32px;">
+                <h2 style="font-size:22px;color:#1e293b;">Cotiza tus cortinas en La Serena</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.7;">
+                    Cuéntanos qué ventana quieres resolver y coordinamos tu visita a domicilio en La Serena o Coquimbo.
+                    <a href="${BASE_URL}/quote" style="color:#1d4ed8;">Solicitar cotización</a> ·
+                    <a href="${BASE_URL}/contact" style="color:#1d4ed8;">Contacto</a>.
+                </p>
+            </section>` + renderContactBlock();
+
+            jsonLd = [
+                {
+                    "@context": "https://schema.org", "@type": "LocalBusiness",
+                    name: "TerraBlinds", url: `${BASE_URL}/la-serena`, telephone: "+56998101891",
+                    image: `${BASE_URL}/logoterrablinds.webp`, priceRange: "$$",
+                    description: "Cortinas roller, persianas y toldos a medida en La Serena y Coquimbo. Visita a domicilio para medir y cotizar.",
+                    address: { "@type": "PostalAddress", addressRegion: "Región de Coquimbo", addressCountry: "CL" },
+                    areaServed: [ { "@type": "City", name: "La Serena" }, { "@type": "City", name: "Coquimbo" } ],
+                },
+                {
+                    "@context": "https://schema.org", "@type": "Service",
+                    serviceType: "Cortinas roller, persianas y toldos a medida",
+                    provider: { "@type": "LocalBusiness", name: "TerraBlinds", url: BASE_URL },
+                    areaServed: [ { "@type": "City", name: "La Serena" }, { "@type": "City", name: "Coquimbo" } ],
+                },
+                {
+                    "@context": "https://schema.org", "@type": "FAQPage",
+                    mainEntity: lsFaqs.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+                },
+                {
+                    "@context": "https://schema.org", "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                        { "@type": "ListItem", position: 2, name: "La Serena y Coquimbo", item: `${BASE_URL}/la-serena` },
+                    ],
+                },
+            ];
         } else {
             bodyContent = renderServices() + renderContactBlock();
         }
@@ -717,7 +813,7 @@ router.get('/prerender', async (req, res) => {
         <a href="${BASE_URL}"><img src="${BASE_URL}/logoterrablinds.png" alt="${SITE_NAME}" height="44" style="display:block;" /></a>
     </header>
     <main style="max-width:800px;margin:0 auto;padding:32px 16px;font-family:Arial,sans-serif;">
-        <h1 style="font-size:28px;color:#1e293b;">${escapeHtml(title)}</h1>
+        <h1 style="font-size:28px;color:#1e293b;">${escapeHtml(h1 || title)}</h1>
         <p style="font-size:16px;color:#475569;line-height:1.6;">${escapeHtml(description)}</p>
         <p style="margin-top:24px;">
             <a href="https://wa.me/56998101891" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;">
