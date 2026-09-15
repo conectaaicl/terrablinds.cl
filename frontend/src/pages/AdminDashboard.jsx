@@ -166,6 +166,7 @@ const AdminDashboard = () => {
     const [weekVisits, setWeekVisits] = useState(0);
     const [yesterdayVisits, setYesterdayVisits] = useState(0);
     const [waClicks, setWaClicks] = useState({ today: 0, week: 0, total: 0, byPage: [] });
+    const [showWaDetail, setShowWaDetail] = useState(false);
     const [allQuotes, setAllQuotes] = useState([]);
     const [recentQuotes, setRecentQuotes] = useState([]);
     const [systemStatus, setSystemStatus] = useState({ backend: null, db: null });
@@ -300,12 +301,67 @@ const AdminDashboard = () => {
                         <StatCard title="Visitas Hoy" value={todayVisits.toLocaleString('es-CL')} icon={Eye} color="text-teal-600" bg="bg-teal-50" subtitle={`Esta semana: ${weekVisits.toLocaleString('es-CL')}`} />
                         <StatCard title="Visitas Ayer" value={yesterdayVisits.toLocaleString('es-CL')} icon={Eye} color="text-indigo-600" bg="bg-indigo-50" subtitle={`Semana: ${weekVisits.toLocaleString('es-CL')}`} />
                         <StatCard title="Visitas Total" value={visits.toLocaleString('es-CL')} icon={Eye} color="text-cyan-600" bg="bg-cyan-50" subtitle="Histórico acumulado" />
-                        <StatCard title="Clicks WhatsApp" value={(waClicks.today || 0).toLocaleString('es-CL')} icon={MessageCircle} color="text-green-600" bg="bg-green-50" subtitle={`Semana: ${(waClicks.week || 0).toLocaleString('es-CL')}${waClicks.byPage && waClicks.byPage.length ? ' · top ' + waClicks.byPage[0].page : ''}`} />
+                        <StatCard title="Clicks WhatsApp" value={(waClicks.today || 0).toLocaleString('es-CL')} icon={MessageCircle} color="text-green-600" bg="bg-green-50" onClick={() => setShowWaDetail(s => !s)} subtitle={`Semana: ${(waClicks.week || 0).toLocaleString('es-CL')} · ver detalle`} />
                         <StatCard title="Total Cotizaciones" value={stats.totalQuotes} icon={ShoppingCart} color="text-blue-600" bg="bg-blue-50" onClick={() => navigate('/admin/quotes')} subtitle="Histórico completo" />
                         <StatCard title="Nuevos Leads" value={stats.newLeads} icon={Users} color="text-green-600" bg="bg-green-50" onClick={() => navigate('/admin/quotes')} subtitle="Últimos 7 días" />
                         <StatCard title="Productos Activos" value={stats.activeProducts} icon={Package} color="text-purple-600" bg="bg-purple-50" onClick={() => navigate('/admin/products')} subtitle="En catálogo" />
                         <StatCard title="Por Atender" value={stats.pendingQuotes} icon={Clock} color="text-orange-600" bg="bg-orange-50" onClick={() => navigate('/admin/quotes')} subtitle="Requieren seguimiento" />
                     </div>
+
+                    {/* Detalle de clicks a WhatsApp */}
+                    {showWaDetail && (
+                        <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6">
+                            <div className="flex items-center justify-between mb-5">
+                                <div className="flex items-center gap-2">
+                                    <MessageCircle className="w-5 h-5 text-green-600" />
+                                    <h3 className="font-bold text-gray-900">Clicks a WhatsApp — últimos 7 días</h3>
+                                    <span className="text-xs text-gray-400">({(waClicks.week || 0).toLocaleString('es-CL')} clicks)</span>
+                                </div>
+                                <button onClick={() => setShowWaDetail(false)} className="text-gray-400 hover:text-gray-700"><XCircle className="w-5 h-5" /></button>
+                            </div>
+                            {(!waClicks.byPage || waClicks.byPage.length === 0) ? (
+                                <p className="text-sm text-gray-400 py-6 text-center">Aún no hay clicks registrados esta semana. En cuanto alguien toque un botón de WhatsApp aparecerá aquí desde qué página lo hizo.</p>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Desde qué página</p>
+                                        <div className="space-y-2">
+                                            {waClicks.byPage.map(r => {
+                                                const max = waClicks.byPage[0].n || 1;
+                                                return (
+                                                    <div key={r.page} className="flex items-center gap-3">
+                                                        <span className="text-sm text-gray-700 font-medium truncate flex-1" title={r.page}>{r.page}</span>
+                                                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-green-500 rounded-full" style={{ width: `${(r.n / max) * 100}%` }} />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-gray-900 w-6 text-right">{r.n}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">Desde qué botón</p>
+                                        <div className="space-y-2">
+                                            {(waClicks.byPosition || []).map(r => {
+                                                const labels = { fab: 'Botón flotante', header: 'Header', footer: 'Footer', mobile_menu: 'Menú móvil', bot_widget: 'Chat bot', hero: 'Hero', cta_final: 'CTA final', product_card: 'Tarjeta producto', unknown: 'Otro' };
+                                                const max = (waClicks.byPosition[0] || {}).n || 1;
+                                                return (
+                                                    <div key={r.position} className="flex items-center gap-3">
+                                                        <span className="text-sm text-gray-700 font-medium flex-1">{labels[r.position] || r.position}</span>
+                                                        <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden">
+                                                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(r.n / max) * 100}%` }} />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-gray-900 w-6 text-right">{r.n}</span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Revenue + Conversion + System Status */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
