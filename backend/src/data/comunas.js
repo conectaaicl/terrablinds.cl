@@ -93,6 +93,46 @@ const COMUNAS = [
     destacados: ["Cobertura en condominios de Chicureo, Piedra Roja y Las Brisas", "Screen de alta protección UV para ventanales grandes", "Persianas exteriores y toldos para terrazas", "Visita técnica sin costo de traslado"],
     contexto: "La zona norte tiene veranos más calurosos que el centro de Santiago y casas con orientación abierta. Las persianas exteriores y los toldos retráctiles bajan varios grados la temperatura interior sin depender del aire acondicionado.",
   },
+  {
+    slug: "macul",
+    nombre: "Macul",
+    descripcion: "Cortinas roller, persianas y toldos a medida en Macul. Instalación a domicilio en casas y departamentos de la comuna.",
+    intro: "Macul combina sectores residenciales consolidados con edificios nuevos cerca del Metro Línea 5. Medimos, fabricamos e instalamos a medida en tu casa o departamento, sin que tengas que salir.",
+    destacados: ["Instalación en casas y departamentos", "Roller screen y blackout a medida", "Cobertura en toda la comuna de Macul", "Visita técnica sin costo de traslado"],
+    contexto: "Macul tiene casas de dos pisos con patio en sus sectores consolidados y edificios nuevos hacia Avenida Quilín y el eje del Metro. En las casas, el roller screen y las persianas exteriores controlan el sol de la tarde; en los departamentos, el blackout resuelve los dormitorios y el duo funciona bien en el living.",
+  },
+  {
+    slug: "la-cisterna",
+    nombre: "La Cisterna",
+    descripcion: "Cortinas roller, persianas y toldos a medida en La Cisterna. Instalación a domicilio en casas, departamentos y locales de la comuna.",
+    intro: "La Cisterna es un punto de conexión del sur de Santiago, con mucho comercio y edificios nuevos alrededor de la estación intermodal. Llevamos la medición y la instalación a tu casa, departamento o local, sin que tengas que trasladarte.",
+    destacados: ["Instalación en casas, departamentos y locales comerciales", "Roller blackout y screen a medida", "Cobertura en toda la comuna de La Cisterna", "Visita técnica sin costo de traslado"],
+    contexto: "La Cisterna concentra edificios nuevos cerca de la estación intermodal y casas en sus barrios residenciales. Muchos departamentos son de arriendo, así que ofrecemos sistemas de fijación sin perforar; en las casas y locales, el screen y el blackout controlan la luz y dan privacidad frente a calles de alto tránsito.",
+  },
+  {
+    slug: "santiago-centro",
+    nombre: "Santiago Centro",
+    descripcion: "Cortinas roller, persianas y toldos a medida en Santiago Centro. Instalación a domicilio en departamentos, oficinas y locales.",
+    intro: "Santiago Centro concentra torres de departamentos, oficinas y locales comerciales. Medimos, fabricamos e instalamos a medida en tu unidad, coordinando el ingreso con la administración del edificio cuando hace falta.",
+    destacados: ["Instalación en departamentos y oficinas", "Roller screen y blackout a medida", "Sistemas sin perforar para arriendos", "Visita técnica sin costo de traslado"],
+    contexto: "En Santiago Centro predominan los departamentos en altura con ventanales expuestos al ruido y la luz de la calle. El roller screen deja trabajar sin reflejo en pantallas y el blackout resuelve el descanso en dormitorios que dan a avenidas de alto tránsito. Muchas unidades son de arriendo, por eso ofrecemos fijaciones que no dañan los marcos.",
+  },
+  {
+    slug: "estacion-central",
+    nombre: "Estación Central",
+    descripcion: "Cortinas roller, persianas y toldos a medida en Estación Central. Instalación a domicilio en departamentos nuevos y casas de la comuna.",
+    intro: "Estación Central vive un fuerte crecimiento de edificios nuevos junto al eje de la Alameda y el Metro. Llevamos la medición y la instalación a tu departamento o casa, sin que tengas que trasladarte.",
+    destacados: ["Instalación en departamentos nuevos y casas", "Roller blackout y screen a medida", "Sistemas sin perforar para arriendos", "Visita técnica sin costo de traslado"],
+    contexto: "Estación Central tiene muchos departamentos nuevos de formato compacto cerca de la Alameda y el Metro. En espacios chicos, el roller ocupa poco y controla bien la luz; el blackout es clave en dormitorios que enfrentan la avenida, y el screen mantiene la vista sin el calor de la tarde.",
+  },
+  {
+    slug: "puente-alto",
+    nombre: "Puente Alto",
+    descripcion: "Cortinas roller, persianas y toldos a medida en Puente Alto. Instalación a domicilio en casas, villas y departamentos de la comuna.",
+    intro: "Puente Alto es una de las comunas más grandes de Santiago, con villas, casas y nuevos condominios en el sector sur-oriente. Medimos, fabricamos e instalamos a medida en tu hogar, en toda la comuna.",
+    destacados: ["Instalación en casas, villas y departamentos", "Roller screen y blackout a medida", "Cobertura en toda la comuna de Puente Alto", "Visita técnica sin costo de traslado"],
+    contexto: "Puente Alto combina villas y casas de uno y dos pisos con condominios nuevos hacia la precordillera. En las casas con patio, el roller screen y las persianas exteriores controlan el sol de la tarde; en los departamentos, el blackout resuelve los dormitorios y el duo funciona bien en el living.",
+  },
 ];
 
 function getComunaBySlug(slug) {
