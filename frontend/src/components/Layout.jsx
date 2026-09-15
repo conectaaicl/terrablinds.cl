@@ -7,7 +7,13 @@ import VisitCounter from './VisitCounter';
 import ChatWidget from './ChatWidget';
 import BotWidget from './BotWidget';
 
-const track = (event, params = {}) => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', event, { ...params, page: window.location.pathname }); };
+const track = (event, params = {}) => {
+    const page = typeof window !== 'undefined' ? window.location.pathname : '/';
+    if (typeof window !== 'undefined' && window.gtag) window.gtag('event', event, { ...params, page });
+    if (event === 'whatsapp_click' && typeof fetch !== 'undefined') {
+        fetch('/api/stats/wa-click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ position: params.position || 'unknown', page }) }).catch(() => {});
+    }
+};
 
 // SVG oficial WhatsApp
 const WhatsAppIcon = ({ className }) => (

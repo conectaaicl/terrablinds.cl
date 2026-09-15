@@ -165,6 +165,7 @@ const AdminDashboard = () => {
     const [todayVisits, setTodayVisits] = useState(0);
     const [weekVisits, setWeekVisits] = useState(0);
     const [yesterdayVisits, setYesterdayVisits] = useState(0);
+    const [waClicks, setWaClicks] = useState({ today: 0, week: 0, total: 0, byPage: [] });
     const [allQuotes, setAllQuotes] = useState([]);
     const [recentQuotes, setRecentQuotes] = useState([]);
     const [systemStatus, setSystemStatus] = useState({ backend: null, db: null });
@@ -180,6 +181,7 @@ const AdminDashboard = () => {
         fetchAll(); checkSystemStatus(); fetchGE();
         api.get('/api/config/public').then(r => { if (r.data.logo_url) setLogoUrl(r.data.logo_url); }).catch(() => {});
         api.get('/api/stats/visits').then(r => { setVisits(r.data.visits || 0); setTodayVisits(r.data.today || 0); setWeekVisits(r.data.week || 0); setYesterdayVisits(r.data.yesterday || 0); }).catch(() => {});
+        api.get('/api/stats/wa-clicks').then(r => setWaClicks(r.data || { today: 0, week: 0, total: 0, byPage: [] })).catch(() => {});
     }, []);
 
     const fetchGE = async () => {
@@ -294,10 +296,11 @@ const AdminDashboard = () => {
             ) : (
                 <div className="space-y-6">
                     {/* KPI Cards */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-7 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-8 gap-3">
                         <StatCard title="Visitas Hoy" value={todayVisits.toLocaleString('es-CL')} icon={Eye} color="text-teal-600" bg="bg-teal-50" subtitle={`Esta semana: ${weekVisits.toLocaleString('es-CL')}`} />
                         <StatCard title="Visitas Ayer" value={yesterdayVisits.toLocaleString('es-CL')} icon={Eye} color="text-indigo-600" bg="bg-indigo-50" subtitle={`Semana: ${weekVisits.toLocaleString('es-CL')}`} />
                         <StatCard title="Visitas Total" value={visits.toLocaleString('es-CL')} icon={Eye} color="text-cyan-600" bg="bg-cyan-50" subtitle="Histórico acumulado" />
+                        <StatCard title="Clicks WhatsApp" value={(waClicks.today || 0).toLocaleString('es-CL')} icon={MessageCircle} color="text-green-600" bg="bg-green-50" subtitle={`Semana: ${(waClicks.week || 0).toLocaleString('es-CL')}${waClicks.byPage && waClicks.byPage.length ? ' · top ' + waClicks.byPage[0].page : ''}`} />
                         <StatCard title="Total Cotizaciones" value={stats.totalQuotes} icon={ShoppingCart} color="text-blue-600" bg="bg-blue-50" onClick={() => navigate('/admin/quotes')} subtitle="Histórico completo" />
                         <StatCard title="Nuevos Leads" value={stats.newLeads} icon={Users} color="text-green-600" bg="bg-green-50" onClick={() => navigate('/admin/quotes')} subtitle="Últimos 7 días" />
                         <StatCard title="Productos Activos" value={stats.activeProducts} icon={Package} color="text-purple-600" bg="bg-purple-50" onClick={() => navigate('/admin/products')} subtitle="En catálogo" />

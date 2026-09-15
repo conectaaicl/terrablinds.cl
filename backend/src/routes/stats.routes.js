@@ -59,4 +59,52 @@ router.get('/visits', async (req, res) => {
     }
 });
 
+// POST /api/stats/wa-click — registra un click a WhatsApp (position + page)
+router.post('/wa-click', async (req, res) => {
+    try {
+        const position = String(req.body?.position || 'unknown').substring(0, 40);
+        const page = String(req.body?.page || '/').substring(0, 300);
+        await sequelize.query(
+            'INSERT INTO wa_clicks (position, page) VALUES (:position, :page)',
+            { replacements: { position, page }, type: sequelize.QueryTypes.INSERT }
+        );
+        res.json({ ok: true });
+    } catch (error) {
+        res.json({ ok: false });
+    }
+});
+
+// GET /api/stats/wa-clicks — agregados para el admin
+router.get('/wa-clicks', async (req, res) => {
+    try {
+        const [tot] = await sequelize.query(`
+            SELECT
+                COUNT(*) FILTER (WHERE (created_at AT TIME ZONE 'America/Santiago')::date = (NOW() AT TIME ZONE 'America/Santiago')::date) AS today,
+                COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') AS week,
+                COUNT(*) AS total
+            FROM wa_clicks
+        `);
+        const [byPage] = await sequelize.query(`
+            SELECT page, COUNT(*) AS n FROM wa_clicks
+            WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY page ORDER BY n DESC LIMIT 8
+        `);
+        const [byPos] = await sequelize.query(`
+            SELECT position, COUNT(*) AS n FROM wa_clicks
+            WHERE created_at >= NOW() - INTERVAL '7 days'
+            GROUP BY position ORDER BY n DESC LIMIT 8
+        `);
+        res.json({
+            today: parseInt(tot[0]?.today) || 0,
+            week: parseInt(tot[0]?.week) || 0,
+            total: parseInt(tot[0]?.total) || 0,
+            byPage: byPage.map(r => ({ page: r.page, n: parseInt(r.n) })),
+            byPosition: byPos.map(r => ({ position: r.position, n: parseInt(r.n) })),
+        });
+    } catch (error) {
+        console.error('[stats] /wa-clicks failed:', error.message);
+        res.json({ today: 0, week: 0, total: 0, byPage: [], byPosition: [], degraded: true });
+    }
+});
+
 module.exports = router;

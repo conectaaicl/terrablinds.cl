@@ -6,7 +6,13 @@ const WA_HUMAN   = '56998101891';
 const WA_BOT_URL = `https://wa.me/${WA_BOT}?text=${encodeURIComponent('Hola! Quiero saber más sobre cortinas TerraBlinds')}`;
 const WA_HUMAN_URL = `https://wa.me/${WA_HUMAN}?text=${encodeURIComponent('Hola, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`;
 
-const track = (event, params = {}) => { if (window.gtag) window.gtag('event', event, params); };
+const track = (event, params = {}) => {
+    const page = typeof window !== 'undefined' ? window.location.pathname : '/';
+    if (window.gtag) window.gtag('event', event, { ...params, page });
+    if (event === 'whatsapp_click' && typeof fetch !== 'undefined') {
+        fetch('/api/stats/wa-click', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ position: params.position || 'bot_widget', page }) }).catch(() => {});
+    }
+};
 
 export default function BotWidget() {
     const [open, setOpen] = useState(false);
