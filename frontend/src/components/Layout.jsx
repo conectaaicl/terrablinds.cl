@@ -7,6 +7,8 @@ import VisitCounter from './VisitCounter';
 import ChatWidget from './ChatWidget';
 import BotWidget from './BotWidget';
 
+const track = (event, params = {}) => { if (typeof window !== 'undefined' && window.gtag) window.gtag('event', event, { ...params, page: window.location.pathname }); };
+
 // SVG oficial WhatsApp
 const WhatsAppIcon = ({ className }) => (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -150,6 +152,7 @@ const Layout = ({ children }) => {
                     <div className="hidden lg:flex items-center space-x-3">
                         {waNumber && (
                             <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                                onClick={() => track('whatsapp_click', { position: 'header' })}
                                 className="flex items-center text-white/70 hover:text-green-400 transition-colors">
                                 <WhatsAppIcon className="w-5 h-5 mr-1.5" />
                                 {phoneDisplay && <span className="text-sm">{phoneDisplay}</span>}
@@ -197,7 +200,7 @@ const Layout = ({ children }) => {
                                 </Link>
                                 {waNumber && (
                                     <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
-                                        onClick={() => setIsMenuOpen(false)}
+                                        onClick={() => { setIsMenuOpen(false); track('whatsapp_click', { position: 'mobile_menu' }); }}
                                         className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors">
                                         <WhatsAppIcon className="w-4 h-4" /> WhatsApp
                                     </a>
@@ -332,6 +335,7 @@ const Layout = ({ children }) => {
                             {waNumber && (
                                 <li>
                                     <a href={`https://wa.me/${waNumber}`} target="_blank" rel="noopener noreferrer"
+                                        onClick={() => track('whatsapp_click', { position: 'footer' })}
                                         className="hover:text-white transition-colors flex items-center gap-2">
                                         <WhatsAppIcon className="w-4 h-4 text-green-400" />
                                         WhatsApp
@@ -354,6 +358,7 @@ const Layout = ({ children }) => {
                     href={`https://wa.me/${waNumber}?text=${encodeURIComponent(siteConfig.whatsapp_default_msg || 'Hola TerraBlinds, me gustaría cotizar cortinas. ¿Me pueden ayudar?')}`}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => track('whatsapp_click', { position: 'fab' })}
                     className="fixed bottom-24 right-5 z-40 wa-fab text-white p-3.5 rounded-full shadow-lg flex items-center justify-center"
                     title="Chatea con nosotros en WhatsApp"
                 >
