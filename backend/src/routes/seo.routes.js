@@ -771,7 +771,7 @@ router.get('/prerender', async (req, res) => {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
                     name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891", priceRange: "$$",
                     description: "Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita tecnica gratuita e instalacion incluida.",
-                    address: { "@type": "PostalAddress", streetAddress: "Av. Providencia 1234, Oficina 501", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
+                    areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana"},{"@type":"City","name":"La Serena"},{"@type":"City","name":"Coquimbo"}],
                     areaServed: [{ "@type": "City", name: "Santiago" }, { "@type": "City", name: "La Serena" }, { "@type": "City", name: "Coquimbo" }],
                     hasOfferCatalog: {
                         "@type": "OfferCatalog", name: "Cortinas y Persianas a Medida",
