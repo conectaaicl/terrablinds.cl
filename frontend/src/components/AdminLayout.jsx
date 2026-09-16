@@ -69,7 +69,9 @@ const AdminLayout = ({ children }) => {
     const [openGroups, setOpenGroups] = useState(['catalogo', 'reservas', 'contenido', 'paginas', 'diseno', 'marketing', 'sistema', 'comercial']);
     const [logoUrl, setLogoUrl] = useState('');
     const sidebarNavRef = useRef(null);
-    const savedScrollTop = useRef(0);
+    const savedScrollTop = useRef(
+        parseInt(typeof sessionStorage !== 'undefined' ? (sessionStorage.getItem('tb_sidebar_scroll') || '0') : '0', 10)
+    );
 
     const toggleCollapsed = useCallback(() => {
         setCollapsed(prev => {
@@ -83,7 +85,7 @@ const AdminLayout = ({ children }) => {
         if (sidebarNavRef.current) {
             sidebarNavRef.current.scrollTop = savedScrollTop.current;
         }
-    });
+    }, []); // solo en mount — AdminLayout se remonta en cada navegacion
 
     useEffect(() => {
         api.get('/api/config/public').then(res => {
@@ -158,7 +160,7 @@ const AdminLayout = ({ children }) => {
             {/* Nav */}
             <nav
                 ref={sidebarNavRef}
-                onScroll={(e) => { savedScrollTop.current = e.currentTarget.scrollTop; }}
+                onScroll={(e) => { const v = e.currentTarget.scrollTop; savedScrollTop.current = v; try { sessionStorage.setItem('tb_sidebar_scroll', String(v)); } catch(_){} }}
                 className={`flex-1 overflow-y-auto space-y-0.5 ${collapsed ? 'px-1.5 py-2' : 'p-3'}`}
             >
                 <NavItem to="/admin" icon={LayoutDashboard} label="Dashboard" />

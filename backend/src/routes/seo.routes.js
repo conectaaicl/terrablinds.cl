@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/product');
+const { Op } = require('sequelize');
 const Blog = require('../models/blog');
 const { Config } = require('../models');
 const { COMUNAS, getComunaBySlug, displayName, findComunas } = require('../data/comunas');
@@ -568,10 +569,11 @@ router.get('/prerender', async (req, res) => {
         } else if (comunaMatch && getComunaBySlug(comunaMatch[1])) {
             const comuna = getComunaBySlug(comunaMatch[1]);
             const nombre = displayName(comuna);
+            h1 = `Cortinas Roller en ${nombre}`;  // H1 sin sufijo TerraBlinds
             let products = [];
             try {
                 products = await Product.findAll({
-                    where: { is_active: true },
+                    where: { is_active: true, category: { [Op.in]: ['Cortinas Roller', 'Persianas', 'Toldos', 'Cierres de Terraza', 'Mallas'] } },
                     attributes: ['id', 'name', 'short_description', 'description'],
                     order: [['id', 'ASC']], limit: 12,
                 });
@@ -624,7 +626,7 @@ router.get('/prerender', async (req, res) => {
             let products = [];
             try {
                 products = await Product.findAll({
-                    where: { is_active: true },
+                    where: { is_active: true, category: { [Op.in]: ['Cortinas Roller', 'Persianas', 'Toldos', 'Cierres de Terraza', 'Mallas'] } },
                     attributes: ['id', 'name', 'short_description', 'description'],
                     order: [['id', 'ASC']], limit: 10,
                 });
