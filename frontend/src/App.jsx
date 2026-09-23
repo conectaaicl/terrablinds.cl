@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'
+import PopupBanner from './components/PopupBanner';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { SiteConfigProvider } from './context/SiteConfigContext';
@@ -66,6 +67,10 @@ const AdminGrowthContacts    = React.lazy(() => import('./pages/AdminGrowthConta
 const AdminGrowthContact     = React.lazy(() => import('./pages/AdminGrowthContact'));
 const AdminGrowthActivity    = React.lazy(() => import('./pages/AdminGrowthActivity'));
 const AdminGrowthToday       = React.lazy(() => import('./pages/AdminGrowthToday'));
+// Search Radar
+const AdminRadarDashboard    = React.lazy(() => import('./pages/AdminRadarDashboard'));
+const AdminRadarOpportunities = React.lazy(() => import('./pages/AdminRadarOpportunities'));
+const AdminIGRadar = React.lazy(() => import('./pages/AdminIGRadar'));
 
 // Suspense must wrap the element prop, NOT be a child of <Routes>/<Route>
 
@@ -86,6 +91,7 @@ function App() {
       <CartProvider>
       <Router>
         <ScrollToTop />
+        <PopupBanner />
         <Routes>
           {/* Public */}
           <Route path="/" element={<Home />} />
@@ -153,6 +159,9 @@ function App() {
             <Route path="/admin/growth/contacts" element={<GE Page={AdminGrowthContacts} />} />
             <Route path="/admin/growth/contacts/:id" element={<GE Page={AdminGrowthContact} />} />
             <Route path="/admin/growth/activity" element={<GE Page={AdminGrowthActivity} />} />
+            <Route path="/admin/radar" element={<GE Page={AdminRadarDashboard} />} />
+            <Route path="/admin/radar/oportunidades" element={<GE Page={AdminRadarOpportunities} />} />
+                <Route path="/admin/radar/ig" element={<GE Page={AdminIGRadar} />} />
           </Route>
 
           {/* 404 */}

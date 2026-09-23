@@ -4,8 +4,7 @@ import {
     LayoutDashboard, Package, FileText, Settings, LogOut, Globe, Menu, X,
     Image, HelpCircle, ChevronDown, ChevronRight, ChevronLeft, Home, Users, Phone,
     MonitorSmartphone, Palette, Bell, Wrench, Wifi, UserPlus, CalendarCheck, Shield, Zap, BookOpen, Camera, Sun, KeyRound,
-    Star, Gift, BarChart2, TrendingUp, Kanban, Contact, Activity, ListFilter,
-} from 'lucide-react';
+    Star, Gift, BarChart2, TrendingUp, Kanban, Contact, Activity, ListFilter, Crosshair, Instagram} from 'lucide-react';
 import { Clock } from 'lucide-react';
 import api from '../api';
 
@@ -213,6 +212,15 @@ const AdminLayout = ({ children }) => {
                     <NavItem to="/admin/reviews" icon={Star} label="Reseñas" />
                     <NavItem to="/admin/referidos" icon={Gift} label="Referidos" />
                     <NavItem to="/admin/seo" icon={BarChart2} label="SEO" />
+                </NavGroup>
+
+                <NavGroup label="SEO Radar" groupKey="radar">
+                    <NavItem to="/admin/radar" icon={Crosshair} label="Dashboard Radar" />
+                    <NavItem to="/admin/radar/oportunidades" icon={Crosshair} label="Oportunidades" />
+                </NavGroup>
+
+                <NavGroup label="IG Radar" groupKey="ig-radar">
+                    <NavItem to="/admin/radar/ig" icon={Instagram} label="Hashtag Radar" />
                 </NavGroup>
 
                 <NavGroup label="Sistema" groupKey="sistema">
