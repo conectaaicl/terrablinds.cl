@@ -19,7 +19,7 @@ const NOINDEX_PATHS = new Set([
 
 const STATIC_PAGES = {
     '/': {
-        title: 'Cortinas Roller a Medida con Instalación en Santiago | TerraBlinds',
+        title: 'Cortinas Roller y Persianas Exterior a Medida | TerraBlinds',
         description: 'Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita técnica gratuita, fabricación a medida e instalación incluida. Cotiza online.',
         priority: '1.0',
         changefreq: 'weekly'
@@ -89,9 +89,9 @@ const STATIC_PAGES = {
         changefreq: 'monthly'
     },
     '/servicio-tecnico': {
-        title: 'Servicio Tecnico de Cortinas y Persianas | TerraBlinds',
-        description: 'Servicio tecnico y reparacion de cortinas roller, persianas y toldos en Santiago. Revision a domicilio con garantia.',
-        priority: '0.6',
+        title: 'Servicio Tecnico Persianas de Exterior y Toldos | TerraBlinds',
+        description: 'Reparacion y mantencion de persianas de exterior, toldos retractiles y cierres de terraza en Santiago. Revision a domicilio, repuestos y garantia.',
+        priority: '0.8',
         changefreq: 'monthly'
     },
     '/camaras': {
@@ -454,7 +454,8 @@ function cacheSet(key, html) {
 }
 
 router.get('/prerender', async (req, res) => {
-    const requestedPath = req.query.path || '/';
+    const rawPath = req.query.path;
+    const requestedPath = (Array.isArray(rawPath) ? rawPath[0] : rawPath) || '/';
     let canonicalOverride = null;
     let h1 = null;
 
@@ -584,6 +585,9 @@ router.get('/prerender', async (req, res) => {
             const destacados = comuna && comuna.destacados && comuna.destacados.length
                 ? `<ul style="font-size:15px;color:#475569;line-height:1.9;margin:16px 0 0;padding-left:22px;">${comuna.destacados.map(d => `<li>${escapeHtml(d)}</li>`).join('')}</ul>`
                 : '';
+            const extendido = comuna && Array.isArray(comuna.extendido) && comuna.extendido.length
+                ? '<div style="margin-top:24px;">' + comuna.extendido.map(p => '<p style="font-size:16px;color:#334155;line-height:1.75;margin-bottom:14px;">' + escapeHtml(p) + '</p>').join('') + '</div>'
+                : '';
 
             let guias = [];
             try {
@@ -599,6 +603,7 @@ router.get('/prerender', async (req, res) => {
                 ${contexto}
                 <h2 style="font-size:22px;color:#1e293b;margin-top:28px;">Por qué elegirnos en ${escapeHtml(nombre)}</h2>
                 ${destacados}
+            ${extendido}
             </section>` + renderProductList(products) + renderInstalaciones(nombre) + renderComunaGuides(guias) + renderComunaFaq(nombre) + renderOtrasComunas(comunaMatch[1]) + renderContactBlock();
 
             jsonLd = [
@@ -738,6 +743,80 @@ router.get('/prerender', async (req, res) => {
                     ],
                 },
             ];
+        } else if (requestedPath === '/servicio-tecnico') {
+            bodyContent = `
+<section style="margin-top:28px;">
+    <p style="font-size:16px;color:#475569;line-height:1.8;">
+        TerraBlinds ofrece servicio tecnico especializado para persianas de exterior, toldos retractiles y cierres de terraza en Santiago.
+        Nuestro equipo visita tu domicilio para diagnosticar, reparar o reemplazar mecanismos danados, telas desgastadas o motores defectuosos.
+    </p>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Que reparamos</h2>
+    <ul style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li><strong>Persianas de exterior</strong> — mecanismos de enrollado, guias y telas desgastadas</li>
+        <li><strong>Toldos retractiles</strong> — brazos rotos, tela deteriorada, motor sin fuerza</li>
+        <li><strong>Cierres de terraza</strong> — cremalleras, guias y cristal templado rayado</li>
+        <li><strong>Cortinas roller motorizadas</strong> — motores Somfy, reprogramacion de limites y sensores</li>
+        <li><strong>Cortinas roller manuales</strong> — resorte de retorno, tubo y tejido</li>
+        <li><strong>Toldos verticales de lona</strong> — sujecion y deformaciones por viento</li>
+    </ul>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Proceso de atencion</h2>
+    <ol style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li>Coordinacion de visita tecnica gratuita (Santiago RM)</li>
+        <li>Diagnostico en terreno con presupuesto sin compromiso</li>
+        <li>Reparacion en el lugar o retiro para taller</li>
+        <li>Entrega con garantia de 3 meses en mano de obra</li>
+    </ol>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Preguntas frecuentes</h2>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Cuanto cuesta una revision tecnica de persiana de exterior?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">La visita de diagnostico es gratuita en Santiago. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Reparan persianas de exterior de otras marcas?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Si, atendemos persianas y toldos de cualquier fabricante. Contamos con repuestos para guias, mecanismos, tejidos tecnicos y motores Somfy.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">En que comunas hacen servicio tecnico?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Atendemos todas las comunas de Santiago: Las Condes, Vitacura, Providencia, Lo Barnechea, Nunoa, Maipu, La Florida, San Miguel y mas. Consulta disponibilidad por WhatsApp.</p>
+    </div>
+</section>
+<section style="margin-top:36px;padding:20px;background:#f0f9ff;border-radius:8px;border-left:4px solid #0d2a5e;">
+    <p style="font-size:16px;color:#1e293b;font-weight:700;margin:0 0 8px;">Tu persiana de exterior necesita reparacion?</p>
+    <p style="font-size:15px;color:#475569;margin:0 0 14px;">Agenda una visita tecnica gratuita hoy mismo. Respondemos por WhatsApp en menos de 1 hora.</p>
+    <a href="https://wa.me/56998101891" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Solicitar visita tecnica</a>
+</section>`;
+            jsonLd = [
+                {
+                    "@context": "https://schema.org", "@type": "Service",
+                    name: "Servicio Tecnico Persianas de Exterior y Toldos",
+                    serviceType: "Reparacion y mantencion de persianas de exterior, toldos retractiles y cierres de terraza",
+                    provider: { "@type": "LocalBusiness", name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891" },
+                    areaServed: { "@type": "State", name: "Region Metropolitana", addressCountry: "CL" },
+                    description: "Reparacion y mantencion de persianas de exterior, toldos retractiles y cierres de terraza en Santiago. Revision a domicilio, repuestos y garantia.",
+                    url: `${BASE_URL}/servicio-tecnico`,
+                },
+                {
+                    "@context": "https://schema.org", "@type": "FAQPage",
+                    mainEntity: [
+                        { "@type": "Question", name: "Cuanto cuesta una revision tecnica de persiana de exterior?", acceptedAnswer: { "@type": "Answer", text: "La visita de diagnostico es gratuita en Santiago. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion." } },
+                        { "@type": "Question", name: "Reparan persianas de exterior de otras marcas?", acceptedAnswer: { "@type": "Answer", text: "Si, atendemos persianas y toldos de cualquier fabricante. Contamos con repuestos para guias, mecanismos, tejidos tecnicos y motores Somfy." } },
+                        { "@type": "Question", name: "En que comunas hacen servicio tecnico?", acceptedAnswer: { "@type": "Answer", text: "Atendemos todas las comunas de Santiago: Las Condes, Vitacura, Providencia, Lo Barnechea, Nunoa, Maipu, La Florida, San Miguel y mas." } },
+                    ],
+                },
+                {
+                    "@context": "https://schema.org", "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                        { "@type": "ListItem", position: 2, name: "Servicio Tecnico", item: `${BASE_URL}/servicio-tecnico` },
+                    ],
+                },
+            ];
         } else {
             bodyContent = renderServices() + renderContactBlock();
         }
@@ -771,8 +850,7 @@ router.get('/prerender', async (req, res) => {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
                     name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891", priceRange: "$$",
                     description: "Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita tecnica gratuita e instalacion incluida.",
-                    areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana"},{"@type":"City","name":"La Serena"},{"@type":"City","name":"Coquimbo"}],
-                    areaServed: [{ "@type": "City", name: "Santiago" }, { "@type": "City", name: "La Serena" }, { "@type": "City", name: "Coquimbo" }],
+                    areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana"}],
                     hasOfferCatalog: {
                         "@type": "OfferCatalog", name: "Cortinas y Persianas a Medida",
                         itemListElement: SERVICES.map(s => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s } }))
@@ -817,7 +895,7 @@ router.get('/prerender', async (req, res) => {
 </head>
 <body>
     <header style="padding:16px;background:#0d2a5e;">
-        <a href="${BASE_URL}"><img src="${BASE_URL}/logoterrablinds.png" alt="${SITE_NAME}" height="44" style="display:block;" /></a>
+        <a href="${BASE_URL}"><img src="${BASE_URL}/logoterrablinds.webp" alt="${SITE_NAME}" height="44" style="display:block;" /></a>
     </header>
     <main style="max-width:800px;margin:0 auto;padding:32px 16px;font-family:Arial,sans-serif;">
         <h1 style="font-size:28px;color:#1e293b;">${escapeHtml(h1 || title)}</h1>

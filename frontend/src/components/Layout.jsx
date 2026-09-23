@@ -164,7 +164,7 @@ const Layout = ({ children }) => {
                                 {phoneDisplay && <span className="text-sm">{phoneDisplay}</span>}
                             </a>
                         )}
-                        <Link to="/cart" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
+                        <Link to="/cart" aria-label="Ver carrito de cotización" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-[#C8973A] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
@@ -180,7 +180,7 @@ const Layout = ({ children }) => {
 
                     {/* Mobile: cart + hamburger */}
                     <div className="flex lg:hidden items-center gap-2">
-                        <Link to="/cart" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
+                        <Link to="/cart" aria-label="Ver carrito de cotización" className="relative p-2 text-white/70 hover:text-[#C8973A] transition-colors">
                             <ShoppingCart className="w-5 h-5" />
                             {cartCount > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-[#C8973A] text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold text-[10px]">
@@ -188,7 +188,7 @@ const Layout = ({ children }) => {
                                 </span>
                             )}
                         </Link>
-                        <button className="p-2 text-white/80 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                        <button aria-label="Abrir menú de navegación" className="p-2 text-white/80 rounded-lg hover:bg-white/10 transition-colors" onClick={() => setIsMenuOpen(!isMenuOpen)}>
                             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                         </button>
                     </div>
@@ -366,7 +366,7 @@ const Layout = ({ children }) => {
                     rel="noopener noreferrer"
                     onClick={() => track('whatsapp_click', { position: 'fab' })}
                     className="fixed bottom-24 right-5 z-40 wa-fab text-white p-3.5 rounded-full shadow-lg flex items-center justify-center"
-                    title="Chatea con nosotros en WhatsApp"
+                    title="Chatea con nosotros en WhatsApp" aria-label="Chatea con nosotros en WhatsApp"
                 >
                     <WhatsAppIcon className="w-7 h-7" />
                 </a>

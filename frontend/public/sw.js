@@ -1,4 +1,4 @@
-const CACHE = 'tb-v3';
+const CACHE = 'tb-v4';
 const OFFLINE_HOME = '/';
 const OFFLINE_ADMIN = '/admin';
 

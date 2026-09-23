@@ -222,11 +222,11 @@ export default function Hero() {
             {/* Arrow controls — hidden on very small screens */}
             {count > 1 && (
                 <>
-                    <button onClick={prev_}
+                    <button onClick={prev_} aria-label="Imagen anterior"
                         className="hidden sm:flex absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 hover:bg-white/25 backdrop-blur-sm border border-white/20 rounded-full items-center justify-center transition-all hover:scale-110">
                         <ChevronLeft className="w-5 h-5 text-white" />
                     </button>
-                    <button onClick={next}
+                    <button onClick={next} aria-label="Imagen siguiente"
                         className="hidden sm:flex absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 z-20 w-10 h-10 bg-white/10 hover:bg-white/25 backdrop-blur-sm border border-white/20 rounded-full items-center justify-center transition-all hover:scale-110">
                         <ChevronRight className="w-5 h-5 text-white" />
                     </button>
@@ -240,6 +240,7 @@ export default function Hero() {
                         <button
                             key={i}
                             onClick={() => goTo(i, count)}
+                            aria-label={`Ir a imagen ${i + 1}`}
                             className={`h-1.5 rounded-full transition-all duration-500 ${i === current ? 'bg-white w-7' : 'bg-white/35 w-3 hover:bg-white/60'}`}
                         />
                     ))}
