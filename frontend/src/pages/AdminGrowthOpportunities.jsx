@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import api from '../api';
-import { Search, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ExternalLink, Trash2 } from 'lucide-react';
 import OpportunityScore from '../components/OpportunityScore';
 
 const ALL_STATUSES = [
@@ -45,6 +45,7 @@ export default function AdminGrowthOpportunities() {
     const [q, setQ]             = useState('');
     const [status, setStatus]   = useState('');
     const [page, setPage]       = useState(1);
+    const [confirmDelete, setConfirmDelete] = useState(null);
 
     const dq     = useDebounce(q);
     const dstatus = useDebounce(status, 0);
@@ -62,6 +63,19 @@ export default function AdminGrowthOpportunities() {
 
     useEffect(() => { setPage(1); }, [dq, dstatus]);
     useEffect(load, [load]);
+
+    const handleDelete = async (e, id) => {
+        e.stopPropagation();
+        if (confirmDelete !== id) { setConfirmDelete(id); return; }
+        try {
+            await api.delete(`/api/growth/opportunities/${id}`);
+            setData(prev => prev ? { ...prev, data: prev.data.filter(o => o.id !== id), total: prev.total - 1 } : prev);
+            setConfirmDelete(null);
+        } catch {
+            setConfirmDelete(null);
+        }
+    };
+
 
     return (
         <AdminLayout>
@@ -152,8 +166,23 @@ export default function AdminGrowthOpportunities() {
                                         <td className="px-4 py-3 hidden md:table-cell text-gray-400 text-xs tabular-nums">
                                             {new Date(opp.created_at).toLocaleDateString('es-CL')}
                                         </td>
-                                        <td className="px-4 py-3 text-right">
-                                            <ExternalLink size={14} className="text-gray-300 hover:text-blue-500" />
+                                        <td className="px-4 py-3 text-right" onClick={e => e.stopPropagation()}>
+                                            {confirmDelete === opp.id ? (
+                                                <button
+                                                    onClick={e => handleDelete(e, opp.id)}
+                                                    className="text-xs px-2 py-0.5 rounded bg-red-500 text-white hover:bg-red-600"
+                                                >
+                                                    Confirmar
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={e => handleDelete(e, opp.id)}
+                                                    title="Eliminar"
+                                                    className="text-gray-300 hover:text-red-500 transition-colors"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

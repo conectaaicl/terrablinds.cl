@@ -708,3 +708,27 @@ exports.getAlerts = async (req, res, next) => {
         next(err);
     }
 };
+
+// ── DELETE /api/growth/opportunities/:id ──────────────────────────────────────
+
+exports.deleteOpportunity = async (req, res, next) => {
+    try {
+        const parsedId = parseInt(req.params.id, 10);
+        if (!parsedId || isNaN(parsedId)) {
+            return res.status(400).json({ error: 'Invalid opportunity id' });
+        }
+        const opp = await Opportunity.findByPk(parsedId);
+        if (!opp) return res.status(404).json({ error: 'Oportunidad no encontrada' });
+        await sequelize.transaction(async (t) => {
+            await sequelize.query('DELETE FROM touchpoints WHERE opportunity_id = :id', { replacements: { id: parsedId }, transaction: t });
+            await sequelize.query('DELETE FROM opportunity_events WHERE opportunity_id = :id', { replacements: { id: parsedId }, transaction: t });
+            await sequelize.query('DELETE FROM opportunity_follow_ups WHERE opportunity_id = :id', { replacements: { id: parsedId }, transaction: t });
+            await sequelize.query('UPDATE quotes SET opportunity_id = NULL WHERE opportunity_id = :id', { replacements: { id: parsedId }, transaction: t });
+            await sequelize.query('UPDATE leads SET opportunity_id = NULL WHERE opportunity_id = :id', { replacements: { id: parsedId }, transaction: t });
+            await opp.destroy({ transaction: t });
+        });
+        res.json({ ok: true, id: parsedId });
+    } catch (err) {
+        next(err);
+    }
+};

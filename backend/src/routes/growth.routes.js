@@ -17,6 +17,7 @@ const {
     getHealth,
     getAlerts,
     getLeadStats,
+    deleteOpportunity,
 } = require('../controllers/growth.controller');
 
 // All growth routes require an authenticated admin
@@ -32,6 +33,7 @@ router.get('/opportunities/stale',           listStale);
 router.get('/opportunities',                 listOpportunities);
 router.get('/opportunities/:id',             getOpportunity);
 router.post('/opportunities/:id/transition', transitionOpp);
+router.delete('/opportunities/:id',             deleteOpportunity);
 router.get('/opportunities/:id/score',       getScore);
 router.get('/contacts',                      listContacts);
 router.get('/contacts/:id',                  getContact);
