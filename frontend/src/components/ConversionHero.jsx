@@ -45,7 +45,7 @@ export function ConversionHero() {
         <div className="mt-8 flex justify-center gap-6 text-xs text-gray-500">
           <span>✂️ Fabricación propia</span>
           <span>🛡️ 48 meses garantía</span>
-          <span>⭐ 4.9★ Google</span>
+          <span>⭐ 5.0★ Google</span>
         </div>
       </div>
     </section>

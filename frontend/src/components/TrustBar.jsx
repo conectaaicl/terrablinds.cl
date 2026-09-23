@@ -11,7 +11,7 @@ export function TrustBar() {
 
   // Usa los mismos valores que el bloque de stats del Home
   const stat1 = { num: cfg.stat1_num || '+500',  label: cfg.stat1_label || 'Proyectos instalados' };
-  const stat2 = { num: cfg.stat2_num || '4.9★',  label: cfg.stat2_label || 'Calificación Google' };
+  const stat2 = { num: cfg.stat2_num || '5.0★',  label: cfg.stat2_label || 'Calificación Google' };
   const stat3 = { num: cfg.stat3_num || '48 meses', label: cfg.stat3_label || 'Garantía incluida' };
 
   return (
