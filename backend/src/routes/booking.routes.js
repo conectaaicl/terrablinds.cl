@@ -12,6 +12,7 @@ router.post('/payment/confirm', ctrl.confirmPayment);
 router.post('/suggest', ctrl.suggestService);
 
 // Admin (protected)
+router.post('/admin-create', protect, restrictTo('admin'), ctrl.adminCreate);
 router.get('/stats', protect, restrictTo('admin'), ctrl.getStats);
 router.get('/admin', protect, restrictTo('admin'), ctrl.listBookings);
 router.patch('/:id', protect, restrictTo('admin'), ctrl.updateBooking);

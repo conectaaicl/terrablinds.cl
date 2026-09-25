@@ -490,3 +490,98 @@ exports.unblockDay = async (req, res, next) => {
         res.status(204).send();
     } catch (err) { next(err); }
 };
+
+// POST /api/bookings/admin-create (admin only)
+exports.adminCreate = async (req, res, next) => {
+    try {
+        const { service_type, date, time_slot, client_name, client_email, client_phone, client_address, notes } = req.body;
+
+        if (!service_type || !date || !time_slot || !client_name || !client_email) {
+            return res.status(400).json({ error: 'Faltan datos requeridos (servicio, fecha, hora, nombre, email)' });
+        }
+        if (!SERVICE_LABELS[service_type]) {
+            return res.status(400).json({ error: 'Tipo de servicio invalido' });
+        }
+        if (!TIME_SLOTS.includes(time_slot)) {
+            return res.status(400).json({ error: 'Horario invalido' });
+        }
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+            return res.status(400).json({ error: 'Formato de fecha invalido' });
+        }
+
+        const existing = await Booking.findOne({
+            where: { date, time_slot, status: { [Op.in]: ['pending_payment', 'confirmed'] } },
+        });
+        if (existing) {
+            return res.status(409).json({ error: 'Ya existe una reserva confirmada en ese horario' });
+        }
+
+        const booking = await Booking.create({
+            service_type,
+            date,
+            time_slot,
+            client_name,
+            client_email,
+            client_phone:   client_phone   || null,
+            client_address: client_address || null,
+            notes:          notes          || null,
+            amount:         0,
+            status:         'confirmed',
+        });
+
+        const serviceLabel = SERVICE_LABELS[service_type];
+        const dateStr = new Date(date + 'T12:00:00').toLocaleDateString('es-CL', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        });
+
+        // Non-blocking side-effects
+        notifyBookingTelegram(booking, serviceLabel);
+        fireBookingWebhook(booking, serviceLabel);
+
+        // Email with Google Calendar link (returns the gcalLink)
+        let gcalLink = null;
+        emailService.sendAdminBookingConfirmation(booking).then(link => {
+            gcalLink = link;
+        }).catch(e => {
+            console.error('[Booking] Admin confirmation email error:', e.message);
+        });
+
+        // WhatsApp (non-blocking)
+        if (client_phone) {
+            const waService = require('../services/whatsapp.service');
+            // Build gcal link synchronously for WA (mirror of email service logic)
+            const [y, m, d] = date.split('-').map(Number);
+            const [h, mn] = time_slot.split(':').map(Number);
+            const pad = n => String(n).padStart(2, '0');
+            const startDt = `${y}${pad(m)}${pad(d)}T${pad(h)}${pad(mn)}00`;
+            const endH = h + 1 >= 24 ? 23 : h + 1;
+            const endDt = `${y}${pad(m)}${pad(d)}T${pad(endH)}${pad(mn)}00`;
+            const gcalLinkSync = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Visita TerraBlinds')} &dates=${startDt}/${endDt}&details=${encodeURIComponent('Servicio: ' + serviceLabel)}&location=${encodeURIComponent(client_address || 'Santiago, Chile')}&ctz=America%2FSantiago`;
+
+            waService.sendBookingWhatsApp({
+                phone:        client_phone,
+                clientName:   client_name,
+                serviceLabel,
+                dateStr,
+                timeSlot:     time_slot,
+                address:      client_address || null,
+                gcalLink:     gcalLinkSync,
+            }).catch(e => {
+                console.error('[Booking] WhatsApp send error:', e.message);
+            });
+        }
+
+        enqueue('ingest_lead', {
+            source:      'booking',
+            externalRef: `booking:${booking.id}`,
+            contact:     { name: client_name, email: client_email, phone: client_phone || null },
+            metadata:    { service_type, date, time_slot, amount: 0, channel: 'admin' },
+        }).catch(e => console.error('[Booking] GE enqueue error:', e.message));
+
+        res.status(201).json({
+            id:      booking.id,
+            status:  booking.status,
+            message: 'Reserva creada. Email y WhatsApp enviados al cliente.',
+        });
+    } catch (err) { next(err); }
+};
