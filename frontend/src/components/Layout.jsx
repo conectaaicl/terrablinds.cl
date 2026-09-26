@@ -230,7 +230,6 @@ const Layout = ({ children }) => {
                                     { to: '/agendar', label: 'Agendar Visita' },
                                     { to: '/contact', label: 'Contacto' },
                                     { to: '/blog', label: 'Blog' },
-                                    { to: '/register', label: 'Registrarse' },
                                 ].map(({ to, label }) => (
                                     <Link key={to} to={to}
                                         className="py-2.5 text-sm text-white/70 hover:text-white font-medium border-b border-white/5 flex items-center gap-1.5 transition-colors"
@@ -327,7 +326,6 @@ const Layout = ({ children }) => {
                             <li><Link to="/servicio-tecnico" className="hover:text-white transition-colors">Servicio Técnico</Link></li>
                             <li><Link to="/faq" className="hover:text-white transition-colors">Preguntas Frecuentes</Link></li>
                             <li><Link to="/contact" className="hover:text-white transition-colors">Contacto</Link></li>
-                            <li><Link to="/register" className="hover:text-white transition-colors">Crear Cuenta</Link></li>
                         </ul>
                     </div>
 

@@ -41,10 +41,11 @@ export const COMUNAS = [
   },
   {
     slug: "lo-barnechea",
+    visitaConCosto: true, // visita técnica cobrada en esta comuna (lejana)
     nombre: "Lo Barnechea",
     descripcion: "Instalación de cortinas roller, persianas y toldos en Lo Barnechea. Cobertura en condominios, parcelas y casas de la zona cordillerana.",
     intro: "Cubrimos toda Lo Barnechea, incluyendo condominios en altura y casas con grandes ventanales. El entorno cordillerano requiere materiales resistentes — tenemos la solución correcta.",
-    destacados: ["Cobertura en condominios cerrados", "Toldos para terrazas y piscinas", "Roller sunscreen ideal para sol cordillerano", "Transporte a zonas altas sin costo adicional"],
+    destacados: ["Cobertura en condominios cerrados", "Toldos para terrazas y piscinas", "Roller sunscreen ideal para sol cordillerano", "Visita técnica con costo de traslado (te lo informamos al cotizar)"],
     contexto: "La precordillera de Lo Barnechea recibe radiación más intensa y variaciones fuertes de temperatura. Recomendamos screen de factor de apertura bajo y persianas exteriores de aluminio, que aíslan del calor antes de que llegue al vidrio.",
     extendido: [
       "Lo Barnechea cubre desde La Dehesa (condominios y casas a 800 msnm) hasta El Arrayán y El Manzano (sobre los 1.000 msnm). Los condominios más grandes están en La Reserva y La Dehesa, con casas de superficies entre 200 y 600 m². El acceso puede ser complejo en horario punta, por eso coordinamos las visitas con anticipación para no hacer esperar al cliente.",
@@ -81,6 +82,7 @@ export const COMUNAS = [
   },
   {
     slug: "maipu",
+    visitaConCosto: true, // visita técnica cobrada en esta comuna (lejana)
     nombre: "Maipu",
     nombreDisplay: "Maipú",
     descripcion: "Cortinas roller, persianas y toldos en Maipú. Instalación a domicilio en la Región Metropolitana.",
@@ -135,16 +137,17 @@ export const COMUNAS = [
   },
   {
     slug: "colina",
+    visitaConCosto: true, // visita técnica cobrada en esta comuna (lejana)
     nombre: "Colina",
     nombreDisplay: "Colina y Chicureo",
     descripcion: "Cortinas roller, persianas exteriores y toldos en Colina y Chicureo. Instalación en casas y condominios de la zona norte de Santiago.",
     intro: "Chicureo y Colina concentran casas amplias con ventanales grandes y terrazas muy expuestas al sol. Trabajamos con telas screen de alto factor de protección y persianas exteriores que soportan la radiación directa.",
-    destacados: ["Cobertura en condominios de Chicureo, Piedra Roja y Las Brisas", "Screen de alta protección UV para ventanales grandes", "Persianas exteriores y toldos para terrazas", "Visita técnica sin costo de traslado"],
+    destacados: ["Cobertura en condominios de Chicureo, Piedra Roja y Las Brisas", "Screen de alta protección UV para ventanales grandes", "Persianas exteriores y toldos para terrazas", "Visita técnica con costo de traslado (consultar)"],
     contexto: "La zona norte tiene veranos más calurosos que el centro de Santiago y casas con orientación abierta. Las persianas exteriores y los toldos retráctiles bajan varios grados la temperatura interior sin depender del aire acondicionado.",
     extendido: [
       "La zona norte de Santiago —Chicureo, Colina, Piedra Roja y Las Brisas— ha crecido sostenidamente en la última década. Los condominios de Chicureo tienen casas de gran superficie, entre 300 y 700 m², con jardines amplios, piscinas y terrazas cubiertas. El clima es más seco y caluroso que en Santiago centro, con veranos que superan los 35 °C con regularidad.",
       "A diferencia del centro de Santiago, la zona norte recibe radiación intensa tanto en la mañana como en la tarde. Las casas con piscina y terraza orientadas al norte o poniente son las más expuestas. Un toldo retráctil bien calculado puede reducir 12 a 15 grados la temperatura de la terraza durante las horas pico del verano y es el producto que más se instala en esta zona.",
-      "Los proyectos en Chicureo y Colina combinan toldo retráctil de 6 a 10 metros para cubrir la terraza y el sector de piscina, persianas exteriores de aluminio en los ventanales más expuestos, y roller motorizado al interior. Muchos clientes integran la motorización con su sistema de domótica existente. Cubrimos toda la zona norte —Piedra Roja, Las Brisas, Los Trapenses— sin costo adicional de traslado.",
+      "Los proyectos en Chicureo y Colina combinan toldo retráctil de 6 a 10 metros para cubrir la terraza y el sector de piscina, persianas exteriores de aluminio en los ventanales más expuestos, y roller motorizado al interior. Muchos clientes integran la motorización con su sistema de domótica existente. Cubrimos toda la zona norte —Piedra Roja, Las Brisas, Los Trapenses—; la visita técnica tiene un costo de traslado que te informamos al cotizar.",
     ],
   },
   {
@@ -201,15 +204,16 @@ export const COMUNAS = [
   },
   {
     slug: "puente-alto",
+    visitaConCosto: true, // visita técnica cobrada en esta comuna (lejana)
     nombre: "Puente Alto",
     descripcion: "Cortinas roller, persianas y toldos a medida en Puente Alto. Instalación a domicilio en casas, villas y departamentos de la comuna.",
     intro: "Puente Alto es una de las comunas más grandes de Santiago, con villas, casas y nuevos condominios en el sector sur-oriente. Medimos, fabricamos e instalamos a medida en tu hogar, en toda la comuna.",
-    destacados: ["Instalación en casas, villas y departamentos", "Roller screen y blackout a medida", "Cobertura en toda la comuna de Puente Alto", "Visita técnica sin costo de traslado"],
+    destacados: ["Instalación en casas, villas y departamentos", "Roller screen y blackout a medida", "Cobertura en toda la comuna de Puente Alto", "Visita técnica con costo de traslado (consultar)"],
     contexto: "Puente Alto combina villas y casas de uno y dos pisos con condominios nuevos hacia la precordillera. En las casas con patio, el roller screen y las persianas exteriores controlan el sol de la tarde; en los departamentos, el blackout resuelve los dormitorios y el duo funciona bien en el living.",
     extendido: [
       "Puente Alto es la comuna con más habitantes de Chile, con cerca de 700.000 personas. Su tejido urbano va desde villas de los años 80 —Villa España, Villa Macul, Villa El Sereno— hasta condominios nuevos en el sector cordillerano, como Bajos del Manzano y Los Quillayes. El eje de Av. Concha y Toro conecta el centro con los sectores más alejados.",
       "Las casas de Puente Alto orientadas al poniente pueden calentarse considerablemente desde las 14:00 en verano. Los condominios del sector cordillerano tienen ventanales con vista que capturan el sol de la tarde. En las villas más antiguas, la mayoría de las ventanas ya tiene marcos de aluminio en buen estado que son compatibles con sistemas de roller estándar sin modificaciones.",
-      "En las villas de Puente Alto, el par blackout más screen es el más instalado. En los condominios del sector alto, la motorización es más frecuente que en el resto de la comuna. Para las casas con terraza y jardín, el toldo de brazos articulados es la solución de verano más pedida. Cubrimos toda la extensión de Puente Alto en una sola visita técnica, sin costo adicional de traslado por la distancia.",
+      "En las villas de Puente Alto, el par blackout más screen es el más instalado. En los condominios del sector alto, la motorización es más frecuente que en el resto de la comuna. Para las casas con terraza y jardín, el toldo de brazos articulados es la solución de verano más pedida. Cubrimos toda la extensión de Puente Alto en una sola visita técnica; por la distancia, la visita tiene un costo de traslado que te informamos al cotizar.",
     ],
   },
 ];

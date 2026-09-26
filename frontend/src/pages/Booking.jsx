@@ -6,6 +6,7 @@ import {
     Shield, Star, Zap, MessageCircle, CheckCheck, Home,
 } from 'lucide-react';
 import api from '../api';
+import { trackLead } from '../analytics';
 import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 
@@ -226,6 +227,7 @@ export default function Booking() {
                 client_address: form.address,
                 notes: form.notes,
             });
+            trackLead('reserva', { service_type: serviceType });
             window.location.href = res.data.redirectUrl;
         } catch (err) {
             setError(err.response?.data?.error || 'Error al crear la reserva.');

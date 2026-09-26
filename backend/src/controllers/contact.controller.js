@@ -1,4 +1,6 @@
-const { Contact, Config } = require('../models');
+const crypto = require('crypto');
+const { Config } = require('../models');
+const { enqueue } = require('../services/ge_worker.service');
 const { sendContactEmail } = require('../services/email.service');
 const axios = require('axios');
 
@@ -48,12 +50,25 @@ exports.submitContact = async (req, res) => {
         // Guardar en DB primero (nunca perder el lead aunque el email falle)
         const notes = `Asunto: ${subject || 'Sin asunto'}\n\n${message.trim()}`;
         const phoneNorm = phone ? phone.trim().replace(/\s+/g, '') : null;
-        await Contact.create({
-            name: name.trim().substring(0, 200),
-            email: email.trim().toLowerCase().substring(0, 200),
-            phone: phoneNorm ? phoneNorm.substring(0, 50) : null,
-            notes: notes.substring(0, 2000),
-        });
+        const cleanName  = name.trim().substring(0, 200);
+        const cleanEmail = email.trim().toLowerCase().substring(0, 200);
+
+        // Growth Engine (Contact + Opportunity + Touchpoint) via the outbox.
+        // Previously this did Contact.create(), which violates the UNIQUE(email) index
+        // whenever the person already existed (earlier form, chat or booking): the
+        // request failed with 500 and the email/n8n notifications below never ran.
+        try {
+            await enqueue('ingest_lead', {
+                source:        'website_form',
+                externalRef:   `contacto:${crypto.randomUUID()}`,
+                contact:       { name: cleanName, email: cleanEmail, phone: phoneNorm ? phoneNorm.substring(0, 50) : null, notes: notes.substring(0, 2000) },
+                channelDetail: `Contacto: ${subject || 'Sin asunto'} — ${message.trim()}`.substring(0, 200),
+                metadata:      { form: 'contacto', subject: subject || null, message: message.trim().substring(0, 2000) },
+            });
+        } catch (err) {
+            // Never lose the lead: notifications below still go out
+            console.error('[Contact] GE enqueue failed:', err.message);
+        }
 
         // Webhook n8n (non-blocking)
         fireContactWebhook(name.trim(), email.trim().toLowerCase(), phoneNorm, subject, message.trim()).catch(() => {});

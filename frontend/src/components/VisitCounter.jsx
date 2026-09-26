@@ -6,24 +6,13 @@ const VisitCounter = () => {
     const [visits, setVisits] = useState(null);
 
     useEffect(() => {
-        // Only count once per session
-        const counted = sessionStorage.getItem('tb_visit_counted');
-        if (!counted) {
-            api.post('/api/stats/visit')
-                .then(res => {
-                    setVisits(res.data.visits);
-                    sessionStorage.setItem('tb_visit_counted', '1');
-                })
-                .catch(() => {
-                    // If POST fails, just GET
-                    api.get('/api/stats/visits').then(r => setVisits(r.data.visits)).catch(() => {});
-                });
-        } else {
-            api.get('/api/stats/visits').then(r => setVisits(r.data.visits)).catch(() => {});
-        }
+        // Display only. Visits are recorded per route by Layout.jsx — posting here
+        // too counted every session twice and logged a fake visit to "/".
+        api.get('/api/stats/visits').then(r => setVisits(r.data?.visits)).catch(() => {});
     }, []);
 
-    if (visits === null) return null;
+    // Never let an unexpected API response crash the footer (and the whole page)
+    if (typeof visits !== 'number' || !Number.isFinite(visits)) return null;
 
     return (
         <div className="flex items-center justify-center gap-2 text-gray-500 text-xs mt-2">

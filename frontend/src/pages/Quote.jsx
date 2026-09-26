@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { ChevronDown, ChevronUp, Send, CheckCircle2, Loader2, MessageCircle } from 'lucide-react';
 import api from '../api';
+import { trackLead } from '../analytics';
 
 // ─── Opciones del formulario ───────────────────────────────────────────────
 const PRODUCTOS = [
@@ -74,6 +75,7 @@ export default function Quote() {
                     body: JSON.stringify({ nombre: form.nombre.trim(), telefono: form.telefono.trim(), comuna: form.comuna.trim() || null, producto: form.producto, ventanas: form.ventanas, comentario: form.comentario.trim() || null, origen: 'terrablinds.cl' }),
                 }).catch(() => {});
             } catch (_) {}
+            trackLead('cotizador', { producto: form.producto, comuna: form.comuna.trim() || undefined });
             setSuccess(true);
         } catch (err) {
             setErrors({ general: err.response?.data?.error || 'Error al enviar. Intenta nuevamente.' });

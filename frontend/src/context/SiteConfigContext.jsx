@@ -11,18 +11,25 @@ export function SiteConfigProvider({ children }) {
             .then(r => {
                 const cfg = r.data;
                 setValue({ ...cfg, _loaded: true });
-                // Inject GA4 tag if configured
+                // GA4: index.html already loads gtag.js with G-T80KNFRWE7. Loading the
+                // library again (or re-configuring the same ID) double-counts every
+                // page_view, so only add an extra *different* property ID here.
                 const gaId = cfg.google_analytics_id;
-                if (gaId && gaId.startsWith('G-') && !document.getElementById('ga4-script')) {
-                    const s1 = document.createElement('script');
-                    s1.id = 'ga4-script';
-                    s1.async = true;
-                    s1.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
-                    document.head.appendChild(s1);
-                    const s2 = document.createElement('script');
-                    s2.id = 'ga4-init';
-                    s2.textContent = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`;
-                    document.head.appendChild(s2);
+                if (gaId && gaId.startsWith('G-') && gaId !== 'G-T80KNFRWE7' && !window.__tbExtraGa) {
+                    window.__tbExtraGa = gaId;
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('config', gaId);
+                    } else if (!document.getElementById('ga4-script')) {
+                        const s1 = document.createElement('script');
+                        s1.id = 'ga4-script';
+                        s1.async = true;
+                        s1.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
+                        document.head.appendChild(s1);
+                        window.dataLayer = window.dataLayer || [];
+                        window.gtag = function () { window.dataLayer.push(arguments); };
+                        window.gtag('js', new Date());
+                        window.gtag('config', gaId);
+                    }
                 }
             })
             .catch(() => setValue({ _loaded: true }));

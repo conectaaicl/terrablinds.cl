@@ -1,5 +1,8 @@
 const { Lead, sequelize } = require('../models');
 const axios = require('axios');
+const { Op } = require('sequelize');
+
+const DEDUPE_WINDOW_MS = 24 * 60 * 60 * 1000;
 const { ingestLead } = require('../services/ingest.service');
 
 const N8N_LEAD_WEBHOOK = 'https://n8n.conectaai.cl/webhook/nuevo-lead';
@@ -45,14 +48,20 @@ exports.saveLead = async (req, res) => {
             return res.status(400).json({ error: 'Se requiere al menos nombre, email o teléfono.' });
         }
 
-        // Avoid duplicate leads from same email (preserves existing API contract)
+        // Merge repeat messages from the same email within 24h into one lead.
+        // Older leads are NOT reused: a customer who comes back days later is a new
+        // lead and must reach the Growth Engine + n8n notification again.
         if (email) {
             const recent = await Lead.findOne({
-                where: { email },
+                where: { email, created_at: { [Op.gte]: new Date(Date.now() - DEDUPE_WINDOW_MS) } },
                 order: [['created_at', 'DESC']],
             });
             if (recent) {
-                if (notes) await recent.update({ notes, updated_at: new Date() });
+                if (notes && notes !== recent.notes) {
+                    // Append instead of overwriting the earlier message
+                    const merged = recent.notes ? `${recent.notes}\n---\n${notes}` : notes;
+                    await recent.update({ notes: merged.slice(-5000), updated_at: new Date() });
+                }
                 return res.json({ id: recent.id, updated: true });
             }
         }

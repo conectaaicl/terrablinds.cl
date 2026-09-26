@@ -36,7 +36,7 @@ export function ConversionHero() {
             href="/agendar"
             className="inline-flex items-center gap-2 rounded-full border border-gray-600 px-6 py-5 text-sm font-semibold text-gray-300 hover:border-white hover:text-white transition-colors"
           >
-            Agendar visita gratis
+            Agendar visita técnica
           </a>
         </div>
 

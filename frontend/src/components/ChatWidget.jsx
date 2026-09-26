@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Send, MessageCircle, Bot, ChevronRight, RotateCcw } from 'lucide-react';
 import api from '../api';
+import { trackLead } from '../analytics';
 import { Link } from 'react-router-dom';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
@@ -125,7 +126,7 @@ export default function ChatWidget({ logoUrl }) {
                         ...contact,
                         source: 'chat',
                         notes:  allText.substring(0, 500),
-                    }).then(() => setLeadSaved(true)).catch(() => {});
+                    }).then(() => { setLeadSaved(true); trackLead('chat'); }).catch(() => {});
                 }
             }
         } catch (err) {

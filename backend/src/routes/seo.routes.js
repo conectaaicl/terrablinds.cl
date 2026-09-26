@@ -20,7 +20,7 @@ const NOINDEX_PATHS = new Set([
 const STATIC_PAGES = {
     '/': {
         title: 'Cortinas Roller y Persianas Exterior a Medida | TerraBlinds',
-        description: 'Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita técnica gratuita, fabricación a medida e instalación incluida. Cotiza online.',
+        description: 'Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita técnica sin costo en la mayoría de las comunas, fabricación a medida e instalación incluida. Cotiza online.',
         priority: '1.0',
         changefreq: 'weekly'
     },
@@ -50,7 +50,7 @@ const STATIC_PAGES = {
     },
     '/agendar': {
         title: 'Agendar Visita Técnica | TerraBlinds',
-        description: 'Agenda una visita técnica gratuita para medir y cotizar cortinas roller, persianas o toldos en tu domicilio. Santiago y RM.',
+        description: 'Agenda una visita técnica (sin costo en la mayoría de las comunas) para medir y cotizar cortinas roller, persianas o toldos en tu domicilio. Santiago y RM.',
         priority: '0.8',
         changefreq: 'monthly'
     },
@@ -323,7 +323,7 @@ function renderContactBlock() {
         <h2 style="font-size:22px;color:#1e293b;">Contacto</h2>
         <p style="font-size:15px;color:#475569;line-height:1.7;margin:10px 0 0;">
             TerraBlinds fabrica e instala cortinas y persianas a medida en Santiago, La Serena y Coquimbo.
-            Visita tecnica gratuita para tomar medidas, fabricacion a medida e instalacion incluida.
+            Visita tecnica sin costo en la mayoria de las comunas de Santiago para tomar medidas, fabricacion a medida e instalacion incluida.
         </p>
         <p style="font-size:15px;color:#475569;margin:10px 0 0;">
             WhatsApp: <a href="https://wa.me/56998101891" style="color:#1d4ed8;">+56 9 9810 1891</a>
@@ -403,9 +403,9 @@ function renderInstalaciones(nombre) {
     </section>`;
 }
 
-function renderComunaFaq(nombre) {
+function renderComunaFaq(nombre, visitaConCosto = false) {
     const faqs = [
-        { q: `¿Hacen visita técnica en ${nombre}?`, a: `Sí. Un técnico va a tu domicilio en ${nombre} a tomar las medidas exactas de cada ventana, sin costo y sin compromiso. Con esas medidas te entregamos el presupuesto final en el momento.` },
+        { q: `¿Hacen visita técnica en ${nombre}?`, a: `Sí. Un técnico va a tu domicilio en ${nombre} a tomar las medidas exactas de cada ventana, ${visitaConCosto ? 'con un costo de traslado que te informamos al cotizar' : 'sin costo y sin compromiso'}. Con esas medidas te entregamos el presupuesto final en el momento.` },
         { q: `¿Cuánto demora la instalación en ${nombre}?`, a: `Fabricamos a medida en 5 a 7 días hábiles. La instalación en ${nombre} se coordina a tu horario y un proyecto estándar de casa o departamento queda listo en una sola jornada.` },
         { q: `¿Qué cortina conviene para ${nombre}?`, a: `Depende de la orientación y el uso de cada espacio. En dormitorios recomendamos blackout; en living y oficinas, screen o duo para controlar la luz sin perder la vista. En la visita técnica te asesoramos ventana por ventana.` },
         { q: `¿Instalan en edificios y condominios de ${nombre}?`, a: `Sí. Trabajamos en departamentos, casas, condominios cerrados y locales comerciales. Coordinamos el ingreso con la administración cuando el edificio lo requiere.` },
@@ -604,7 +604,7 @@ router.get('/prerender', async (req, res) => {
                 <h2 style="font-size:22px;color:#1e293b;margin-top:28px;">Por qué elegirnos en ${escapeHtml(nombre)}</h2>
                 ${destacados}
             ${extendido}
-            </section>` + renderProductList(products) + renderInstalaciones(nombre) + renderComunaGuides(guias) + renderComunaFaq(nombre) + renderOtrasComunas(comunaMatch[1]) + renderContactBlock();
+            </section>` + renderProductList(products) + renderInstalaciones(nombre) + renderComunaGuides(guias) + renderComunaFaq(nombre, !!comuna.visitaConCosto) + renderOtrasComunas(comunaMatch[1]) + renderContactBlock();
 
             jsonLd = [
                 {
@@ -765,7 +765,7 @@ router.get('/prerender', async (req, res) => {
 <section style="margin-top:36px;">
     <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Proceso de atencion</h2>
     <ol style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
-        <li>Coordinacion de visita tecnica gratuita (Santiago RM)</li>
+        <li>Coordinacion de visita tecnica (sin costo en la mayoria de las comunas de Santiago)</li>
         <li>Diagnostico en terreno con presupuesto sin compromiso</li>
         <li>Reparacion en el lugar o retiro para taller</li>
         <li>Entrega con garantia de 3 meses en mano de obra</li>
@@ -775,7 +775,7 @@ router.get('/prerender', async (req, res) => {
     <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Preguntas frecuentes</h2>
     <div style="margin-bottom:18px;">
         <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Cuanto cuesta una revision tecnica de persiana de exterior?</p>
-        <p style="font-size:15px;color:#475569;margin:0;">La visita de diagnostico es gratuita en Santiago. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion.</p>
+        <p style="font-size:15px;color:#475569;margin:0;">La visita de diagnostico es gratuita en la mayoria de las comunas de Santiago; en comunas alejadas tiene un costo de traslado. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion.</p>
     </div>
     <div style="margin-bottom:18px;">
         <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Reparan persianas de exterior de otras marcas?</p>
@@ -788,7 +788,7 @@ router.get('/prerender', async (req, res) => {
 </section>
 <section style="margin-top:36px;padding:20px;background:#f0f9ff;border-radius:8px;border-left:4px solid #0d2a5e;">
     <p style="font-size:16px;color:#1e293b;font-weight:700;margin:0 0 8px;">Tu persiana de exterior necesita reparacion?</p>
-    <p style="font-size:15px;color:#475569;margin:0 0 14px;">Agenda una visita tecnica gratuita hoy mismo. Respondemos por WhatsApp en menos de 1 hora.</p>
+    <p style="font-size:15px;color:#475569;margin:0 0 14px;">Agenda una visita tecnica hoy mismo. Respondemos por WhatsApp en menos de 1 hora.</p>
     <a href="https://wa.me/56998101891" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Solicitar visita tecnica</a>
 </section>`;
             jsonLd = [
@@ -804,7 +804,7 @@ router.get('/prerender', async (req, res) => {
                 {
                     "@context": "https://schema.org", "@type": "FAQPage",
                     mainEntity: [
-                        { "@type": "Question", name: "Cuanto cuesta una revision tecnica de persiana de exterior?", acceptedAnswer: { "@type": "Answer", text: "La visita de diagnostico es gratuita en Santiago. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion." } },
+                        { "@type": "Question", name: "Cuanto cuesta una revision tecnica de persiana de exterior?", acceptedAnswer: { "@type": "Answer", text: "La visita de diagnostico es gratuita en la mayoria de las comunas de Santiago; en comunas alejadas tiene un costo de traslado. El presupuesto de reparacion se entrega en el mismo dia de la visita, sin compromiso de contratacion." } },
                         { "@type": "Question", name: "Reparan persianas de exterior de otras marcas?", acceptedAnswer: { "@type": "Answer", text: "Si, atendemos persianas y toldos de cualquier fabricante. Contamos con repuestos para guias, mecanismos, tejidos tecnicos y motores Somfy." } },
                         { "@type": "Question", name: "En que comunas hacen servicio tecnico?", acceptedAnswer: { "@type": "Answer", text: "Atendemos todas las comunas de Santiago: Las Condes, Vitacura, Providencia, Lo Barnechea, Nunoa, Maipu, La Florida, San Miguel y mas." } },
                     ],
@@ -849,7 +849,7 @@ router.get('/prerender', async (req, res) => {
                 {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
                     name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891", priceRange: "$$",
-                    description: "Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita tecnica gratuita e instalacion incluida.",
+                    description: "Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita tecnica sin costo en la mayoria de las comunas e instalacion incluida.",
                     areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana"}],
                     hasOfferCatalog: {
                         "@type": "OfferCatalog", name: "Cortinas y Persianas a Medida",

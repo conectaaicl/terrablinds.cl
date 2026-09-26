@@ -431,7 +431,7 @@ const Home = () => {
                             ¿Listo para transformar<br className="hidden sm:block" /> tus espacios?
                         </h2>
                         <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto leading-relaxed">
-                            Cuéntanos qué necesitas y te ayudamos a elegir la solución correcta. Medición gratis en todo Santiago.
+                            Cuéntanos qué necesitas y te ayudamos a elegir la solución correcta. Medición gratis en la mayoría de las comunas de Santiago.
                         </p>
                         <div className="flex flex-wrap justify-center gap-4">
                             <Link to="/quote">
@@ -444,7 +444,7 @@ const Home = () => {
                             <a href="https://wa.me/56998101891?text=Hola%20TerraBlinds%2C%20quiero%20información"
                                 target="_blank" rel="noopener noreferrer"
                                 className="px-8 py-4 font-semibold rounded-full text-base border border-white/20 hover:border-white/40 text-white transition-all hover:bg-white/5">
-                                AGENDAR MEDICIÓN GRATIS
+                                AGENDAR MEDICIÓN
                             </a>
                         </div>
                     </motion.div>
