@@ -515,6 +515,19 @@ export default function Domotica() {
                     </div>
                 </div>
             </section>
+
+            {/* __ TAMBIEN PUEDE INTERESARTE __ */}
+            <section className="py-10 px-4 bg-slate-900 border-t border-white/5">
+                <div className="container mx-auto max-w-5xl">
+                    <p className="text-xs font-bold tracking-widest text-blue-400 uppercase mb-4">También puede interesarte</p>
+                    <div className="flex flex-wrap gap-3">
+                        <Link to="/control-solar" className="text-sm font-semibold text-blue-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-colors">Control Solar en Santiago</Link>
+                        <Link to="/persianas-exteriores-santiago" className="text-sm font-semibold text-blue-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-colors">Persianas Exteriores Santiago</Link>
+                        <Link to="/catalog" className="text-sm font-semibold text-blue-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-colors">Catálogo de Productos</Link>
+                        <Link to="/cortinas/las-condes" className="text-sm font-semibold text-blue-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2.5 rounded-xl transition-colors">Cortinas Las Condes</Link>
+                    </div>
+                </div>
+            </section>
         </Layout>
     );
 }

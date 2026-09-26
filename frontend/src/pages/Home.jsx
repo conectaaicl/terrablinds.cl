@@ -34,6 +34,7 @@ const SOLUTIONS = [
     { title: 'Persianas Exteriores', desc: 'Protección solar y térmica. Mayor eficiencia energética.',  link: '/catalog?category=Exteriores', cfgKey: 'cat4_image', grad: 'from-stone-700 to-stone-900' },
     { title: 'Mallas de Seguridad',  desc: 'Protección confiable para niños, mascotas y terrazas.',    link: '/catalog?category=Mallas',     cfgKey: 'cat5_image', grad: 'from-gray-800 to-gray-950' },
     { title: 'Cierre de Terrazas',   desc: 'Amplía y protege tus espacios durante todo el año.',       link: '/catalog?category=Terrazas',   cfgKey: 'cat6_image', grad: 'from-amber-900 to-stone-900' },
+    { title: 'Control Solar',        desc: 'Cortinas, persianas y toldos que regulan luz, calor y privacidad.',  link: '/control-solar',               cfgKey: 'cat7_image', grad: 'from-sky-800 to-blue-950' },
 ];
 
 const DEFAULT_STATS = [

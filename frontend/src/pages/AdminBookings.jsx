@@ -200,9 +200,14 @@ const AdminBookings = () => {
                         <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
                         <p className="text-sm text-gray-500 mt-0.5">Visitas técnicas y servicios agendados</p>
                     </div>
-                    <button onClick={loadAll} className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-                        <RefreshCw className="w-4 h-4" /> Actualizar
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
+                            <Plus className="w-4 h-4" /> Nueva reserva
+                        </button>
+                        <button onClick={loadAll} className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                            <RefreshCw className="w-4 h-4" /> Actualizar
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -509,3 +514,5 @@ const AdminBookings = () => {
         </>
     );
 };
+
+export default AdminBookings;

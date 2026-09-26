@@ -143,6 +143,20 @@ const STATIC_PAGES = {
         changefreq: 'monthly',
         lastmod: '2026-09-09'
     },
+    '/persianas-exteriores-santiago': {
+        title: 'Persianas Exteriores en Santiago | A Medida | TerraBlinds',
+        description: 'Persianas exteriores a medida en Santiago. Control solar, privacidad, confort y opciones de motorizacion. Asesoria, fabricacion e instalacion TerraBlinds.',
+        priority: '0.85',
+        changefreq: 'monthly',
+        lastmod: '2026-09-23'
+    },
+    '/control-solar': {
+        title: 'Control Solar Santiago | Cortinas, Persianas y Toldos | TerraBlinds',
+        description: 'Soluciones de control solar a medida en Santiago: cortinas roller screen, blackout, duo, persianas exteriores y toldos. Interior y exterior. Fabricacion e instalacion TerraBlinds.',
+        priority: '0.9',
+        changefreq: 'monthly',
+        lastmod: '2026-09-23'
+    },
 };
 
 // Pages for which admin can customize SEO meta
@@ -490,10 +504,17 @@ router.get('/prerender', async (req, res) => {
                     <p style="font-size:16px;color:#334155;line-height:1.7;">${escapeHtml(fullDesc)}</p>
                 </section>` + renderServices() + renderContactBlock();
                 jsonLd = {
-                    '@context': 'https://schema.org', '@type': 'Product',
+                    "@context":"https://schema.org","@type":"Product",
                     name: product.name, description: description, image: ogImage || undefined,
-                    brand: { '@type': 'Brand', name: SITE_NAME },
-                    offers: { '@type': 'Offer', priceCurrency: 'CLP', availability: 'https://schema.org/InStock', url: `${BASE_URL}/product/${product.id}` }
+                    brand: {"@type":"Brand",name:SITE_NAME},
+                    manufacturer: {"@type":"Organization",name:"TerraBlinds",url:BASE_URL},
+                    offers: {
+                        "@type":"Offer",priceCurrency:"CLP",
+                        availability:"https://schema.org/InStock",
+                        url:`${BASE_URL}/product/${product.id}`,
+                        seller:{"@type":"LocalBusiness",name:"TerraBlinds",url:BASE_URL,telephone:"+56998101891",
+                            areaServed:[{"@type":"City","name":"Santiago"},{"@type":"City","name":"La Serena"},{"@type":"City","name":"Coquimbo"}]}
+                    }
                 };
             } else {
                 notFound = true;
@@ -518,12 +539,106 @@ router.get('/prerender', async (req, res) => {
                 bodyContent = `<article style="margin-top:28px;">
                     <p style="font-size:16px;color:#334155;line-height:1.75;">${linkFirstMentions(escapeHtml(raw.substring(0, 3000)))}</p>
                 </article>` + renderPostComunaLinks(post.title) + renderContactBlock();
-                jsonLd = {
-                    '@context': 'https://schema.org', '@type': 'Article',
+                const articleSchema = {
+                    "@context": "https://schema.org", "@type": "Article",
                     headline: post.title, description: description,
                     datePublished: post.published_at, dateModified: post.updated_at,
-                    author: { '@type': 'Organization', name: SITE_NAME },
+                    author: { "@type": "Organization", name: SITE_NAME },
                 };
+                // HowTo schema for step-by-step measurement guide
+                if (blogMatch[1] === "como-medir-ventanas-cortinas-roller") {
+                    jsonLd = [
+                        articleSchema,
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "HowTo",
+                            "name": "Como medir ventanas para cortinas roller",
+                            "description": "Guia paso a paso para medir correctamente ventanas para cortinas roller, instalacion interior y exterior.",
+                            "tool": [
+                                { "@type": "HowToTool", "name": "Huincha de medir metalica" },
+                                { "@type": "HowToTool", "name": "Lapiz y papel" },
+                                { "@type": "HowToTool", "name": "Escalera (para ventanas altas)" }
+                            ],
+                            "step": [
+                                {
+                                    "@type": "HowToStep", "position": 1,
+                                    "name": "Elige el tipo de instalacion",
+                                    "text": "Decide si la instalacion sera INTERIOR (dentro del marco, requiere vano de minimo 5-7 cm de profundidad) o EXTERIOR (sobre el muro, mejor oscurecimiento). Esta decision define como medir."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 2,
+                                    "name": "Mide el ancho (instalacion interior)",
+                                    "text": "Coloca la huincha metalica de un extremo interior del marco al otro. Descuenta 1-1.5 cm de cada lado para que la cortina entre sin rozar. Ejemplo: vano de 120 cm -> pide cortina de 117-118 cm."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 3,
+                                    "name": "Mide la altura (instalacion interior)",
+                                    "text": "Mide desde la parte interior superior del marco hasta el alfeizar. Descuenta 1 cm abajo si no quieres que la cortina toque el alfeizar."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 4,
+                                    "name": "Mide el ancho (instalacion exterior)",
+                                    "text": "Mide el ancho de la ventana incluyendo el marco completo. Agrega 5-10 cm de cada lado para mejor oscurecimiento. Ejemplo: ventana de 100 cm -> pide cortina de 110-120 cm."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 5,
+                                    "name": "Mide la altura (instalacion exterior)",
+                                    "text": "Mide desde donde se fijara el soporte (normalmente 5-10 cm sobre el marco superior) hasta donde quieres que llegue la cortina. Agrega 5-10 cm abajo del alfeizar para tapar mejor la luz."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 6,
+                                    "name": "Verifica dos veces",
+                                    "text": "Mide siempre dos veces el ancho y dos veces el alto. Las ventanas no siempre son perfectamente rectangulares. Anota el valor mas pequeno si hay diferencia."
+                                }
+                            ]
+                        }
+                    ];
+                } else if (blogMatch[1] === "guia-de-mantencion-de-cortinas-roller-como-limpiarlas-sin-danarlas") {
+                    jsonLd = [
+                        articleSchema,
+                        {
+                            "@context": "https://schema.org",
+                            "@type": "HowTo",
+                            "name": "Como limpiar cortinas roller sin dañarlas",
+                            "description": "Guia de limpieza y mantencion de cortinas roller segun tipo de tela: routine, profunda y manchas especificas.",
+                            "tool": [
+                                { "@type": "HowToTool", "name": "Aspiradora con boquilla de cepillo" },
+                                { "@type": "HowToTool", "name": "Pano de microfibra" },
+                                { "@type": "HowToTool", "name": "Agua tibia y jabon neutro" },
+                                { "@type": "HowToTool", "name": "Esponja suave" }
+                            ],
+                            "step": [
+                                {
+                                    "@type": "HowToStep", "position": 1,
+                                    "name": "Baja la cortina completamente",
+                                    "text": "Extiende la cortina a todo lo largo antes de cualquier limpieza. Nunca limpies con la cortina enrollada: el polvo queda atrapado entre las capas."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 2,
+                                    "name": "Aspira el polvo superficial",
+                                    "text": "Usa la boquilla de cepillo de la aspiradora a baja potencia, pasando de arriba hacia abajo. Repite cada 2 o 3 meses para evitar acumulacion."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 3,
+                                    "name": "Limpia segun el tipo de tela",
+                                    "text": "Screen y sunscreen: agua tibia con una gota de detergente suave, esponja circular, enjuaga con pano humedo. Blackout: SOLO agua fria con jabon neutro (tipo Baby), no frotes con fuerza ni metas en lavadora. Translucida: lavado a mano en tina, enjuague abundante."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 4,
+                                    "name": "Trata las manchas segun su tipo",
+                                    "text": "Grasa o aceite: gota de lavavajillas directo, 5 min, paño humedo. Tinta: alcohol isopropilico 90 grados en algodón, toquecitos sin frotar. Hongos: 1 parte vinagre blanco + 2 agua, 15 min, luego paño."
+                                },
+                                {
+                                    "@type": "HowToStep", "position": 5,
+                                    "name": "Seca completamente antes de enrollar",
+                                    "text": "Deja secar al aire en posicion extendida. Nunca uses calor directo (secador, sol intenso). Enrollar humeda provoca hongos y malos olores."
+                                }
+                            ]
+                        }
+                    ];
+                } else {
+                    jsonLd = articleSchema;
+                }
             } else {
                 notFound = true;
             }
@@ -555,6 +670,31 @@ router.get('/prerender', async (req, res) => {
                     order: [['id', 'ASC']], limit: 18,
                 });
                 bodyContent = renderProductList(products) + renderServices() + renderContactBlock();
+                if (requestedPath === '/catalog' && products.length) {
+                    jsonLd = [
+                        {
+                            "@context": "https://schema.org", "@type": "ItemList",
+                            name: "Catalogo de Cortinas y Persianas — TerraBlinds",
+                            description: "Catalogo completo de cortinas roller, persianas de exterior, cierres de terraza y toldos fabricados a medida en Chile.",
+                            numberOfItems: products.length,
+                            url: `${BASE_URL}/catalog`,
+                            itemListElement: products.map((p, i) => ({
+                                "@type": "ListItem",
+                                position: i + 1,
+                                name: p.name,
+                                description: (p.short_description || p.description || '').substring(0, 200),
+                                url: `${BASE_URL}/product/${p.id}`
+                            }))
+                        },
+                        {
+                            "@context": "https://schema.org", "@type": "BreadcrumbList",
+                            itemListElement: [
+                                { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                                { "@type": "ListItem", position: 2, name: "Catalogo", item: `${BASE_URL}/catalog` }
+                            ]
+                        }
+                    ];
+                }
             } catch (_) {
                 bodyContent = renderServices() + renderContactBlock();
             }
@@ -564,9 +704,94 @@ router.get('/prerender', async (req, res) => {
                     'SELECT question, answer FROM faqs WHERE is_active = true ORDER BY sort_order ASC, id ASC LIMIT 20'
                 );
                 bodyContent = renderFaqList(faqs) + renderContactBlock();
+                if (faqs && faqs.length) {
+                    jsonLd = [
+                        {"@context":"https://schema.org","@type":"FAQPage",
+                            mainEntity: faqs.map(f => ({
+                                "@type":"Question", name: f.question,
+                                acceptedAnswer: {"@type":"Answer", text: (f.answer||"").substring(0,400)}
+                            }))
+                        },
+                        {"@context":"https://schema.org","@type":"BreadcrumbList",
+                            itemListElement:[
+                                {"@type":"ListItem",position:1,name:"Inicio",item:"https://terrablinds.cl"},
+                                {"@type":"ListItem",position:2,name:"Preguntas Frecuentes",item:"https://terrablinds.cl/faq"}
+                            ]
+                        }
+                    ];
+                }
             } catch (_) {
                 bodyContent = renderContactBlock();
             }
+        } else if (requestedPath === "/about") {
+            let aboutTitle = "Expertos en Cortinas Roller desde 2018";
+            let aboutText1 = "Nacio en Santiago con una mision clara: fabricar cortinas y persianas de calidad real, directamente en nuestro taller, sin intermediarios. Cada producto es a medida, cada instalacion es con tecnicos propios.";
+            let aboutText2 = "Hoy trabajamos con cientos de familias y empresas en la Region Metropolitana, La Serena y Coquimbo. Nuestro compromiso sigue siendo el mismo: materiales premium, instalacion impecable y respaldo post-venta real.";
+            try {
+                const cfgs = await Config.findAll({ where: { key: { [Op.in]: ["about_title","about_history_text1","about_history_text2"] } } });
+                const cm = {};
+                cfgs.forEach(c => { cm[c.key] = c.value; });
+                if (cm.about_title)         aboutTitle = cm.about_title;
+                if (cm.about_history_text1) aboutText1 = cm.about_history_text1;
+                if (cm.about_history_text2) aboutText2 = cm.about_history_text2;
+            } catch (_) {}
+
+            h1 = "Sobre Nosotros — TerraBlinds";
+            bodyContent = `<section style="margin-top:28px;">
+                <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">${escapeHtml(aboutTitle)}</h2>
+                <p style="font-size:16px;color:#334155;line-height:1.75;margin-bottom:16px;">${escapeHtml(aboutText1)}</p>
+                <p style="font-size:16px;color:#334155;line-height:1.75;margin-bottom:16px;">${escapeHtml(aboutText2)}</p>
+                <p style="font-size:16px;color:#334155;line-height:1.75;"><strong>Cobertura:</strong> Santiago (Region Metropolitana) · La Serena · Coquimbo.</p>
+                <h2 style="font-size:22px;color:#1e293b;margin-top:28px;margin-bottom:14px;">Por que elegirnos</h2>
+                <ul style="font-size:15px;color:#475569;line-height:2;padding-left:22px;">
+                    <li><strong>Fabricacion propia:</strong> fabricamos cada cortina en nuestro taller en Santiago.</li>
+                    <li><strong>Materiales premium:</strong> telas importadas con certificacion UV y tratamiento antifungico.</li>
+                    <li><strong>Instalacion incluida:</strong> tecnicos certificados, rapida y limpia, con garantia de 1 anyo.</li>
+                    <li><strong>Respuesta en 24h:</strong> cotizacion sin compromiso por WhatsApp o formulario en linea.</li>
+                </ul>
+                <h2 style="font-size:22px;color:#1e293b;margin-top:28px;margin-bottom:14px;">Nuestros servicios</h2>
+                <ul style="font-size:15px;color:#475569;line-height:2;padding-left:22px;">
+                    <li>Cortinas roller blackout, screen, duo y motorizadas</li>
+                    <li>Persianas exteriores y cierres de terraza</li>
+                    <li>Toldos retractiles a medida</li>
+                    <li>Automatizacion con Alexa, Google Home y Apple HomeKit</li>
+                </ul>
+            </section>` + renderContactBlock();
+
+            const ABOUT_AREAS = [
+                {"@type":"City","name":"Santiago"},
+                {"@type":"State","name":"Region Metropolitana","addressCountry":"CL"},
+                {"@type":"City","name":"La Serena"},
+                {"@type":"City","name":"Coquimbo"}
+            ];
+            jsonLd = [
+                {
+                    "@context":"https://schema.org","@type":"Organization",
+                    name:"TerraBlinds",url:BASE_URL,telephone:"+56998101891",
+                    foundingDate:"2018",
+                    description:"Empresa chilena especializada en cortinas roller, persianas y cierres de terraza, con instalacion en Santiago y La Serena.",
+                    address:{"@type":"PostalAddress",addressLocality:"Santiago",addressRegion:"Region Metropolitana",addressCountry:"CL"},
+                    areaServed:ABOUT_AREAS,
+                    sameAs:["https://www.instagram.com/terrablinds/","https://www.facebook.com/terrablinds/"]
+                },
+                {
+                    "@context":"https://schema.org","@type":"LocalBusiness",
+                    "@id":`${BASE_URL}/#organization`,
+                    name:"TerraBlinds",url:BASE_URL,telephone:"+56998101891",priceRange:"$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" },
+                    description:"Fabricante de cortinas roller, persianas y toldos a medida en Santiago, La Serena y Coquimbo.",
+                    foundingDate:"2018",
+                    address:{"@type":"PostalAddress",addressLocality:"Santiago",addressRegion:"Region Metropolitana",addressCountry:"CL"},
+                    areaServed:ABOUT_AREAS,
+                    hasOfferCatalog:{"@type":"OfferCatalog",name:"Cortinas y Persianas a Medida",itemListElement:SERVICES.map(s=>({"@type":"Offer",itemOffered:{"@type":"Service",name:s}}))}
+                },
+                {
+                    "@context":"https://schema.org","@type":"BreadcrumbList",
+                    itemListElement:[
+                        {"@type":"ListItem",position:1,name:"Inicio",item:BASE_URL},
+                        {"@type":"ListItem",position:2,name:"Sobre Nosotros",item:`${BASE_URL}/about`}
+                    ]
+                }
+            ];
         } else if (comunaMatch && getComunaBySlug(comunaMatch[1])) {
             const comuna = getComunaBySlug(comunaMatch[1]);
             const nombre = displayName(comuna);
@@ -606,10 +831,16 @@ router.get('/prerender', async (req, res) => {
             ${extendido}
             </section>` + renderProductList(products) + renderInstalaciones(nombre) + renderComunaGuides(guias) + renderComunaFaq(nombre) + renderOtrasComunas(comunaMatch[1]) + renderContactBlock();
 
+            const comunaFaqItems = [
+                { "@type": "Question", name: `Hacen visita tecnica en ${nombre}?`, acceptedAnswer: { "@type": "Answer", text: `Si. Un tecnico va a tu domicilio en ${nombre} a tomar las medidas exactas de cada ventana, sin costo y sin compromiso.` } },
+                { "@type": "Question", name: `Cuanto demora la instalacion en ${nombre}?`, acceptedAnswer: { "@type": "Answer", text: `Fabricamos a medida en 5 a 7 dias habiles. La instalacion en ${nombre} se coordina a tu horario y un proyecto estandar queda listo en una sola jornada.` } },
+                { "@type": "Question", name: `Que cortina conviene para ${nombre}?`, acceptedAnswer: { "@type": "Answer", text: `Depende de la orientacion y el uso de cada espacio. En dormitorios recomendamos blackout; en living y oficinas, screen o duo para controlar la luz sin perder la vista.` } },
+                { "@type": "Question", name: `Instalan en edificios y condominios de ${nombre}?`, acceptedAnswer: { "@type": "Answer", text: `Si. Trabajamos en departamentos, casas, condominios cerrados y locales comerciales. Coordinamos el ingreso con la administracion cuando el edificio lo requiere.` } },
+            ];
             jsonLd = [
                 {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
-                    name: "TerraBlinds", url: `${BASE_URL}${requestedPath}`, telephone: "+56998101891", priceRange: "$$",
+                    name: "TerraBlinds", url: `${BASE_URL}${requestedPath}`, telephone: "+56998101891", priceRange: "$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" },
                     description: comuna ? comuna.descripcion : description,
                     address: { "@type": "PostalAddress", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
                     areaServed: { "@type": "City", name: nombre, containedInPlace: { "@type": "AdministrativeArea", name: "Region Metropolitana" } },
@@ -617,6 +848,10 @@ router.get('/prerender', async (req, res) => {
                         "@type": "OfferCatalog", name: `Cortinas y Persianas a Medida en ${nombre}`,
                         itemListElement: SERVICES.map(s => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s, areaServed: nombre } }))
                     }
+                },
+                {
+                    "@context": "https://schema.org", "@type": "FAQPage",
+                    mainEntity: comunaFaqItems
                 },
                 {
                     "@context": "https://schema.org", "@type": "BreadcrumbList",
@@ -720,7 +955,7 @@ router.get('/prerender', async (req, res) => {
                 {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
                     name: "TerraBlinds", url: `${BASE_URL}/la-serena`, telephone: "+56998101891",
-                    image: `${BASE_URL}/logoterrablinds.webp`, priceRange: "$$",
+                    image: `${BASE_URL}/logoterrablinds.webp`, priceRange: "$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" },
                     description: "Cortinas roller, persianas y toldos a medida en La Serena y Coquimbo. Visita a domicilio para medir y cotizar.",
                     address: { "@type": "PostalAddress", addressRegion: "Región de Coquimbo", addressCountry: "CL" },
                     areaServed: [ { "@type": "City", name: "La Serena" }, { "@type": "City", name: "Coquimbo" } ],
@@ -817,6 +1052,195 @@ router.get('/prerender', async (req, res) => {
                     ],
                 },
             ];
+        } else if (requestedPath === '/persianas-exteriores-santiago') {
+            ogImage = `${BASE_URL}/uploads/persiana-exterior-1.jpg`;
+            bodyContent = `
+<section style="margin-top:28px;">
+    <p style="font-size:16px;color:#475569;line-height:1.8;">
+        TerraBlinds fabrica e instala <strong>persianas exteriores a medida en Santiago</strong>. Nuestros sistemas bloquean el calor solar
+        antes de que entre al vidrio, protegen tu terraza de la lluvia y devuelven la privacidad a tu balcon.
+    </p>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Soluciones de proteccion solar exterior</h2>
+    <ul style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li><strong>Persiana de Exterior</strong> — fabricada a medida para terrazas y balcones. Proteccion UV, lluvia y viento.</li>
+        <li><strong>Toldo Retractil</strong> — se extiende sobre tu terraza para dar sombra cuando lo necesitas. Motorizable.</li>
+        <li><strong>Toldo Vertical</strong> — proteccion lateral y frontal para terrazas y pergolas.</li>
+    </ul>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Motorizacion y domotica</h2>
+    <p style="font-size:15px;color:#475569;line-height:1.8;margin:0 0 12px;">
+        Las persianas exteriores motorizadas TerraBlinds son compatibles con <strong>Alexa, Google Home y Apple HomeKit</strong>
+        a traves del Hub de Domotica TerraBlinds.
+    </p>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Proceso de atencion</h2>
+    <ol style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li>Consulta sin compromiso por WhatsApp o formulario</li>
+        <li>Visita tecnica gratuita en tu domicilio</li>
+        <li>Cotizacion a medida con opciones de material y motorizacion</li>
+        <li>Fabricacion en Chile segun tus medidas exactas</li>
+        <li>Instalacion profesional con garantia de mano de obra</li>
+    </ol>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Preguntas frecuentes</h2>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Que es una persiana exterior?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Es un sistema de enrollado o plegado montado en la fachada o techo de un balcon o terraza, que bloquea el sol y el viento antes de que lleguen al vidrio. Es mas eficiente que una cortina interior para control termico.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Se pueden motorizar las persianas exteriores?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Si. Ofrecemos versiones motorizadas compatibles con Alexa, Google Home y Apple HomeKit a traves del Hub de Domotica TerraBlinds.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">En que comunas instalan?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Cubrimos toda la Region Metropolitana: Las Condes, Vitacura, Providencia, Lo Barnechea, Nunoa, La Reina, Maipu, La Florida, San Miguel, Penalolen, Colina, Macul y mas comunas.</p>
+    </div>
+</section>
+<section style="margin-top:36px;padding:20px;background:#f0f9ff;border-radius:8px;border-left:4px solid #0d2a5e;">
+    <p style="font-size:16px;color:#1e293b;font-weight:700;margin:0 0 8px;">Cotiza tu persiana exterior a medida</p>
+    <p style="font-size:15px;color:#475569;margin:0 0 14px;">Visita tecnica gratuita en Santiago. Respondemos en menos de 1 hora.</p>
+    <a href="https://wa.me/56998101891" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Cotizar por WhatsApp</a>
+</section>`;
+            jsonLd = [
+                {
+                    "@context": "https://schema.org", "@type": "LocalBusiness",
+                    name: "TerraBlinds",
+                    description: "Fabricacion e instalacion de persianas exteriores a medida en Santiago. Control solar, privacidad y motorizacion.",
+                    url: BASE_URL, telephone: "+56998101891",
+                    address: { "@type": "PostalAddress", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
+                    areaServed: [{ "@type": "City", name: "Santiago" }, { "@type": "City", name: "La Serena" }],
+                    priceRange: "$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" },
+                },
+                {
+                    "@context": "https://schema.org", "@type": "Service",
+                    name: "Persianas Exteriores a Medida en Santiago",
+                    serviceType: "Fabricacion e instalacion de persianas de exterior",
+                    provider: { "@type": "LocalBusiness", name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891" },
+                    areaServed: { "@type": "State", name: "Region Metropolitana", addressCountry: "CL" },
+                    description: "Persianas exteriores a medida para terrazas y balcones en Santiago.",
+                    url: `${BASE_URL}/persianas-exteriores-santiago`,
+                },
+                {
+                    "@context": "https://schema.org", "@type": "Product",
+                    name: "Persiana de Exterior TerraBlinds",
+                    description: "Cortina para terraza, balcon y exterior en Chile. Proteccion UV, lluvia y viento. Fabricacion a medida.",
+                    brand: { "@type": "Brand", name: "TerraBlinds" },
+                    category: "Persianas",
+                    url: `${BASE_URL}/product/11`,
+                    image: `${BASE_URL}/uploads/persiana-exterior-1.jpg`,
+                    offers: { "@type": "Offer", availability: "https://schema.org/InStock", priceCurrency: "CLP", seller: { "@type": "Organization", name: "TerraBlinds" } },
+                },
+                {
+                    "@context": "https://schema.org", "@type": "FAQPage",
+                    mainEntity: [
+                        { "@type": "Question", name: "Que es una persiana exterior?", acceptedAnswer: { "@type": "Answer", text: "Es un sistema de enrollado o plegado montado en la fachada o techo de un balcon o terraza, que bloquea el sol y el viento antes de que lleguen al vidrio." } },
+                        { "@type": "Question", name: "Se pueden motorizar las persianas exteriores?", acceptedAnswer: { "@type": "Answer", text: "Si. Ofrecemos versiones motorizadas compatibles con Alexa, Google Home y Apple HomeKit." } },
+                        { "@type": "Question", name: "En que comunas instalan en Santiago?", acceptedAnswer: { "@type": "Answer", text: "Cubrimos toda la Region Metropolitana: Las Condes, Vitacura, Providencia, Lo Barnechea, Nunoa, Maipu, La Florida y mas comunas." } },
+                    ],
+                },
+                {
+                    "@context": "https://schema.org", "@type": "BreadcrumbList",
+                    itemListElement: [
+                        { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                        { "@type": "ListItem", position: 2, name: "Persianas Exteriores Santiago", item: `${BASE_URL}/persianas-exteriores-santiago` },
+                    ],
+                },
+            ];
+        } else if (requestedPath === '/control-solar') {
+            ogImage = `${BASE_URL}/uploads/roller-blackout-1.jpg`;
+            bodyContent = `
+<section style="margin-top:28px;">
+    <p style="font-size:16px;color:#475569;line-height:1.8;">
+        TerraBlinds fabrica e instala <strong>soluciones de control solar a medida en Santiago</strong>: cortinas roller screen y blackout,
+        sistemas duo, persianas de exterior y toldos retractiles. Interior y exterior, manual y motorizado.
+    </p>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Soluciones de control solar interior</h2>
+    <ul style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li><strong>Roller Screen</strong> — filtra la luz directa manteniendo vista al exterior. Reduce deslumbramiento en pantallas hasta un 80%.</li>
+        <li><strong>Roller Blackout</strong> — bloquea hasta el 99% de la luz solar. Mas de 20 colores disponibles.</li>
+        <li><strong>Roller Dual/Doble</strong> — dos capas: opaca y translucida. Alterna funciones sin desmontar nada.</li>
+        <li><strong>Roller Duo Blackout</strong> — sistema doble con tela blackout + screen. Dia y noche en un movimiento.</li>
+    </ul>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Soluciones de control solar exterior</h2>
+    <ul style="font-size:15px;color:#475569;line-height:2;margin:0;padding-left:22px;">
+        <li><strong>Persiana de Exterior</strong> — bloquea el calor antes de que cruce el vidrio. Proteccion UV, lluvia y viento. Para terrazas y balcones.</li>
+        <li><strong>Toldo Retractil</strong> — lona tecnica UV, motor tubular. Compatible con Alexa y Google Home.</li>
+        <li><strong>Toldo Vertical</strong> — proteccion lateral para terrazas, fachadas y pergolas. Manual o motorizado.</li>
+    </ul>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Motorizacion y domotica</h2>
+    <p style="font-size:15px;color:#475569;line-height:1.8;margin:0 0 12px;">
+        Todas nuestras soluciones de control solar tienen version motorizada. Con el <strong>Hub de Domotica TerraBlinds</strong>,
+        son compatibles con <strong>Alexa, Google Home y Apple HomeKit</strong>. Control por app, por voz y por horarios automaticos.
+    </p>
+</section>
+<section style="margin-top:36px;">
+    <h2 style="font-size:22px;color:#1e293b;margin-bottom:14px;">Preguntas frecuentes</h2>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Que diferencia hay entre control solar interior y exterior?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Una solucion interior actua sobre la luz una vez que entro al espacio. Una exterior (persiana o toldo) intercepta el calor antes de que cruce el vidrio, siendo hasta un 70% mas eficiente para reducir la temperatura interior.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Que tela elijo: screen, blackout o dual?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Screen si quieres filtrar el sol manteniendo visibilidad. Blackout si necesitas oscurecimiento total. Dual o Duo si quieres ambas funciones en el mismo sistema.</p>
+    </div>
+    <div style="margin-bottom:18px;">
+        <p style="font-weight:700;color:#1e293b;margin-bottom:4px;">Se pueden motorizar las cortinas y persianas?</p>
+        <p style="font-size:15px;color:#475569;margin:0;">Si. Todas las cortinas roller y persianas exteriores tienen version motorizada, compatibles con Alexa, Google Home y Apple HomeKit a traves del Hub de Domotica TerraBlinds.</p>
+    </div>
+</section>
+<section style="margin-top:36px;padding:20px;background:#f0f9ff;border-radius:8px;border-left:4px solid #0d2a5e;">
+    <p style="font-size:16px;color:#1e293b;font-weight:700;margin:0 0 8px;">Cotiza tu solucion de control solar en Santiago</p>
+    <p style="font-size:15px;color:#475569;margin:0 0 14px;">Visita tecnica gratuita. Respondemos en menos de 1 hora.</p>
+    <a href="https://wa.me/56998101891" style="display:inline-block;background:#25D366;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px;">Cotizar por WhatsApp</a>
+</section>`;
+            jsonLd = [
+                { "@context": "https://schema.org", "@type": "LocalBusiness",
+                  name: "TerraBlinds",
+                  description: "Fabricacion e instalacion de soluciones de control solar a medida en Santiago.",
+                  url: BASE_URL, telephone: "+56998101891",
+                  address: { "@type": "PostalAddress", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
+                  areaServed: [{ "@type": "City", name: "Santiago" }, { "@type": "City", name: "La Serena" }],
+                  priceRange: "$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" }, aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" } },
+                { "@context": "https://schema.org", "@type": "Service",
+                  name: "Control Solar Santiago — Cortinas, Persianas y Toldos a Medida",
+                  serviceType: "Control Solar y Proteccion Solar",
+                  provider: { "@type": "LocalBusiness", name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891" },
+                  areaServed: { "@type": "State", name: "Region Metropolitana", addressCountry: "CL" },
+                  description: "Disenio, fabricacion e instalacion de soluciones de control solar interior y exterior en Santiago.",
+                  url: `${BASE_URL}/control-solar` },
+                { "@context": "https://schema.org", "@type": "ItemList",
+                  name: "Soluciones de Control Solar TerraBlinds",
+                  itemListElement: [
+                    { "@type": "ListItem", position: 1, name: "Cortina Roller Screen", url: `${BASE_URL}/product/10` },
+                    { "@type": "ListItem", position: 2, name: "Cortina Roller Blackout", url: `${BASE_URL}/product/8` },
+                    { "@type": "ListItem", position: 3, name: "Cortina Roller Dual", url: `${BASE_URL}/product/5` },
+                    { "@type": "ListItem", position: 4, name: "Persiana de Exterior", url: `${BASE_URL}/product/11` },
+                    { "@type": "ListItem", position: 5, name: "Toldo Retractil", url: `${BASE_URL}/product/14` },
+                  ] },
+                { "@context": "https://schema.org", "@type": "FAQPage",
+                  mainEntity: [
+                    { "@type": "Question", name: "Que es el control solar?",
+                      acceptedAnswer: { "@type": "Answer", text: "El control solar regula cuanta luz y calor del sol entra a tu espacio. Mejora el confort, reduce el consumo de climatizacion y protege muebles y pantallas del deterioro." } },
+                    { "@type": "Question", name: "Se pueden motorizar las cortinas?",
+                      acceptedAnswer: { "@type": "Answer", text: "Si. Todas las cortinas roller y persianas exteriores tienen version motorizada, compatibles con Alexa, Google Home y Apple HomeKit." } },
+                  ] },
+                { "@context": "https://schema.org", "@type": "BreadcrumbList",
+                  itemListElement: [
+                    { "@type": "ListItem", position: 1, name: "Inicio", item: BASE_URL },
+                    { "@type": "ListItem", position: 2, name: "Control Solar", item: `${BASE_URL}/control-solar` },
+                  ] },
+            ];
         } else {
             bodyContent = renderServices() + renderContactBlock();
         }
@@ -848,9 +1272,26 @@ router.get('/prerender', async (req, res) => {
             jsonLd = [
                 {
                     "@context": "https://schema.org", "@type": "LocalBusiness",
-                    name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891", priceRange: "$$",
-                    description: "Cortinas roller blackout, screen, duo y motorizadas a la medida en Santiago. Visita tecnica gratuita e instalacion incluida.",
-                    areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana"}],
+                    "@id": `${BASE_URL}/#organization`,
+                    name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891", priceRange: "$$", aggregateRating: { "@type": "AggregateRating", ratingValue: "5", reviewCount: "1", bestRating: "5", worstRating: "1" },
+                    foundingDate: "2018",
+                    description: "Empresa chilena fundada en 2018, especializada en cortinas roller, persianas de exterior y cierres de terraza a la medida en Santiago y La Serena.",
+                    address: {"@type":"PostalAddress",addressLocality:"Santiago",addressRegion:"Region Metropolitana",addressCountry:"CL"},
+                    areaServed: [{"@type":"City","name":"Santiago"},{"@type":"State","name":"Region Metropolitana","addressCountry":"CL"},{"@type":"City","name":"La Serena"},{"@type":"City","name":"Coquimbo"}],
+                    sameAs: [
+                        "https://www.instagram.com/terrablinds/",
+                        "https://www.facebook.com/terrablinds/"
+                    ],
+                    knowsAbout: [
+                        "Cortinas roller blackout",
+                        "Cortinas roller screen",
+                        "Cortinas roller motorizadas",
+                        "Persianas de exterior",
+                        "Cierres de terraza de cristal",
+                        "Toldos retractiles",
+                        "Instalacion de cortinas en Santiago",
+                        "Cortinas a medida Chile"
+                    ],
                     hasOfferCatalog: {
                         "@type": "OfferCatalog", name: "Cortinas y Persianas a Medida",
                         itemListElement: SERVICES.map(s => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: s } }))
@@ -865,8 +1306,12 @@ router.get('/prerender', async (req, res) => {
         } else {
             jsonLd = {
                 "@context": "https://schema.org", "@type": "Organization",
+                "@id": `${BASE_URL}/#organization`,
                 name: "TerraBlinds", url: BASE_URL, telephone: "+56998101891",
-                address: { "@type": "PostalAddress", addressLocality: "Santiago", addressCountry: "CL" }
+                foundingDate: "2018",
+                description: "Empresa chilena de cortinas roller, persianas y cierres de terraza a la medida. Fundada en 2018. Instalacion en Santiago y La Serena.",
+                address: { "@type": "PostalAddress", addressLocality: "Santiago", addressRegion: "Region Metropolitana", addressCountry: "CL" },
+                sameAs: ["https://www.instagram.com/terrablinds/","https://www.facebook.com/terrablinds/"]
             };
         }
     }

@@ -43,6 +43,7 @@ const Layout = ({ children }) => {
     const serviceLinks = [
         { to: '/software', label: 'Software', color: 'text-blue-400' },
         { to: '/domotica', label: 'Domótica', color: 'text-indigo-400' },
+        { to: '/control-solar', label: 'Control Solar', color: 'text-amber-400' },
         { to: '/cortinas-metalicas', label: 'Cortinas Metálicas', color: 'text-slate-300' },
         { to: '/automatizacion', label: 'Automatización', color: 'text-amber-400' },
         { to: '/camaras', label: 'Cámaras', color: 'text-gray-300' },
@@ -221,6 +222,7 @@ const Layout = ({ children }) => {
                                     { to: '/about', label: 'Nosotros' },
                                     { to: '/software', label: 'Software' },
                                     { to: '/domotica', label: 'Domótica' },
+                                    { to: '/control-solar', label: 'Control Solar' },
                                     { to: '/cortinas-metalicas', label: 'Cortinas Metálicas' },
                                     { to: '/automatizacion', label: 'Automatización' },
                                     { to: '/camaras', label: 'Cámaras' },
@@ -310,7 +312,9 @@ const Layout = ({ children }) => {
                             <li><Link to="/catalog?category=Domotica Motor Roller" className="hover:text-white transition-colors">Motorización</Link></li>
                             <li><Link to="/catalog?category=Persianas Exterior" className="hover:text-white transition-colors">Persianas Exterior</Link></li>
                             <li><Link to="/catalog?category=Toldos" className="hover:text-white transition-colors">Toldos</Link></li>
-                            <li><Link to="/cortinas-metalicas" className="hover:text-white transition-colors">Cortinas Metálicas</Link></li>
+                                                        <li><Link to="/control-solar" className="hover:text-white transition-colors">Control Solar</Link></li>
+                            <li><Link to="/persianas-exteriores-santiago" className="hover:text-white transition-colors">Persianas Ext. Santiago</Link></li>
+<li><Link to="/cortinas-metalicas" className="hover:text-white transition-colors">Cortinas Metálicas</Link></li>
                             <li><Link to="/automatizacion" className="hover:text-white transition-colors">Automatización</Link></li>
                             <li><Link to="/camaras" className="hover:text-white transition-colors">Cámaras de Seguridad</Link></li>
                             <li><Link to="/paneles-solares" className="hover:text-white transition-colors">Paneles Solares</Link></li>
