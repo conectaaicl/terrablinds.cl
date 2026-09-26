@@ -55,6 +55,8 @@ const AdminSEO = React.lazy(() => import('./pages/AdminSEO'));
 const Blog = React.lazy(() => import('./pages/Blog'));
 const BlogPost = React.lazy(() => import('./pages/BlogPost'));
 const LaSerena = React.lazy(() => import('./pages/LaSerena'));
+const PersianasExteriores = React.lazy(() => import('./pages/PersianasExteriores'));
+const ControlSolar = React.lazy(() => import('./pages/ControlSolar'));
 import ProtectedRoute from './components/ProtectedRoute';
 
 // Growth Engine — lazy loaded for code-splitting
@@ -119,6 +121,8 @@ function App() {
           <Route path="/blog" element={<GE Page={Blog} />} />
           <Route path="/blog/:slug" element={<GE Page={BlogPost} />} />
           <Route path="/la-serena" element={<GE Page={LaSerena} />} />
+          <Route path="/persianas-exteriores-santiago" element={<GE Page={PersianasExteriores} />} />
+                <Route path="/control-solar" element={<GE Page={ControlSolar} />} />
 
           {/* Admin auth */}
           <Route path="/admin/login" element={<GE Page={AdminLogin} />} />

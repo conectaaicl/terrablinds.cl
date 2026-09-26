@@ -1,12 +1,78 @@
 # TerraBlinds
 
-> Cortinas roller, persianas exterior y cierres de terraza a medida con instalación en Santiago y La Serena, Chile. Fabricación y montaje en 5 a 7 días hábiles.
+> Empresa chilena especializada en cortinas roller, persianas de exterior y cierres de terraza. Fundada en 2018, fabricamos e instalamos a medida en Santiago (Región Metropolitana) y La Serena / Coquimbo. Plazo: 5 a 7 días hábiles.
+
+## Sobre la empresa
+
+- **Nombre legal:** TerraBlinds
+- **Fundación:** 2018
+- **País:** Chile
+- **Tipo:** Empresa de fabricación e instalación de cortinas y persianas a medida
+- **Cobertura:** Santiago (Región Metropolitana), La Serena, Coquimbo
+- **WhatsApp cotizaciones:** +56998101891
+- **Web:** https://terrablinds.cl
+- **Instagram:** https://www.instagram.com/terrablinds/
+- **Facebook:** https://www.facebook.com/terrablinds/
+
+## Qué hace TerraBlinds
+
+TerraBlinds fabrica cortinas roller y persianas a medida exacta de la ventana del cliente. El proceso incluye: (1) cotización gratuita en 24h vía web o WhatsApp, (2) visita técnica o medición remota asistida, (3) fabricación en taller propio, (4) instalación con equipo certificado. Trabaja con material nacional e importado de primera calidad.
 
 ## Productos
-- Cortinas Roller (blackout, screen, sunscreen, dual)
-- Persianas Exterior (aluminio, madera, PVC)
-- Cierres de Terraza de Cristal
-- Toldos y Pérgolas
+
+### Cortinas Roller
+- **Roller Blackout** — oscurecimiento total (100%), para dormitorios y salas de cine
+- **Roller Screen** — filtra la luz solar manteniendo visibilidad hacia el exterior; ideal para oficinas y livings
+- **Roller Sunscreen** — protección UV sin perder luminosidad
+- **Roller Dual / Duo Zebra** — sistema doble tela, alterna entre screen y blackout sin cambiar la cortina
+- **Cortinas Motorizadas** — compatible con Alexa, Google Home y control remoto
+
+### Persianas de Exterior
+- Persianas de aluminio para terrazas y balcones
+- Persianas de madera y PVC
+- Protección solar y privacidad para exteriores
+
+### Cierres de Terraza y Toldos
+- Cierres de terraza de cristal (sistema corredero y fijo)
+- Cierres de PVC económico
+- Toldos retráctiles y verticales para patios
+
+## Zonas de instalación
+
+**Santiago — comunas con cobertura directa:**
+Las Condes, Vitacura, Lo Barnechea, Providencia, Ñuñoa, La Florida, Maipú, Santiago Centro, Colina, Peñalolén, La Reina
+
+**Otras regiones:**
+La Serena y Coquimbo (IV Región) — instalación directa con equipo propio.
+Resto de Chile — despacho a domicilio, instaladores locales coordinados.
+
+## Preguntas frecuentes
+
+**¿Cuánto demora la fabricación e instalación?**
+El plazo estándar es 5 a 7 días hábiles desde la confirmación del pedido. Temporadas de alta demanda pueden extender hasta 10 días.
+
+**¿Las medidas son exactas o estándar?**
+Fabricamos a medida exacta. Mínimo: 30 cm ancho × 30 cm alto. Máximo: 500 cm ancho × 400 cm alto para cortinas roller.
+
+**¿La instalación está incluida en el precio?**
+La instalación se cotiza por separado según cantidad de piezas y complejidad. Incluye fijaciones, ajustes y prueba funcional.
+
+**¿Qué garantía tienen los productos?**
+12 meses contra defectos de fabricación. Las motorizaciones tienen garantía del fabricante (generalmente 24 meses).
+
+**¿Cómo pago?**
+Transferencia bancaria, tarjeta de crédito/débito (WebPay / Flow.cl) o Mercado Pago.
+
+**¿Pueden ver muestras de tela antes de comprar?**
+Sí. Envían muestras sin costo en la Región Metropolitana. Otros lugares con cargo.
+
+## Guías de ayuda
+
+- [Cómo medir ventanas para cortinas roller (paso a paso)](https://terrablinds.cl/blog/como-medir-ventanas-cortinas-roller)
+- [Diferencia entre cortinas blackout y screen](https://terrablinds.cl/blog/diferencia-cortinas-blackout-screen)
+- [Precio de cortinas roller en Chile 2025](https://terrablinds.cl/blog/precio-cortinas-roller-chile-2025)
+- [Cortinas roller motorizadas: todo lo que debes saber](https://terrablinds.cl/blog/cortinas-roller-motorizadas-chile-2025)
+- [Guía de mantención de cortinas roller](https://terrablinds.cl/blog/guia-de-mantencion-de-cortinas-roller-como-limpiarlas-sin-danarlas)
 
 ## Páginas principales
 
@@ -14,22 +80,18 @@
 - [Catálogo completo](https://terrablinds.cl/catalog)
 - [Solicitar cotización](https://terrablinds.cl/quote)
 - [Preguntas frecuentes](https://terrablinds.cl/faq)
-- [Proyectos realizados](https://terrablinds.cl/projects)
 - [Sobre nosotros](https://terrablinds.cl/about)
 - [La Serena / Coquimbo](https://terrablinds.cl/la-serena)
 
-## Comunas con cobertura (Santiago)
+## Landings por comuna (Santiago)
 
-Las Condes, Vitacura, Lo Barnechea, Providencia, Ñuñoa, La Florida, Maipú, Santiago Centro, Colina, Peñalolén, La Reina
-
-## Zonas de instalación
-
-Santiago (Región Metropolitana) y La Serena / Coquimbo
-
-## Contacto
-
-- WhatsApp cotizaciones: +56998101891
-- Web: https://terrablinds.cl
+- [Cortinas Las Condes](https://terrablinds.cl/cortinas/las-condes)
+- [Cortinas Vitacura](https://terrablinds.cl/cortinas/vitacura)
+- [Cortinas Lo Barnechea](https://terrablinds.cl/cortinas/lo-barnechea)
+- [Cortinas Providencia](https://terrablinds.cl/cortinas/providencia)
+- [Cortinas Ñuñoa](https://terrablinds.cl/cortinas/nunoa)
+- [Cortinas La Florida](https://terrablinds.cl/cortinas/la-florida)
+- [Cortinas Maipú](https://terrablinds.cl/cortinas/maipu)
 
 ## Sitemap
 

@@ -3,7 +3,7 @@ import AdminLayout from '../components/AdminLayout';
 import {
     Calendar, Clock, ChevronLeft, ChevronRight, Users, CheckCircle2,
     XCircle, AlertCircle, Loader2, RefreshCw, Lock, Unlock, Trash2,
-    Phone, Mail, MapPin, MessageCircle, ChevronDown,
+    Phone, Mail, MapPin, MessageCircle, ChevronDown, Plus, X,
 } from 'lucide-react';
 import api from '../api';
 
@@ -16,6 +16,8 @@ const SERVICE_LABELS = {
     tecnico_roller:    'Serv. roller',
     tecnico_otros:     'Serv. otros',
 };
+
+const TIME_SLOTS = ['09:00', '10:00', '11:00', '14:00', '15:00', '16:00'];
 
 const STATUS_CONFIG = {
     pending_payment: { label: 'Pendiente pago',  cls: 'bg-amber-100 text-amber-700 border-amber-200' },
@@ -59,6 +61,15 @@ const AdminBookings = () => {
 
     // Expanded booking detail
     const [expanded, setExpanded] = useState(null);
+
+    // New booking modal
+    const [showCreate, setShowCreate] = useState(false);
+    const [creating, setCreating] = useState(false);
+    const [createForm, setCreateForm] = useState({
+        service_type: 'visita_medidas', date: '', time_slot: '09:00',
+        client_name: '', client_email: '', client_phone: '', client_address: '', notes: '',
+    });
+    const [createError, setCreateError] = useState('');
 
     const loadAll = useCallback(async () => {
         setLoading(true);
@@ -164,7 +175,23 @@ const AdminBookings = () => {
         return `https://wa.me/${full}?text=${msg}`;
     };
 
+    const handleAdminCreate = async (e) => {
+        e.preventDefault();
+        setCreating(true);
+        setCreateError('');
+        try {
+            await api.post('/api/bookings/admin-create', createForm);
+            setShowCreate(false);
+            setCreateForm({ service_type: 'visita_medidas', date: '', time_slot: '09:00',
+                client_name: '', client_email: '', client_phone: '', client_address: '', notes: '' });
+            loadAll();
+        } catch (err) {
+            setCreateError(err.response?.data?.error || 'Error al crear la reserva');
+        } finally { setCreating(false); }
+    };
+
     return (
+        <>
         <AdminLayout>
             <div className="space-y-6">
                 {/* Header */}
@@ -173,9 +200,14 @@ const AdminBookings = () => {
                         <h1 className="text-2xl font-bold text-gray-900">Reservas</h1>
                         <p className="text-sm text-gray-500 mt-0.5">Visitas técnicas y servicios agendados</p>
                     </div>
-                    <button onClick={loadAll} className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
-                        <RefreshCw className="w-4 h-4" /> Actualizar
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setShowCreate(true)} className="flex items-center gap-2 px-4 py-2 bg-blue-700 text-white rounded-lg text-sm font-semibold hover:bg-blue-800 transition-colors">
+                            <Plus className="w-4 h-4" /> Nueva reserva
+                        </button>
+                        <button onClick={loadAll} className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors">
+                            <RefreshCw className="w-4 h-4" /> Actualizar
+                        </button>
+                    </div>
                 </div>
 
                 {/* Stats */}
@@ -416,6 +448,70 @@ const AdminBookings = () => {
                 </div>
             </div>
         </AdminLayout>
+
+
+        {showCreate && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                        <h2 className="font-bold text-gray-900 text-lg flex items-center gap-2"><Calendar className="w-5 h-5 text-blue-700" /> Nueva reserva</h2>
+                        <button onClick={() => { setShowCreate(false); setCreateError(''); }} className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"><X className="w-5 h-5 text-gray-500" /></button>
+                    </div>
+                    <form onSubmit={handleAdminCreate} className="p-5 space-y-4">
+                        {createError && <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{createError}</div>}
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Servicio *</label>
+                            <select value={createForm.service_type} onChange={e => setCreateForm(p => ({ ...p, service_type: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+                                {Object.entries(SERVICE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Fecha *</label>
+                                <input type="date" required value={createForm.date} onChange={e => setCreateForm(p => ({ ...p, date: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Hora *</label>
+                                <select value={createForm.time_slot} onChange={e => setCreateForm(p => ({ ...p, time_slot: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300">
+                                    {TIME_SLOTS.map(s => <option key={s} value={s}>{s} hrs</option>)}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Nombre cliente *</label>
+                            <input type="text" required value={createForm.client_name} onChange={e => setCreateForm(p => ({ ...p, client_name: e.target.value }))} placeholder="Juan Perez" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Email cliente *</label>
+                            <input type="email" required value={createForm.client_email} onChange={e => setCreateForm(p => ({ ...p, client_email: e.target.value }))} placeholder="cliente@email.com" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Telefono (WhatsApp)</label>
+                            <input type="tel" value={createForm.client_phone} onChange={e => setCreateForm(p => ({ ...p, client_phone: e.target.value }))} placeholder="+56 9 XXXX XXXX" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Direccion</label>
+                            <input type="text" value={createForm.client_address} onChange={e => setCreateForm(p => ({ ...p, client_address: e.target.value }))} placeholder="Av. Providencia 1234" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1.5">Notas (opcionales)</label>
+                            <textarea rows={2} value={createForm.notes} onChange={e => setCreateForm(p => ({ ...p, notes: e.target.value }))} placeholder="Instrucciones de acceso, referencias..." className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none" />
+                        </div>
+                        <div className="pt-1 flex gap-3">
+                            <button type="button" onClick={() => { setShowCreate(false); setCreateError(''); }} className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+                                Cancelar
+                            </button>
+                            <button type="submit" disabled={creating} className="flex-1 py-2.5 bg-blue-700 text-white rounded-xl text-sm font-bold hover:bg-blue-800 disabled:opacity-50 transition-colors flex items-center justify-center gap-2">
+                                {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Calendar className="w-4 h-4" />}
+                                {creating ? 'Creando...' : 'Crear y notificar'}
+                            </button>
+                        </div>
+                        <p className="text-xs text-gray-400 text-center">El cliente recibira email con Google Calendar. Si tiene WhatsApp recibira mensaje.</p>
+                    </form>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
