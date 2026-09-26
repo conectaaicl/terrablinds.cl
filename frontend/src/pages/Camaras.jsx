@@ -174,7 +174,7 @@ export default function Camaras() {
                     <p className="text-gray-500 text-center mb-10 text-sm">En 3 pasos tienes tu sistema instalado y funcionando</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
-                            { step: '01', title: 'Diagnóstico gratuito', desc: 'Evaluamos tu propiedad para recomendarte la cantidad y tipo de cámaras ideales según tus necesidades.' },
+                            { step: '01', title: 'Diagnóstico en terreno', desc: 'Evaluamos tu propiedad para recomendarte la cantidad y tipo de cámaras ideales según tus necesidades.' },
                             { step: '02', title: 'Instalación profesional', desc: 'Nuestros técnicos instalan, cablean y configuran todo el sistema. Sin obra, sin desorden.' },
                             { step: '03', title: 'Monitoreo desde tu teléfono', desc: 'Configuramos la app en tu smartphone para que veas tus cámaras en vivo desde cualquier lugar.' },
                         ].map(s => (
@@ -244,7 +244,7 @@ export default function Camaras() {
                     <h2 className="text-3xl font-bold mb-3">¿Quieres proteger tu propiedad?</h2>
                     <p className="text-gray-300 mb-8">
                         Instalamos sistemas de cámaras profesionales con garantía. Cotiza sin compromiso —
-                        visita técnica gratuita en toda la región.
+                        visita técnica sin costo en la mayoría de las comunas de la región.
                     </p>
                     <div className="flex flex-wrap justify-center gap-4">
                         <Link to="/quote"

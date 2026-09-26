@@ -4,6 +4,7 @@ import SEO from '../components/SEO';
 import { useCart } from '../context/CartContext';
 import { Trash2, Send, CheckCircle, ArrowRight, ShoppingBag, User, Mail, Phone, MessageSquare, CreditCard, Shield, Ruler } from 'lucide-react';
 import api from '../api';
+import { trackLead } from '../analytics';
 import { Link } from 'react-router-dom';
 
 const StepBadge = ({ n, label, active }) => (
@@ -44,6 +45,7 @@ const Cart = () => {
         setError(null);
         try {
             await api.post('/api/quotes', buildPayload());
+            trackLead('carrito', { value: cartTotal });
             setSuccess(true);
             clearCart();
         } catch (err) {
@@ -62,6 +64,7 @@ const Cart = () => {
         setError(null);
         try {
             await api.post('/api/quotes', buildPayload()).catch(() => {});
+            trackLead('carrito_whatsapp', { value: cartTotal });
         } finally {
             setLoading(false);
         }

@@ -3,6 +3,7 @@ import Layout from '../components/Layout';
 import SEO from '../components/SEO';
 import { Mail, Phone, MapPin, Send, CheckCircle, Clock } from 'lucide-react';
 import api from '../api';
+import { trackLead } from '../analytics';
 import { useSiteConfig } from '../context/SiteConfigContext';
 
 const Contact = () => {
@@ -29,6 +30,7 @@ const Contact = () => {
 
         try {
             await api.post('/api/contact', formData);
+            trackLead('contacto');
             setSuccess(true);
             setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
         } catch (err) {

@@ -61,7 +61,7 @@ export function TrustBar() {
 export function ProcessSteps() {
   const steps = [
     { emoji: "💬", title: "Cotiza por WhatsApp", desc: "Cuéntanos qué necesitas y te asesoramos según tu espacio. Respuesta en minutos." },
-    { emoji: "📐", title: "Te visitamos",        desc: "Tomamos medidas exactas y te mostramos muestras de telas en tu hogar. Sin costo." },
+    { emoji: "📐", title: "Te visitamos",        desc: "Tomamos medidas exactas y te mostramos muestras de telas en tu hogar. Sin costo en la mayoría de las comunas." },
     { emoji: "🔧", title: "Fabricamos e instalamos", desc: "Producción propia y montaje profesional. Listo en pocos días." },
   ];
 
