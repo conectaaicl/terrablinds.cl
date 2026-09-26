@@ -1358,7 +1358,10 @@ router.get('/prerender', async (req, res) => {
         <a href="${BASE_URL}/quote" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Cotizar</a> |
         <a href="${BASE_URL}/agendar" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Agendar Visita</a> |
         <a href="${BASE_URL}/contact" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Contacto</a> |
-        <a href="${BASE_URL}/la-serena" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">La Serena</a>
+        <a href="${BASE_URL}/la-serena" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">La Serena</a> |
+        <a href="${BASE_URL}/persianas-exteriores-santiago" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Persianas Exteriores</a> |
+        <a href="${BASE_URL}/control-solar" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Control Solar</a> |
+        <a href="${BASE_URL}/blog" style="margin:0 8px;color:#1d4ed8;text-decoration:none;">Blog</a>
     </nav>
 </body>
 </html>`;
