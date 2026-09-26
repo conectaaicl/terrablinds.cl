@@ -88,6 +88,28 @@ describe('saveLead — Growth Engine integration', () => {
         expect(res.json).toHaveBeenCalledWith({ id: 7, updated: true });
     });
 
+    test('duplicate email: only looks for leads from the last 24h', async () => {
+        Lead.findOne.mockResolvedValueOnce(null);
+        const req = mockReq({ name: 'Vuelve', email: 'dup@tb.cl' });
+        await saveLead(req, mockRes());
+
+        const where = Lead.findOne.mock.calls[0][0].where;
+        const { Op } = require('sequelize');
+        const since = where.created_at[Op.gte];
+        expect(since).toBeInstanceOf(Date);
+        expect(Date.now() - since.getTime()).toBeGreaterThanOrEqual(24 * 60 * 60 * 1000 - 1000);
+        expect(Date.now() - since.getTime()).toBeLessThanOrEqual(24 * 60 * 60 * 1000 + 1000);
+    });
+
+    test('duplicate email within 24h: appends new notes instead of overwriting', async () => {
+        const existing = { id: 8, email: 'dup@tb.cl', notes: 'primer mensaje', update: jest.fn() };
+        Lead.findOne.mockResolvedValueOnce(existing);
+        await saveLead(mockReq({ email: 'dup@tb.cl', notes: 'segundo mensaje' }), mockRes());
+        expect(existing.update).toHaveBeenCalledWith(
+            expect.objectContaining({ notes: 'primer mensaje\n---\nsegundo mensaje' }),
+        );
+    });
+
     test('missing all required fields: returns 400', async () => {
         const req = mockReq({});
         const res = mockRes();

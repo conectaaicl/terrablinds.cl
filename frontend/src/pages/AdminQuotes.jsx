@@ -18,6 +18,10 @@ const PM_STYLES = [
     'background:#e0f7fa;border:1px solid #80deea;color:#00695c',
 ];
 
+// Customer-supplied values are written into a new window with document.write:
+// always escape them, or a malicious quote could run script with the admin session.
+const esc = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
 function printQuote(quote, items, paymentMethods = DEFAULT_PAYMENT_METHODS) {
     const d = new Date(quote.created_at || Date.now());
     const cotNum = String(quote.id).padStart(4, '0');
@@ -25,7 +29,8 @@ function printQuote(quote, items, paymentMethods = DEFAULT_PAYMENT_METHODS) {
     const logo = `<img src="${logoSrc}" style="max-height:52px;max-width:130px;object-fit:contain">`;
 
     // Calcular sub-total desde ítems, luego IVA
-    const itemsTotal = items.reduce((s, it) => s + (parseFloat(it.price) || 0) * (parseInt(it.quantity) || 1), 0);
+    // item.price is already the line total (unit × quantity)
+    const itemsTotal = items.reduce((s, it) => s + (parseFloat(it.price) || 0), 0);
     const storedTotal = parseFloat(quote.total_amount || 0);
     const subTotal = storedTotal > 0 ? Math.round(storedTotal / 1.19) : itemsTotal;
     const iva      = Math.round(subTotal * 0.19);
@@ -37,13 +42,13 @@ function printQuote(quote, items, paymentMethods = DEFAULT_PAYMENT_METHODS) {
     const rows = padded.map(it => !it
         ? '<tr><td></td><td></td><td>&nbsp;</td><td></td><td></td><td></td><td></td></tr>'
         : `<tr>
-            <td class="c">${parseInt(it.quantity) || 1}</td>
+            <td class="c">${esc(parseFloat(it.quantity) || 1)}</td>
             <td class="c">-</td>
-            <td><b>${it.productName || it.product || '-'}</b>${it.color ? ' · ' + it.color : ''}</td>
-            <td class="c">${it.width || ''}</td>
-            <td class="c">${it.height || ''}</td>
-            <td class="r">${it.price > 0 ? fmt(it.price) : ''}</td>
-            <td class="r b">${fmt((parseFloat(it.price) || 0) * (parseInt(it.quantity) || 1))}</td>
+            <td><b>${esc(it.productName || it.product || '-')}</b>${it.color ? ' · ' + esc(it.color) : ''}</td>
+            <td class="c">${esc(it.width || '')}</td>
+            <td class="c">${esc(it.height || '')}</td>
+            <td class="r">${it.price > 0 ? fmt(Math.round((parseFloat(it.price) || 0) / (parseFloat(it.quantity) || 1))) : ''}</td>
+            <td class="r b">${fmt(parseFloat(it.price) || 0)}</td>
            </tr>`
     ).join('');
 
@@ -91,10 +96,10 @@ table.ft td{border:1px solid #ccc;padding:4px 6px;vertical-align:top}
 <div class="ttl">COTIZACIÓN N° ${cotNum}</div>
 <div class="cs">
   <div>
-    <div class="cr"><div class="lbl">NOMBRE:</div><div class="val">${quote.customer_name || ''}</div></div>
-    <div class="cr"><div class="lbl">CORREO:</div><div class="val">${quote.customer_email || ''}</div></div>
-    <div class="cr"><div class="lbl">TELÉFONO:</div><div class="val">${quote.customer_phone || ''}</div></div>
-    <div class="cr"><div class="lbl">NOTAS:</div><div class="val">${quote.notes || ''}</div></div>
+    <div class="cr"><div class="lbl">NOMBRE:</div><div class="val">${esc(quote.customer_name)}</div></div>
+    <div class="cr"><div class="lbl">CORREO:</div><div class="val">${esc(quote.customer_email)}</div></div>
+    <div class="cr"><div class="lbl">TELÉFONO:</div><div class="val">${esc(quote.customer_phone)}</div></div>
+    <div class="cr"><div class="lbl">NOTAS:</div><div class="val">${esc(quote.notes)}</div></div>
   </div>
   <div class="ds">
     <div class="dh-row" style="background:#e0e0e0;font-weight:900;font-style:italic;font-size:10px;text-align:right;padding:3px 6px;border-bottom:1px solid #ccc;grid-template-columns:1fr">
@@ -117,7 +122,7 @@ table.ft td{border:1px solid #ccc;padding:4px 6px;vertical-align:top}
   <tr>
     <td style="width:55%">
       <div style="font-weight:700;text-align:center;margin-bottom:4px">Métodos de Pago</div>
-      <div style="text-align:center">${paymentMethods.map((m, i) => `<span class="pb" style="${PM_STYLES[i % PM_STYLES.length]}">${m}</span>`).join('')}</div>
+      <div style="text-align:center">${paymentMethods.map((m, i) => `<span class="pb" style="${PM_STYLES[i % PM_STYLES.length]}">${esc(m)}</span>`).join('')}</div>
     </td>
     <td style="width:45%;padding:0">
       <table style="width:100%;border-collapse:collapse">

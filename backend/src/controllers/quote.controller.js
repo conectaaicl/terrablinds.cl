@@ -1,6 +1,8 @@
-const { Quote, Config, Opportunity, Contact } = require('../models');
+const { Quote, Config, Opportunity } = require('../models');
 const { sendQuoteEmail, sendAdminQuoteNotification, sendStatusUpdateEmail, resendQuoteEmail } = require('../services/email.service');
 const axios = require('axios');
+const crypto = require('crypto');
+const { enqueue } = require('../services/ge_worker.service');
 
 async function fireWebhook(quote) {
     try {
@@ -44,6 +46,23 @@ async function fireWebhook(quote) {
     }
 }
 
+// Send a web lead to the Growth Engine through the outbox (retried by the worker).
+// Never throws: the quote is already saved and the customer must get a 2xx.
+async function enqueueWebLead(externalRef, contact, productInterest, detail, metadata) {
+    try {
+        await enqueue('ingest_lead', {
+            source:          'website_form',
+            externalRef,
+            contact,
+            productInterest: productInterest ? String(productInterest).substring(0, 200) : null,
+            channelDetail:   detail ? String(detail).substring(0, 200) : null,
+            metadata,
+        });
+    } catch (err) {
+        console.error(`[GE] enqueue failed ref=${externalRef}: ${err.message}`);
+    }
+}
+
 // Create quote (public, rate-limited)
 exports.createQuote = async (req, res) => {
     try {
@@ -78,7 +97,10 @@ exports.createQuote = async (req, res) => {
             price: parseFloat(item.price) || 0
         }));
 
-        const total_amount = sanitizedItems.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+        // `price` is already the LINE total (unit price × quantity) — the cart and
+        // ProductCalculator send it that way. Multiplying again inflated totals
+        // (e.g. 3 motors at $100.000 were stored as $900.000).
+        const total_amount = sanitizedItems.reduce((sum, item) => sum + item.price, 0);
 
         // Optional: link quote to an existing open Opportunity (Quote ≠ won sale)
         let linkedOpportunityId = null;
@@ -115,6 +137,18 @@ exports.createQuote = async (req, res) => {
 
         // Fire n8n/webhook (non-blocking)
         fireWebhook(quote).catch(() => {});
+
+        // Growth Engine: web quotes must show up in the pipeline (unless the admin
+        // already linked this quote to an existing opportunity)
+        if (!linkedOpportunityId) {
+            await enqueueWebLead(
+                `quote:${quote.id}`,
+                { name: quote.customer_name, email: quote.customer_email, phone: quote.customer_phone },
+                sanitizedItems[0]?.category || sanitizedItems[0]?.productName || null,
+                `Carrito: ${sanitizedItems.map(i => i.productName).filter(Boolean).join(', ')}`,
+                { form: 'carrito', quote_id: quote.id, total_amount, items: sanitizedItems.length },
+            );
+        }
 
         res.status(201).json(quote);
     } catch (error) {
@@ -316,20 +350,17 @@ exports.createQuoteRapida = async (req, res, next) => {
             comentario ? `Nota: ${comentario}`    : null,
         ].filter(Boolean).join(' | ');
 
-        // Save to contacts (email nullable — no migration needed)
-        const existing = phoneNorm
-            ? await Contact.findOne({ where: { phone_normalized: phoneNorm } })
-            : null;
-        if (existing) {
-            await existing.update({ name: nameClean, notes: resumen });
-        } else {
-            await Contact.create({
-                name:             nameClean,
-                phone:            phoneRaw,
-                phone_normalized: phoneNorm || null,
-                notes:            resumen,
-            });
-        }
+        // Growth Engine: Contact + Opportunity + Touchpoint (via outbox, retried).
+        // Previously this wrote a bare Contact with no Opportunity, so cotizador leads
+        // never reached the pipeline, used a phone format ("569…") that didn't match the
+        // GE's ("+569…"), and overwrote the name/notes of an earlier contact.
+        await enqueueWebLead(
+            `cotizador:${crypto.randomUUID()}`,
+            { name: nameClean, email: null, phone: phoneRaw, notes: resumen },
+            producto,
+            `Cotizador: ${resumen}`,
+            { form: 'cotizador', producto, comuna: comuna || null, ventanas: ventanas || null, comentario: comentario || null },
+        );
 
         // Fire n8n webhook (fire-and-forget)
         (async () => {

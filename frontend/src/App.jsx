@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import PopupBanner from './components/PopupBanner';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import { SiteConfigProvider } from './context/SiteConfigContext';
 import Home from './pages/Home';
@@ -12,7 +12,6 @@ const Contact = React.lazy(() => import('./pages/Contact'));
 const About = React.lazy(() => import('./pages/About'));
 const Projects = React.lazy(() => import('./pages/Projects'));
 const FAQ = React.lazy(() => import('./pages/FAQ'));
-const Register = React.lazy(() => import('./pages/Register'));
 const Software = React.lazy(() => import('./pages/Software'));
 const NotFound = React.lazy(() => import('./pages/NotFound'));
 const PaymentResult = React.lazy(() => import('./pages/PaymentResult'));
@@ -103,7 +102,8 @@ function App() {
           <Route path="/about" element={<GE Page={About} />} />
           <Route path="/projects" element={<GE Page={Projects} />} />
           <Route path="/faq" element={<GE Page={FAQ} />} />
-          <Route path="/register" element={<GE Page={Register} />} />
+          {/* No customer accounts in the backend (/api/auth/register never existed) */}
+          <Route path="/register" element={<Navigate to="/quote" replace />} />
           <Route path="/software" element={<GE Page={Software} />} />
           <Route path="/servicio-tecnico" element={<GE Page={ServicioTecnico} />} />
           <Route path="/domotica" element={<GE Page={Domotica} />} />
